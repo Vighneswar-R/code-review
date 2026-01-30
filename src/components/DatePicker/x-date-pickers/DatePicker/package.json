@@ -1,0 +1,6 @@
+{
+  "sideEffects": false,
+  "module": "./index.js",
+  "main": "@mui/x-date-pickers/node/DatePicker/index.js",
+  "types": "./index.d.ts"
+}

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#E33439" />
+    <meta
+      name="description"
+      content="India Shelter Finance Corporation aims to empower middle-income households with credit to acquire new homes or to extend and improve their current homes."
+    />
+    <!-- <link rel="apple-touch-icon" href="logo192.png" /> -->
+    <link rel="manifest" href="/manifest.json" />
+    <title>India Shelter</title>
+
+    <!-- #region Poppins Fonts from CDN -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
+      rel="stylesheet preconnect"
+    />
+
+    <!-- <script src="https://hv-camera-web-sg.s3-ap-southeast-1.amazonaws.com/hyperverge-web-sdk@8.13.2/src/sdk.min.js"></script> -->
+    <!-- #endregion -->
+  </head>
+
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker
+            .register('/serviceWorker.js')
+            .then((reg) => {
+              console.log('Worker registered');
+            })
+            .catch((err) => {
+              console.log('Error in service worker', err);
+            });
+        });
+      }
+    </script>
+    <script src="/ecs_biometric_helper_20231119_01.min.js"></script>
+
+    <!-- <script src="/inactivity-timer.js"></script> -->
+  </body>
+</html>

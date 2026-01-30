@@ -1,0 +1,462 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Poppins', sans-serif !important;
+  background-color: white;
+  @apply text-natural-black;
+}
+
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #d9d9d9 #ffffff;
+  }
+
+  *::-webkit-scrollbar {
+    --size: 8px;
+    width: var(--size);
+    height: var(--size);
+  }
+
+  *::-webkit-scrollbar-track {
+    border-radius: 0px;
+    background-color: #ffffff;
+    padding-inline: 2px;
+  }
+
+  *::-webkit-scrollbar-track:hover {
+    background-color: #ffffff;
+  }
+
+  *::-webkit-scrollbar-track:active {
+    background-color: #ffffff;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border-radius: 6px;
+    background-color: #d9d9d9;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: #d9d9d9;
+  }
+
+  *::-webkit-scrollbar-thumb:active {
+    background-color: #d9d9d9;
+  }
+
+  *::-webkit-scrollbar-corner {
+    background-color: transparent;
+  }
+
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-medium;
+  }
+
+  h1 {
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 48px;
+  }
+
+  h2 {
+    font-size: 22px;
+    line-height: 33px;
+  }
+
+  h3,
+  label {
+    @apply text-base leading-6 font-medium;
+  }
+
+  h4 {
+    @apply text-sm;
+    line-height: 18px;
+  }
+
+  p {
+    @apply leading-6;
+  }
+
+  span {
+    @apply text-sm;
+  }
+
+  input {
+    @apply placeholder:text-light-grey text-base text-black focus:outline-none disabled:bg-transparent;
+  }
+
+  input[type='range'] {
+    -webkit-appearance: none;
+    appearance: none;
+    @apply w-full cursor-pointer outline-none border-none h-1 bg-primary-red bg-opacity-30 my-4;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    @apply h-8 w-8 bg-primary-red rounded-full border-none transition-all ease-out duration-200;
+  }
+
+  ul {
+    list-style: initial;
+    margin: initial;
+    padding: 0 0 0 20px;
+  }
+
+  li {
+    display: list-item;
+  }
+
+  .input-container:has(input:autofill),
+  .input-container:has(input:-webkit-autofill) {
+    background-color: #e8f0fe !important;
+  }
+}
+
+.react-modal-sheet-container {
+  /* box-shadow: 0px 8px 11px -4px rgba(0, 0, 0, 0.8) !important; */
+  box-shadow: 0px 8px 11px -4px #0000000d !important;
+  background-color: white !important;
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
+  overflow: hidden;
+}
+
+.react-datepicker-popper {
+  z-index: 2000 !important;
+}
+
+.react-datepicker {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+.react-datepicker__triangle {
+  display: none;
+}
+
+.react-datepicker__day-names {
+  display: flex;
+  padding-top: 14px;
+  margin-bottom: 16px;
+  border-bottom: none;
+  border-top: 1px solid #f2f1ff;
+}
+
+.react-datepicker__header {
+  border-bottom: none;
+  background-color: white;
+  padding-block: 0;
+}
+
+.react-datepicker__children-container {
+  margin-inline: 0;
+  margin-block-end: 20px;
+  width: 100%;
+}
+
+.react-datepicker__month {
+  margin: 0;
+  margin-bottom: 12px;
+}
+
+.react-datepicker__current-month {
+  padding-block: 10px;
+  font-size: 16px;
+  @apply text-dark-grey font-semibold;
+}
+
+.react-datepicker__navigation {
+  top: 10px !important;
+  left: 16px;
+}
+
+.react-datepicker__navigation.react-datepicker__navigation--next {
+  left: auto;
+  right: 16px;
+}
+
+.react-datepicker__month-container {
+  width: 100%;
+}
+
+.react-datepicker__week {
+  display: flex;
+  justify-content: space-around;
+}
+
+.hidearrow::-webkit-outer-spin-button,
+.hidearrow::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* .MuiBackdrop-root {
+  background-color: transparent !important;
+} */
+
+.MuiDrawer-root > .MuiPaper-root {
+  visibility: visible !important;
+  border-bottom-left-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
+}
+
+.swipeableDrawerSteps {
+  z-index: 900 !important;
+}
+
+.MuiAccordionSummary-root {
+  padding: 0px 16px !important;
+}
+
+.MuiAccordionSummary-content {
+  margin: 8px 12px 12px 0 !important;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+.btn-bg {
+  z-index: 10000000;
+}
+
+.indiaShelterLogo {
+  max-width: 160px;
+}
+
+.resumeButtonWelcomePage {
+  max-width: 200px !important;
+  max-height: 50px !important;
+}
+
+.mobileInputWelcomePage {
+  max-height: 50px !important;
+}
+
+.MuiTabs-indicator {
+  background-color: #147257 !important;
+}
+
+.tabLabels {
+  font-weight: 500 !important;
+  font-size: 12px !important;
+  line-height: 18px !important;
+  font-family: 'Poppins', sans-serif !important;
+  text-transform: none !important;
+}
+
+.tabLabels2 {
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  line-height: 18px !important;
+  font-family: 'Poppins', sans-serif !important;
+  text-transform: none !important;
+}
+
+.MuiDrawer-root > .MuiPaper-root {
+  border-radius: 8px;
+}
+
+.MuiLinearProgress-root {
+  background-color: #d9d9d9 !important;
+}
+
+.MuiLinearProgress-bar {
+  background-color: #373435 !important;
+}
+
+.tabPanel > .MuiBox-root {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 0px !important;
+}
+
+.MuiTimeline-root {
+  padding: 0px 5px !important;
+}
+
+.MuiTimelineItem-root {
+  min-height: 100px !important;
+}
+
+.MuiTimelineConnector-root {
+  color: #bdbdbd3b;
+}
+
+/* .react-datepicker-wrapper {
+  margin-bottom: 20px;
+} */
+
+.MuiOutlinedInput-notchedOutline {
+  outline: none !important;
+  border: none !important;
+}
+
+.MuiFormLabel-root,
+.MuiAutocomplete-endAdornment {
+  display: none !important;
+}
+
+.MuiAutocomplete-popper {
+  width: calc(100vw - 40px) !important;
+  margin-left: 15px !important;
+}
+
+.MuiInputBase-input,
+.MuiInputBase-root {
+  padding: 0 !important;
+}
+
+.MuiAutocomplete-option {
+  border-bottom: 1px solid #d9d9d9;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.MuiAutocomplete-groupLabel {
+  color: red;
+}
+
+.MuiAutocomplete-popper {
+  margin-top: 20px !important;
+}
+
+.MuiTooltip-tooltip {
+  background-color: #373435 !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+  font-family: 'Poppins', sans-serif !important;
+}
+
+.MuiTooltip-arrow {
+  color: #373435 !important;
+}
+
+.MuiButtonBase-root {
+  padding: 0;
+}
+
+.MuiTooltip-popper {
+  width: 155px !important;
+}
+
+.MuiAccordionDetails-root {
+  padding: 0px 16px 16px 16px !important;
+}
+
+.MuiFormControl-root {
+  width: 100%;
+}
+
+.MuiPickersMonth-monthButton.Mui-selected:focus,
+.MuiPickersMonth-monthButton.Mui-selected:hover,
+.MuiPickersMonth-monthButton.Mui-selected,
+.MuiPickersYear-yearButton.Mui-selected,
+.MuiPickersDay-root.Mui-selected {
+  background-color: #147257 !important;
+}
+
+.MuiPickersDay-root:not(.Mui-selected) {
+  border-color: #147257 !important;
+  background-color: white !important;
+}
+
+@media (max-width: 1024px) {
+  .indiaShelterLogo {
+    max-width: 140px;
+  }
+}
+
+@media (max-width: 767px) {
+  .loginstyles {
+    height: calc(100vh - 290px);
+  }
+}
+
+@media (min-width: 728px) {
+  .btn-bg {
+    z-index: 10;
+  }
+}
+
+.react-datepicker__tab-loop,
+.react-datepicker__tab-loop__start {
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 786px) {
+  .no-scrollbar::-webkit-scrollbar {
+    display: block;
+    width: 10px;
+  }
+}
+
+.rdrDateDisplayWrapper {
+  display: none;
+}
+
+.MuiSnackbar-root {
+  z-index: 30 !important;
+}
+
+.dashBoardLoaderHeight {
+  height: calc(100vh - 186px);
+}
+
+.MuiStack-root {
+  padding-top: 0 !important;
+}
+
+.custom-table tr:first-child th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.custom-table tr:first-child th:last-child {
+  border-top-right-radius: 8px;
+}
+
+.MuiTooltip-popper {
+  width: 200px !important;
+}
+
+/* hide default eye icon in edge browser for input type password  */
+::-ms-reveal {
+  display: none;
+}
+
+.even-card{
+  background-color: whitesmoke;
+}
+
+.odd-card{
+  background-color: lightgrey;
+}
+
+.language-selector {
+  display: flex;            /* Use Flexbox for alignment */
+  /*align-items: center;       /* Center items vertically */
+  /*margin-left: 20px
+}
+ 
+.language-selector select {
+  margin-left: 8px;         /* Space between the icon and dropdown */
+  padding: 4px;             /* Padding for better appearance */
+  font-size: 16px;          /* Adjust font size as needed */
+}
