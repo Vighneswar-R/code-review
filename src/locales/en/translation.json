@@ -7,5 +7,14 @@
     "line2":"You are assigned to",
     "line3":"for punching new leads.",
     "note1":"Note: If",
-    "note2":"is not your desired branch then contact your ABM/RBH for branch movement before lead creation."
+    "note2":"is not your desired branch then contact your ABM/RBH for branch movement before lead creation.",
+    "followSteps":"Please Follow the Steps Below to Continue",
+    "completeFace":"To complete face authentication on iTrust, kindly follow these steps:",
+    "point1":"Install the iServe App (On Customer Device)",
+    "point1Desc":"Download and install the iServe app from the Play Store.",
+    "point2":"Install the FaceRD Service App (On Customer Device)",
+    "point2Desc":"Open the iServe app and install the Aadhaar FaceRD app and follow the FaceAuth steps.",
+    "point3":"Refresh Status in iTrust App",
+    "point3Desc":"Refresh status in iTrust and continue."
+ 
 }

@@ -25,11 +25,11 @@ const ApplicationFormTab = ({ details, steps, index, stepIndex, noProgress, lock
   return (
    <div
        className={`flex items-center gap-2 px-4 py-2 border rounded-md text-sm font-medium
-        ${!lock
+        ${lock
           ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
           : "bg-white text-black border-black hover:bg-gray-50"}
       `}
-        onClick={!lock ? null : handleClick}
+        onClick={lock ? null : handleClick}
       >
         <ErrorTost message={error} setMessage={setError}/>
 

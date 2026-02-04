@@ -434,7 +434,6 @@ function isGzippedBase64(str) {
                           </Button> */}
 
                 {ApplicationForm&&<FormModal
-                containerClassName="mt-16"
                 setOpenApplication={setApplicantForm}
                 data = {formData}
                 sendApplicationOtp = {sendApplicationOtp}

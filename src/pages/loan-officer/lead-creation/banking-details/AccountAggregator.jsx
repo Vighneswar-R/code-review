@@ -17,7 +17,6 @@ import ErrorTost from '../../../../components/ToastMessage/ErrorTost';
 import ClickableEndIcon from '../../../../components/TextInput/ClickableEndIcon';
 import SearchableTextInput from '../../../../components/TextInput/SearchableTextInput';
 import blackSearchIcon from '../../../../assets/icons/blackSearchIcon';
-import Topbar from '../../../../components/Topbar';
 const DISALLOW_NUM = ['0', '1', '2', '3', '4', '5'];
 
 
@@ -705,337 +704,321 @@ useEffect(() => {
   return (
     <>
       <div className='flex flex-col h-[100dvh]'>
-        {values?.applicants[activeIndex]?.applicant_details?.is_primary ? (
-          <Topbar title='Lead Creation' id={values?.lead?.id} showClose={true} />
-        ) : (
-          <Topbar
-            title='Adding Co-applicant'
-            id={values?.lead?.id}
-            showClose={true}
-            showBack={true}
-            coApplicant={true}
-            coApplicantName={values?.applicants[activeIndex]?.applicant_details?.first_name}
-          />
-        )}
 
-        <ErrorTost message={errorToastMessage} setMessage={setErrorToastMessage} />
+      <ErrorTost message={errorToastMessage} setMessage={setErrorToastMessage} />
         <div className='h-[48px] border-b-2 flex items-center p-[12px]'>
           <button onClick={() => setConfirmation(true)}>
             <IconBackBanking />
           </button>
           <span className='text-[#373435] text-[16px] font-medium pl-[10px]'>
             Add a bank account
-          </span>
+          </span>   
+
         </div>
 
         <ToastMessage message={toastMessage} setMessage={setToastMessage} />
 
-        {state?.data ? (
-          <div className=' p-[20px]'>
-            <div className='text-sm text-gray-600 my-4 block cursor-pointer'>
-              <p>
-                Kindly enter your full account number to verify the account and for penny drop!{' '}
-              </p>
-              <p>
-                Account Number :{' '}
-                {aggregratorData?.account_aggregator_response?.accounts?.[currentAccountIndex]
-                  ?.maskedAccountNumber || ''}
-              </p>
-              {aggregratorData?.account_aggregator_response?.accounts?.length > 1 ? (
-                <p className='text-sm text-gray-500'>
-                  {`Account ${currentAccountIndex + 1} of ${aggregratorData?.account_aggregator_response?.accounts?.length}`}
-                </p>
-              ) : null}
-            </div>
-            <div className='space-y-3'>
-              <TextInput
-                label='Account number'
-                placeholder='Eg: 177801501234'
-                required
-                name='account_number'
-                type='tel'
-                inputClasses='hidearrow'
-                value={accountData?.account_number}
-                onChange={handleAccountNumberChange}
-                error={errors?.account_number}
-                touched={touched && touched?.account_number}
-                onBlur={handleBlur}
-                pattern='\d*'
-                onFocus={(e) =>
-                  e.target.addEventListener(
-                    'wheel',
-                    function (e) {
-                      e.preventDefault();
-                    },
-                    { passive: false },
-                  )
-                }
-                min='0'
-              />
-              <ClickableEndIcon
-                label='IFSC Code'
-                placeholder='Eg: ICICI0001234'
-                required
-                name='ifsc_code'
-                value={accountData?.ifsc_code}
-                onChange={handleIfscChange}
-                error={errors?.ifsc_code}
-                disabled={
-                  aggregratorData?.banking_details?.ifsc_code ||
-                  aggregratorData?.account_aggregator_response?.accounts?.[currentAccountIndex]
-                    ?.data?.Summary?.ifscCode
-                }
-                touched={touched && touched?.ifsc_code}
-                onBlur={(e) => {
-                  handleBlur(e);
-                  !errors?.ifsc_code && accountData?.ifsc_code && getBankFromIfsc();
-                }}
-                EndIcon={blackSearchIcon}
-                onEndButtonClick={handleSearch}
-                message={
-                  accountData?.bank_name || accountData?.branch_name
-                    ? `${accountData?.bank_name},  ${accountData?.branch_name}`
-                    : null
-                }
-              />
-            </div>
-            <Button
-              primary={true}
-              inputClasses='w-fit px-6 h-[46px] ml-auto'
-              type='submit'
-              // disabled={!enableAA}
-              onClick={handleSubmit}
+        {state?.data ?
+         <div className=' p-[20px]'>
+           <div
+              className='text-sm text-gray-600 my-4 block cursor-pointer'
             >
-              Save
-            </Button>
-          </div>
-        ) : (
-          <div className='flex flex-col p-[20px] flex-1'>
-            <TextInput
-              message={aaInitiated ? 'In Process' : null}
-              name='aa_mobile_no'
-              label='Mobile number'
-              placeholder='Eg: 1234567890'
-              required
-              type='tel'
-              value={mobileNo}
-              error={mobileNoError}
-              touched={true}
-              pattern='\d*'
-              onFocus={(e) =>
-                e.target.addEventListener(
-                  'wheel',
-                  function (e) {
-                    e.preventDefault();
-                  },
-                  { passive: false },
-                )
-              }
-              min='0'
-              onInput={(e) => {
-                if (!e.currentTarget.validity.valid) e.currentTarget.value = '';
-              }}
-              onChange={(e) => {
-                const phoneNumber = e.currentTarget.value;
-
-                if (phoneNumber < 0) {
-                  e.preventDefault();
-                  return;
-                }
-                if (phoneNumber.length > 10) {
-                  return;
-                }
-                if (DISALLOW_NUM.includes(phoneNumber)) {
-                  e.preventDefault();
-                  return;
-                }
-
-                if (phoneNumber.length < 10) {
-                  setEnableAA(false);
-                }
-
-                if (phoneNumber.length === 10) {
-                  setEnableAA(true);
-                }
-
-                // if (authValues?.username?.toString() === phoneNumber.toString()) {
-                //   setMobileNo(phoneNumber);
-                //   setMobileNoError('Mobile number cannot be same as Loan Officer Mobile number');
-                //   return;
-                // }
-
-                setMobileNoError('');
-                setMobileNo(phoneNumber);
-              }}
-              disabled={aaInitiated}
-              inputClasses='hidearrow'
-            />
-            {/* List of Banks Container */}
-            <div className='ml-auto flex items-center'>
-              <label className='text-sm text-gray-600 cursor-pointer' onClick={handleOpenBankList}>
-                List Of Banks
-              </label>
+              
+           <p>Kindly enter your full account number to verify the account and for
+            penny drop! </p>
+            <p>
+              Account Number : {aggregratorData?.account_aggregator_response?.accounts?.[currentAccountIndex]?.maskedAccountNumber || ''}
+            </p>
+            {aggregratorData?.account_aggregator_response?.accounts?.length > 1 ? (
+              <p className='text-sm text-gray-500'>
+                {`Account ${currentAccountIndex + 1} of ${aggregratorData?.account_aggregator_response?.accounts?.length}`}
+              </p>
+            ) : null}
             </div>
-            {showBankList && (
-              <BankListPopUp
-                showpopup={showBankList}
-                onClose={handleBankListPopupClose}
-                title='List Of Banks'
-                bankNameOptions={bankNameOptions}
-                handleBankSelect={handleBankSelect}
-              />
-            )}
-            {aaInitiated && !aggregratorData ? (
-              <>
-                <div className='pb-4 pt-2'>
-                  <ResendButtonWithTimer
-                    startTimer={aaInitiated}
-                    resendCount={resendCount}
-                    setResendCount={setResendCount}
-                    defaultResendTime={30} // 30
-                    handleResend={handleResend}
-                    setAARunning={setAARunning}
-                  />
-                </div>
-                <div className='flex flex-col gap-[16px]'>
-                  <Button
-                    primary={true}
-                    inputClasses='w-full h-[46px] flex gap-2 items-center'
-                    // disabled={!enableAA}
-                    onClick={checkStatus}
-                  >
-                    {checking ? (
-                      <>
-                        <img
-                          src={loading}
-                          alt='loading'
-                          className='animate-spin duration-300 ease-out'
-                        />
-                        <span>Checking status</span>
-                      </>
-                    ) : (
-                      <span>Check status</span>
-                    )}
-                  </Button>
-                  <Button
-                    primary={false}
-                    inputClasses='w-full h-[46px]'
-                    disabled={aaRunning || checking || sendCount < 3}
-                    onClick={() =>
-                      aaRunning || checking || sendCount < 3 ? null : setConfirmation(true)
-                    }
-                  >
-                    Skip
-                  </Button>
-                  <div className='flex items-start gap-2'>
-                    <img src={exclamation_icon} alt='' />
-
-                    <span className='font-normal text-[#727376] text-[12px]'>
-                      You can Skip or Resend the link only when the timer gets over
-                    </span>
-                  </div>
-                </div>
-              </>
-            ) : aggregratorData ? (
-              <div>
-                <div className='text-sm text-gray-600 my-4 block cursor-pointer'>
-                  <p>
-                    Kindly enter your full account number to verify the account and for penny drop!{' '}
-                  </p>
-                  <p>
-                    Account Number :{' '}
-                    {aggregratorData?.account_aggregator_response?.accounts?.[currentAccountIndex]
-                      ?.maskedAccountNumber || ''}
-                  </p>
-                  {aggregratorData?.account_aggregator_response?.accounts?.length > 1 ? (
-                    <p className='text-sm text-gray-500'>
-                      {`Account ${currentAccountIndex + 1} of ${aggregratorData?.account_aggregator_response?.accounts?.length}`}
-                    </p>
-                  ) : null}
-                </div>
-                <div className='space-y-3'>
-                  <TextInput
-                    label='Account number'
-                    placeholder='Eg: 177801501234'
-                    required
-                    name='account_number'
-                    type='tel'
-                    inputClasses='hidearrow'
-                    value={accountData?.account_number}
-                    onChange={handleAccountNumberChange}
-                    error={errors?.account_number}
-                    touched={touched && touched?.account_number}
-                    onBlur={handleBlur}
-                    pattern='\d*'
-                    onFocus={(e) =>
-                      e.target.addEventListener(
-                        'wheel',
-                        function (e) {
-                          e.preventDefault();
-                        },
-                        { passive: false },
-                      )
-                    }
-                    min='0'
-                  />
-                  <ClickableEndIcon
-                    label='IFSC Code'
-                    placeholder='Eg: ICICI0001234'
-                    required
-                    name='ifsc_code'
-                    value={accountData?.ifsc_code}
-                    onChange={handleIfscChange}
-                    error={errors?.ifsc_code}
-                    disabled={aggregratorData?.banking_details?.ifsc_code}
-                    touched={touched && touched?.ifsc_code}
-                    onBlur={(e) => {
-                      handleBlur(e);
-                      !errors?.ifsc_code && accountData?.ifsc_code && getBankFromIfsc();
-                    }}
-                    EndIcon={blackSearchIcon}
-                    onEndButtonClick={handleSearch}
-                    message={
-                      accountData?.bank_name || accountData?.branch_name
-                        ? `${accountData?.bank_name},  ${accountData?.branch_name}`
-                        : null
-                    }
-                  />
-                </div>
-                <Button
+             <div className='space-y-3'>
+            <TextInput
+                      label='Account number'
+                      placeholder='Eg: 177801501234'
+                      required
+                      name='account_number'
+                      type='tel'
+                      inputClasses='hidearrow'
+                      value={accountData?.account_number}
+                      onChange={handleAccountNumberChange}
+                      error={errors?.account_number}
+                      touched={touched && touched?.account_number}
+                      onBlur={handleBlur}
+                      pattern='\d*'
+                      onFocus={(e) =>
+                        e.target.addEventListener(
+                          'wheel',
+                          function (e) {
+                            e.preventDefault();
+                          },
+                          { passive: false },
+                        )
+                      }
+                      min='0'
+                    />
+                    <ClickableEndIcon
+                                label='IFSC Code'
+                                placeholder='Eg: ICICI0001234'
+                                required
+                                name='ifsc_code'
+                                value={accountData?.ifsc_code}
+                                onChange={handleIfscChange}
+                                error={errors?.ifsc_code}
+                                disabled={aggregratorData?.banking_details?.ifsc_code || aggregratorData?.account_aggregator_response?.accounts?.[currentAccountIndex]?.data?.Summary?.ifscCode}
+                                touched={touched && touched?.ifsc_code}
+                                onBlur={(e) => {
+                                  handleBlur(e);
+                                  !errors?.ifsc_code && accountData?.ifsc_code && getBankFromIfsc();
+                                }}
+                                EndIcon={blackSearchIcon}
+                                onEndButtonClick={handleSearch}
+                                message={
+                                  accountData?.bank_name || accountData?.branch_name
+                                    ? `${accountData?.bank_name},  ${accountData?.branch_name}`
+                                    : null
+                                }
+                              />
+                    
+          </div>
+                     <Button
                   primary={true}
                   inputClasses='w-fit px-6 h-[46px] ml-auto'
                   type='submit'
                   // disabled={!enableAA}
                   onClick={handleSubmit}
                 >
-                  Save
+                 Save
                 </Button>
-              </div>
-            ) : (
-              <Button
-                primary={true}
-                inputClasses='w-full h-[46px] mt-[10px]'
-                disabled={!enableAA || mobileNoError}
-                onClick={handleInitiateAA}
-              >
-                {loadingState ? (
-                  <img src={loading} alt='loading' className='animate-spin duration-300 ease-out' />
-                ) : (
-                  'Initiate AA'
-                )}
-              </Button>
-            )}
+          </div> : <div className='flex flex-col p-[20px] flex-1'>
+          <TextInput
+            message={aaInitiated ? 'In Process' : null}
+            name='aa_mobile_no'
+            label='Mobile number'
+            placeholder='Eg: 1234567890'
+            required
+            type='tel'
+            value={mobileNo}
+            error={mobileNoError}
+            touched={true}
+            pattern='\d*'
+            onFocus={(e) =>
+              e.target.addEventListener(
+                'wheel',
+                function (e) {
+                  e.preventDefault();
+                },
+                { passive: false },
+              )
+            }
+            min='0'
+            onInput={(e) => {
+              if (!e.currentTarget.validity.valid) e.currentTarget.value = '';
+            }}
+            onChange={(e) => {
+              const phoneNumber = e.currentTarget.value;
+
+              if (phoneNumber < 0) {
+                e.preventDefault();
+                return;
+              }
+              if (phoneNumber.length > 10) {
+                return;
+              }
+              if (DISALLOW_NUM.includes(phoneNumber)) {
+                e.preventDefault();
+                return;
+              }
+
+              if (phoneNumber.length < 10) {
+                setEnableAA(false);
+              }
+
+              if (phoneNumber.length === 10) {
+                setEnableAA(true);
+              }
+
+              // if (authValues?.username?.toString() === phoneNumber.toString()) {
+              //   setMobileNo(phoneNumber);
+              //   setMobileNoError('Mobile number cannot be same as Loan Officer Mobile number');
+              //   return;
+              // }
+
+              setMobileNoError('');
+              setMobileNo(phoneNumber);
+            }}
+            disabled={aaInitiated}
+            inputClasses='hidearrow'
+          />         
+         {/* List of Banks Container */}
+         <div className='ml-auto flex items-center'>
+            <label
+              className='text-sm text-gray-600 cursor-pointer'
+              onClick={handleOpenBankList}
+            >
+              List Of Banks
+            </label>
           </div>
-        )}
+          {showBankList && (
+            <BankListPopUp
+            showpopup={showBankList}
+            onClose={handleBankListPopupClose}
+            title='List Of Banks'
+            bankNameOptions={bankNameOptions}
+            handleBankSelect={handleBankSelect}
+            />
+            
+          )}
+          {aaInitiated&&!aggregratorData ? (
+            <>
+              <div className='pb-4 pt-2'>
+                <ResendButtonWithTimer
+                  startTimer={aaInitiated}
+                  resendCount={resendCount}
+                  setResendCount={setResendCount}
+                  defaultResendTime={30}  // 30
+                  handleResend={handleResend}
+                  setAARunning={setAARunning}
+                />
+              </div>
+              <div className='flex flex-col gap-[16px]'>
+                <Button
+                  primary={true}
+                  inputClasses='w-full h-[46px] flex gap-2 items-center'
+                  // disabled={!enableAA}
+                  onClick={checkStatus}
+                >
+                  {checking ? (
+                    <>
+                      <img
+                        src={loading}
+                        alt='loading'
+                        className='animate-spin duration-300 ease-out'
+                      />
+                      <span>Checking status</span>
+                    </>
+                  ) : (
+                    <span>Check status</span>
+                  )}
+                </Button>
+                <Button
+                  primary={false}
+                  inputClasses='w-full h-[46px]'
+                  disabled={aaRunning || checking || sendCount < 3}
+                  onClick={() => (aaRunning || checking || sendCount < 3? null : setConfirmation(true))}
+                >
+                  Skip
+                </Button>
+                <div className='flex items-start gap-2'>
+                  <img src={exclamation_icon} alt='' />
+
+                  <span className='font-normal text-[#727376] text-[12px]'>
+                    You can Skip or Resend the link only when the timer gets over
+                  </span>
+                </div>
+              </div>
+            </>
+          ) : (
+            aggregratorData ? <div>
+            <div
+              className='text-sm text-gray-600 my-4 block cursor-pointer'
+            >
+              
+           <p>Kindly enter your full account number to verify the account and for
+            penny drop! </p>
+            <p>
+              Account Number : {aggregratorData?.account_aggregator_response?.accounts?.[currentAccountIndex]?.maskedAccountNumber || ''}
+            </p>
+            {aggregratorData?.account_aggregator_response?.accounts?.length > 1 ? (
+              <p className='text-sm text-gray-500'>
+                {`Account ${currentAccountIndex + 1} of ${aggregratorData?.account_aggregator_response?.accounts?.length}`}
+              </p>
+            ) : null}
+            </div>
+          <div className='space-y-3'>
+            <TextInput
+                      label='Account number'
+                      placeholder='Eg: 177801501234'
+                      required
+                      name='account_number'
+                      type='tel'
+                      inputClasses='hidearrow'
+                      value={accountData?.account_number}
+                      onChange={handleAccountNumberChange}
+                      error={errors?.account_number}
+                      touched={touched && touched?.account_number}
+                      onBlur={handleBlur}
+                      pattern='\d*'
+                      onFocus={(e) =>
+                        e.target.addEventListener(
+                          'wheel',
+                          function (e) {
+                            e.preventDefault();
+                          },
+                          { passive: false },
+                        )
+                      }
+                      min='0'
+                    />
+                    <ClickableEndIcon
+                                label='IFSC Code'
+                                placeholder='Eg: ICICI0001234'
+                                required
+                                name='ifsc_code'
+                                value={accountData?.ifsc_code}
+                                onChange={handleIfscChange}
+                                error={errors?.ifsc_code}
+                                disabled={aggregratorData?.banking_details?.ifsc_code}
+                                touched={touched && touched?.ifsc_code}
+                                onBlur={(e) => {
+                                  handleBlur(e);
+                                  !errors?.ifsc_code && accountData?.ifsc_code && getBankFromIfsc();
+                                }}
+                                EndIcon={blackSearchIcon}
+                                onEndButtonClick={handleSearch}
+                                message={
+                                  accountData?.bank_name || accountData?.branch_name
+                                    ? `${accountData?.bank_name},  ${accountData?.branch_name}`
+                                    : null
+                                }
+                              />
+                    
+          </div>
+                     <Button
+                  primary={true}
+                  inputClasses='w-fit px-6 h-[46px] ml-auto'
+                  type='submit'
+                  // disabled={!enableAA}
+                  onClick={handleSubmit}
+                >
+                 Save
+                </Button>
+        </div> : <Button
+              primary={true}
+              inputClasses='w-full h-[46px] mt-[10px]'
+              disabled={!enableAA || mobileNoError}
+              onClick={handleInitiateAA}
+            >
+              {loadingState ? (
+                <img src={loading} alt='loading' className='animate-spin duration-300 ease-out' />
+              ) : (
+                'Initiate AA'
+              )}
+            </Button>
+          ) }
+        </div>}
         <div className='flex justify-center gap-1 pb-5'>
           {aaInitiated ? (
             <>
-              <span className='font-normal text-[14px] text-[#727376]'>Didn’t receive link?</span>
+              <span className='font-normal text-[14px] text-[#727376]'>Didnâ€™t receive link?</span>
               <button
                 className='text-[#E33439] text-[14px] font-medium underline'
                 onClick={() => {
                   setAAInitiated(false);
-                  setResendCount(0);
+                  setResendCount(0)
                   setAARunning(false);
                 }}
               >
@@ -1064,11 +1047,7 @@ useEffect(() => {
         </div>
 
         <div className='w-full flex gap-4 mt-6'>
-          <button
-            className=' cursor-pointer  w-full p-2 md:py-3 text-base md:text-lg rounded md:w-64 flex justify-center items-center bg-neutral-white border border-primary-red text-primary-red disabled:text-dark-grey h-[46px]'
-            type='button'
-            onClick={() => setConfirmation(false)}
-          >
+          <button className=' cursor-pointer  w-full p-2 md:py-3 text-base md:text-lg rounded md:w-64 flex justify-center items-center bg-neutral-white border border-primary-red text-primary-red disabled:text-dark-grey h-[46px]' type="button" onClick={() =>setConfirmation(false)}>
             Stay
           </button>
           <Button
@@ -1079,7 +1058,7 @@ useEffect(() => {
             //   setAARunning(false);
             //   setConfirmation(false);
             // }}
-            onClick={handleFailCount}
+            onClick = {handleFailCount}
             // link='/lead/banking-details'
           >
             Leave
@@ -1088,104 +1067,104 @@ useEffect(() => {
       </DynamicDrawer>
 
       <DynamicDrawer open={open} setOpen={setOpen} height='70vh'>
-        <div className='flex gap-1 items-center justify-between w-[100vw] border-b-2 pl-[20px] pr-[20px] pb-[5px]'>
-          <h4 className='text-center text-[20px] not-italic font-semibold text-primary-black mb-2'>
-            Search IFSC code
-          </h4>
-
-          <div className=''>
-            <button
-              onClick={() => {
-                setSearchedBank('');
-                setSearchedBranch({});
-                setSearchedIfsc('');
-                setOpen(false);
-              }}
-            >
-              <IconClose />
-            </button>
-          </div>
-        </div>
-
-        <div className='flex flex-col flex-1 p-[20px] w-[100vw] gap-2'>
-          <SearchableTextInput
-            label='Bank Name'
-            placeholder='Eg: ICICI Bank'
-            required
-            name='bank_name'
-            value={searchedBank ? searchedBank : ''}
-            error={errors?.bank_name}
-            touched={touched?.bank_name}
-            onBlur={(e) => {
-              handleBlur(e);
-              setBranchData([]);
-              getBranchesFromBankName();
-            }}
-            onChange={(name, value) => {
-              setSearchedIfsc('');
-              setSearchedBranch({});
-              setSearchedBank(value.value);
-            }}
-            type='search'
-            options={bankNameData}
-          />
-
-          <SearchableTextInput
-            label='Branch'
-            placeholder='Eg: College Road, Nashik'
-            required
-            name='branch_name'
-            value={searchedBranch?.label ? searchedBranch?.label : ''}
-            error={errors?.branch_name}
-            touched={touched?.branch_name}
-            onBlur={(e) => {
-              handleBlur(e);
-            }}
-            onChange={(name, value) => {
-              setSearchedIfsc('');
-              setSearchedBranch(value);
-              // getBranchesFromBankName(value.value);
-            }}
-            onTextChange={(e) => {
-              getBranchesFromBankName(e);
-            }}
-            type='search'
-            options={branchData}
-          />
-          {searchedIfsc ? (
-            <div className='flex gap-1'>
-              <span className='text-[#727376] text-[16px] font-normal'>IFSC code:</span>
-              <span className='text-[#373435] text-[16px] font-medium'>{searchedIfsc}</span>
-            </div>
-          ) : null}
-        </div>
-
-        <div className='w-full flex gap-4 mt-6'>
-          {searchedIfsc ? (
-            <Button
-              primary={true}
-              inputClasses='w-full h-[46px]'
-              onClick={() => {
-                setFieldValue('ifsc_code', searchedIfsc);
-                setFieldValue('bank_name', searchedBank);
-                setFieldValue('branch_name', searchedBranch?.label);
-                setOpen(false);
-              }}
-            >
-              Continue
-            </Button>
-          ) : (
-            <Button
-              primary={true}
-              disabled={!searchedBank || !searchedBranch}
-              inputClasses='w-full h-[46px]'
-              onClick={getIfsc}
-            >
-              Search IFSC code
-            </Button>
-          )}
-        </div>
-      </DynamicDrawer>
+              <div className='flex gap-1 items-center justify-between w-[100vw] border-b-2 pl-[20px] pr-[20px] pb-[5px]'>
+                <h4 className='text-center text-[20px] not-italic font-semibold text-primary-black mb-2'>
+                  Search IFSC code
+                </h4>
+      
+                <div className=''>
+                  <button
+                    onClick={() => {
+                      setSearchedBank('');
+                      setSearchedBranch({});
+                      setSearchedIfsc('');
+                      setOpen(false);
+                    }}
+                  >
+                    <IconClose />
+                  </button>
+                </div>
+              </div>
+      
+              <div className='flex flex-col flex-1 p-[20px] w-[100vw] gap-2'>
+                <SearchableTextInput
+                  label='Bank Name'
+                  placeholder='Eg: ICICI Bank'
+                  required
+                  name='bank_name'
+                  value={searchedBank ? searchedBank : ''}
+                  error={errors?.bank_name}
+                  touched={touched?.bank_name}
+                  onBlur={(e) => {
+                    handleBlur(e);
+                    setBranchData([]);
+                    getBranchesFromBankName();
+                  }}
+                  onChange={(name, value) => {
+                    setSearchedIfsc('');
+                    setSearchedBranch({});
+                    setSearchedBank(value.value);
+                  }}
+                  type='search'
+                  options={bankNameData}
+                />
+      
+                <SearchableTextInput
+                  label='Branch'
+                  placeholder='Eg: College Road, Nashik'
+                  required
+                  name='branch_name'
+                  value={searchedBranch?.label ? searchedBranch?.label : ''}
+                  error={errors?.branch_name}
+                  touched={touched?.branch_name}
+                  onBlur={(e) => {
+                    handleBlur(e);
+                  }}
+                  onChange={(name, value) => {
+                    setSearchedIfsc('');
+                    setSearchedBranch(value);
+                    // getBranchesFromBankName(value.value);
+                  }}
+                  onTextChange={(e) => {
+                    getBranchesFromBankName(e);
+                  }}
+                  type='search'
+                  options={branchData}
+                />
+                {searchedIfsc ? (
+                  <div className='flex gap-1'>
+                    <span className='text-[#727376] text-[16px] font-normal'>IFSC code:</span>
+                    <span className='text-[#373435] text-[16px] font-medium'>{searchedIfsc}</span>
+                  </div>
+                ) : null}
+              </div>
+      
+              <div className='w-full flex gap-4 mt-6'>
+                {searchedIfsc ? (
+                  <Button
+                    primary={true}
+                    inputClasses='w-full h-[46px]'
+                    onClick={() => {
+                      setFieldValue('ifsc_code', searchedIfsc);
+                      setFieldValue('bank_name', searchedBank);
+                      setFieldValue('branch_name', searchedBranch?.label);
+                      setOpen(false);
+                    }}
+                  >
+                    Continue
+                  </Button>
+                ) : (
+                  <Button
+                    primary={true}
+                    disabled={!searchedBank || !searchedBranch}
+                    inputClasses='w-full h-[46px]'
+                    onClick={getIfsc}
+                  >
+                    Search IFSC code
+                  </Button>
+                )}
+              </div>
+            </DynamicDrawer>
     </>
   );
 }

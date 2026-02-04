@@ -33,7 +33,6 @@ const AuthContextProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-  const [isAdminProductAuthenticated, setIsAdminProductAuthenticated] = useState(false);
   const [loData, setLoData] = useState(null);
   const [loAllDetails, setLoAllDetails] = useState(null);
   const [phoneNumberList, setPhoneNumberList] = useState({});
@@ -211,8 +210,6 @@ const AuthContextProvider = ({ children }) => {
         setToastType,
         isAdminAuthenticated,
         setIsAdminAuthenticated,
-        isAdminProductAuthenticated,
-        setIsAdminProductAuthenticated,
         showActionControlPopup,
         setShowActionControlPopup,
         isBMAuthenticated,

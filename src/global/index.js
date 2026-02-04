@@ -5,14 +5,14 @@ import moment from 'moment';
 
 //const API_URL = import.meta.env.VITE_API_URL || 'https://uatagile.indiashelter.in/api';
 //const API_URL = import.meta.env.VITE_API_URL || 'https://itrustuat.indiashelter.in/api';
-//const API_URL = import.meta.env.VITE_API_URL || 'https://itrust.indiashelter.in:6443/api';
+ const API_URL = import.meta.env.VITE_API_URL || 'https://itrust.indiashelter.in:6443/api';
 //const API_URL = import.meta.env.VITE_API_URL;
 
 //const API_URL = "https://itrust.indiashelter.in:6443/api";
 
-const API_URL = "http://localhost:8005/api";
+//const API_URL = "http://localhost:8005/api";
 
-
+const FACE_DETECTION_URL = "/account/check_if_face_authencticate/"
  const FACE_LIVE_PATRON_ID = import.meta.env.VITE_FACE_LIVE_PATRON_ID;
 
  const FACE_LIVE_AUTHORIZATION_RES_HEADER = import.meta.env.VITE_FACE_LIVE_AUTHORIZATION_RES_HEADER;
@@ -172,12 +172,36 @@ async function getLoginOtp(mobile_no, data) {
   }
 }
 
-async function verifyLoginOtp(mobile_no, otp) {
-  const res = await axios.post(
+// async function verifyLoginOtp(mobile_no, otp) {
+//   const res = await axios.post(
+//     `${API_URL}/account/login-sms-otp-verify/${mobile_no}`,
+//     otp,
+//     requestOptions,
+//   );
+//   return res.data;
+// }
+
+async function verifyLoginOtp(mobile_no, otp,faceLogin) {
+
+  let res;
+
+  if(faceLogin == true) {
+
+    res = await axios.post(
+    `${API_URL}/account/face-login/${mobile_no}`,
+    {},
+    requestOptions,
+  );
+  }
+  else{
+    
+   res = await axios.post(
     `${API_URL}/account/login-sms-otp-verify/${mobile_no}`,
     otp,
     requestOptions,
   );
+
+}
   return res.data;
 }
 
@@ -1497,6 +1521,14 @@ export async function verifyVisitMobileOtp(data, options,type) {
 
 
 const secretKey = "3cT0Yk2R7!wT9@hQ6Gv#1eLb8zXm$JpF";
+export async function getLoImage(username){
+
+    const result = await axios.get(`${API_URL}/account/get-lo-image/${username}`);
+
+    return result?.data
+
+  }
+  export const HEX_KEY_FACE_LOGIN = "4f6b9b2c7e9a1d8c3f2a0b9e4d6c1a8f7e9b0a2c3d4e5f60718293a4b5c6d7e8"
 
 export {
   API_URL,
@@ -1618,4 +1650,5 @@ export {
   populateOCR,
   updateBureauType,
   rejectOcrApi,
+FACE_DETECTION_URL,
 };

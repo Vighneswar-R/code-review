@@ -165,12 +165,13 @@ const BankingDetails = () => {
             `applicants[${activeIndex}].applicant_details.extra_params.banking_progress`,
             100,
           );
-          let newData = { ...values?.applicants?.[activeIndex]?.applicant_details };
-          newData.extra_params.banking_progress = 100;
+          let newData = { ...values?.applicants?.[activeIndex]?.applicant_details?.extra_params };
+
+          newData.banking_progress = 100;
           editFieldsById(
             values?.applicants?.[activeIndex]?.applicant_details?.id,
             'applicant',
-            newData,
+           {extra_params : newData},
             {
               headers: {
                 Authorization: token,
@@ -186,12 +187,12 @@ const BankingDetails = () => {
             `applicants[${activeIndex}].applicant_details.extra_params.banking_progress`,
             100,
           );
-          let newData = { ...values?.applicants?.[activeIndex]?.applicant_details };
-          newData.extra_params.banking_progress = 100;
+          let newData = { ...values?.applicants?.[activeIndex]?.applicant_details?.extra_params };
+          newData.banking_progress = 100;
           editFieldsById(
             values?.applicants?.[activeIndex]?.applicant_details?.id,
             'applicant',
-            newData,
+            {extra_params : newData},
             {
               headers: {
                 Authorization: token,

@@ -20,7 +20,6 @@ import { AuthContext } from '../../../../context/AuthContextProvider';
 import generateImageWithTextWatermark from '../../../../utils/GenerateImageWithTextWatermark';
 import Popup from '../../../../components/Popup';
 import DocumentModal from '../../../../components/DocumentModal';
-import Topbar from '../../../../components/Topbar';
 export const entityType = [
   {
     label: 'Company',
@@ -813,18 +812,6 @@ export default function BankingManual() {
   return (
     <>
       <div className='flex flex-col h-[100dvh] overflow-hidden'>
-          {leadValues?.applicants[activeIndex]?.applicant_details?.is_primary ? (
-          <Topbar title='Lead Creation' id={leadValues?.lead?.id} showClose={true} />
-        ) : (
-          <Topbar
-            title='Adding Co-applicant'
-            id={leadValues?.lead?.id}
-            showClose={true}
-            showBack={true}
-            coApplicant={true}
-            coApplicantName={leadValues?.applicants[activeIndex]?.applicant_details?.first_name}
-          />
-        )}
         <div className='h-[48px] border-b-2 flex items-center p-[16px]'>
           <button onClick={() => setConfirmation(true)}>
             <IconBackBanking />

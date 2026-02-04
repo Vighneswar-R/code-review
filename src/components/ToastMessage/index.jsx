@@ -30,7 +30,7 @@ const ToastMessage = ({ message, setMessage, timeout = DEFAULT_TIMEOUT, error })
             zIndex: 10000,
           }}
           className={`flex gap-4 items-center 
-            absolute left-0 md:right-0 top-16 md:top-16 md:mx-20
+            absolute left-0 md:right-0 top-0 md:top-16 md:mx-20
             w-full md:w-auto
             p-4 z-50 toast-message
             text-sm md:rounded-lg

@@ -73,19 +73,19 @@ checkInternetSpeed();
 
    switch(intervalSpeed){
     case('slow-2g'):
-    intervalTime = 650
+    intervalTime = 600
     break
     case('2g'):
-    intervalTime = 450;
+    intervalTime = 400;
     break;
     case('3g'):
-    intervalTime = 230;
+    intervalTime = 180;
     break;
     case('4g'):
-    intervalTime = 150;
+    intervalTime = 100;
     break
     default:
-    intervalTime = 300
+    intervalTime = 250
    }
 
   return intervalTime

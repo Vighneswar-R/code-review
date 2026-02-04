@@ -1508,7 +1508,7 @@ function ManualMode({ requiredFieldsStatus, setRequiredFieldsStatus, updateField
 
       },
 
-    },values?.applicants?.[activeIndex]?.personal_details?.email);
+    });
 
     setToastMessage('OTP has been sent to your mail id');
 
@@ -1834,7 +1834,6 @@ function ManualMode({ requiredFieldsStatus, setRequiredFieldsStatus, updateField
     // lo metaData watermark on ocr front image
 
     await generateImageWithTextWatermark(
-      null,
 
       values?.lead?.id,
 
@@ -1915,7 +1914,6 @@ function ManualMode({ requiredFieldsStatus, setRequiredFieldsStatus, updateField
       // lo metaData watermark on ocr back image
 
       await generateImageWithTextWatermark(
-        null,
 
         values?.lead?.id,
 
@@ -2370,7 +2368,6 @@ function ManualMode({ requiredFieldsStatus, setRequiredFieldsStatus, updateField
     // lo metaData watermark on ocr front image
 
     await generateImageWithTextWatermark(
-      null,
 
       values?.lead?.id,
 
@@ -2449,7 +2446,6 @@ function ManualMode({ requiredFieldsStatus, setRequiredFieldsStatus, updateField
       // lo metaData watermark on ocr back image
 
       await generateImageWithTextWatermark(
-        null,
 
         values?.lead?.id,
 

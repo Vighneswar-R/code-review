@@ -9,7 +9,7 @@ import axios from 'axios'
 import pako from 'pako';
 
 
-const FormModal = ({data,otp,verified,sendApplicationOtp,verifyApplicationOtp,setOpenApplication,generateForm,Formurl,activeApplicant,containerClassName=""}) => {
+const FormModal = ({data,otp,verified,sendApplicationOtp,verifyApplicationOtp,setOpenApplication,generateForm,Formurl,activeApplicant}) => {
 
     const[sentOtp,setSentOtp] = useState(false);
 
@@ -324,7 +324,7 @@ return sanitized;
 
     <ModalComponent open = {loader} content = {content} />
 
-  <div className={`bg-white w-full max-w-md rounded-xl shadow-lg p-6 ${containerClassName}`}>
+  <div className="bg-white w-full max-w-md rounded-xl shadow-lg p-6">
 
 <div className="flex flex-row-reverse justify-between items-center">
         <button className='min-w-[80px] font-normal py-1 px-1 rounded disabled:text-dark-grey disabled:bg-stroke bg-primary-red text-white' onClick={()=>{setOpenApplication(false)}}>X</button>
@@ -442,7 +442,7 @@ className="absolute top-0 left-0 w-full h-full cursor-pointer"
 >
   
   Maximize
-  <span className="text-lg">?</span>
+  <span className="text-lg">↗</span>
 </button>
     </div>
   {url?  <iframe

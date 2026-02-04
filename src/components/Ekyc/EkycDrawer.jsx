@@ -16,6 +16,16 @@ import { useTheme } from "@mui/material/styles";
 import { CircularProgress } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { motion } from "framer-motion";
+import { AiOutlineInfoCircle } from "react-icons/ai";
+import { MdInfo } from "react-icons/md";
+import { MdMoreVert } from "react-icons/md";
+
+import LanguageSwitcher from '../LanguageSwitcher'
+
+import { MdToggleOn, MdToggleOff } from "react-icons/md";
+
+import { useTranslation } from 'react-i18next';
+
 
 
 
@@ -31,10 +41,10 @@ export const ekycMethods = [
     label: 'Biometrics',
     value: 'FMR',
   },
-  // {
-  //   label: 'Face Auth',
-  //   value: 'FAUTH',
-  // },
+  {
+    label: 'Face Auth',
+    value: 'FAUTH',
+  },
 ];
 // Add activeMembers
 export const activeMembers = [
@@ -87,11 +97,17 @@ export default function EkycDrawer({
   const [aadhaarNoError, setAadhaarNoError] = useState('');
   const [show, setShow] = useState(false);
 
+    const { t,i18n } = useTranslation();
+ 
+
   const[processing,setProcessing] = useState(false)
 
-  const[open,setOpen] = useState(false)
+  const[open,setOpen] = useState(false);
+
+  const[lang,setLang] = useState('EN')
 
 
+  const statusRef = useRef(true);
   // select kyc method screen states
   // otp will be default selected for ekyc
   const [performVerification, setPerformVerification] = useState(false);
@@ -123,11 +139,13 @@ export default function EkycDrawer({
 
   const [attemptsLeft, setAttemptsLeft] = useState(2);
 
+  const[showSwitch,setShowSwitch] = useState(false);
+
 
 
   useEffect(() => {
-  
- console.log('biometricKey '+biometricKey);	  
+ 
+ console.log('biometricKey '+biometricKey);       
     // initiating biometricejs file
     if (!ecsBioHelper.init(biometricKey)) {
       console.log('ecsBioHelper terminate');
@@ -180,7 +198,10 @@ export default function EkycDrawer({
 
     setPageLoader(true);
 
-    // trigger sms function to be added : - 
+    setProceed(true)
+
+
+    // trigger sms function to be added : -
 
     // Try opening the app using the deep link
     // window.location.href = "indiasheltercustomerapp://open";
@@ -204,7 +225,7 @@ export default function EkycDrawer({
     //             appOpened = true;
 
     //             setProceed(true);
-  
+ 
     //             document.removeEventListener('visibilitychange', handleVisibilityChange);
     //           }
 
@@ -228,8 +249,8 @@ export default function EkycDrawer({
 
     //   ifRedirected = true;
 
-    
-  
+   
+ 
     //   // If the browser blocks `window.open`, fallback to normal redirect
     //   if (!newTab) {
     //     window.location.href =
@@ -257,7 +278,7 @@ export default function EkycDrawer({
     //       "https://play.google.com/store/apps/details?id=com.indiasheltercustomerapp&hl=en_IN",
     //       "_blank"
     //     );
-    
+   
     //     // If the browser blocks `window.open`, fallback to normal redirect
     //     if (!newTab) {
     //       window.location.href =
@@ -268,24 +289,49 @@ export default function EkycDrawer({
     //     setPageLoader(false)
 
     //   }, 2000);
-  
+ 
     // }
   }
 
-  
+  useEffect(()=>{
+
+    console.log("INITIAL",statusRef)
+  },[statusRef.current])
+
+ 
   const getStatus = async () =>{
-    
+   
     statusCheckRef.current = setInterval(async ()=> {
 
+      let completed = false;
+
+
      try{
+
+      console.log("red",statusRef.current)
+
+      if(statusRef.current == false) return;  // skip execution if api is taking time to resolve;
+
+      // execute timeout to ensure response is given within 4.5 seconds & execution of next interval
+
+      let block = setTimeout(()=>{
+
+        console.log("COMPLETED DET",completed)
+
+       if(!completed) statusRef.current = false;
+
+      },4500)
 
      const response = await getFaceAuthStatus(values?.applicants?.[activeIndex]?.applicant_details?.id);
 
      clearInterval(statusCheckRef.current);
 
+     completed = true;
+
+     statusRef.current = true;
+
      if(response?.["lead"]) {
        setToastMessage('Information fetched Successfully');
-
        setValues(response?.["lead"]);
        
        setSuccessAuth(true);
@@ -295,7 +341,7 @@ export default function EkycDrawer({
        setTimeout(()=> {    // time out delay and move to personal details/manual mode
         setOpen(false);
         setOpenEkycPopup(false);
-        
+       
        },2000)
      }
 
@@ -308,6 +354,9 @@ export default function EkycDrawer({
 
      catch(err) {
 
+      completed = true;
+
+      statusRef.current = true;
        if(err?.response?.data?.ekyc_status == "failed") {
          setErrorToastMessage("Face Authentication Failed");
 
@@ -316,9 +365,12 @@ export default function EkycDrawer({
          setOpenEkycPopup(false)
 
          alert(err)
+
+
        }
        //here
      }
+
 
    },5000)
  }
@@ -361,7 +413,7 @@ export default function EkycDrawer({
 
   // resend otp on mobile and email
   const sendMobileOtp = async () => {
-	  
+        
     try {
       setLoading(true);
       await generateEkycOtp(
@@ -420,7 +472,7 @@ export default function EkycDrawer({
 
   catch(err) {
     console.log("ERROR IN ADDING",err)
-    
+   
     setErrorToastMessage(err?.response?.data?.message || "Something Went Wrong, Please try again");
 
     setPerformVerification(false);
@@ -434,7 +486,7 @@ export default function EkycDrawer({
 
   // send otp on Mobile and email
   const handleVerify = async () => {
-   	  
+        
     try {
       setProcessing(true);
       setLoading(true);
@@ -555,7 +607,7 @@ export default function EkycDrawer({
 
   // handle otp and aadhaar verification
   const handleVerifyAadharOtp = async () => {
-    
+   
     try {
       setLoading(true);
       setDisableVerifyButton(true)
@@ -844,7 +896,7 @@ export default function EkycDrawer({
         },
       }
     );
-  
+ 
     if (!value) {
       let maskedAadhar;
       if (selectedIdOption === 'Aadhaar') {
@@ -880,7 +932,7 @@ export default function EkycDrawer({
                 },
               },
             };
-  
+ 
       await editFieldsById(
         values?.applicants?.[activeIndex]?.personal_details?.id,
         'personal',
@@ -891,7 +943,7 @@ export default function EkycDrawer({
           },
         }
       );
-  
+ 
       setFieldValue(
         `applicants[${activeIndex}].personal_details.extra_params.ekyc_option`,
         selectedIdOption
@@ -921,7 +973,7 @@ export default function EkycDrawer({
       setSelectedActiveMember(null);
     }
   };
-  
+ 
 
   return isAadharInputDrawer ? (
     <div className='w-full flex flex-col'>
@@ -1054,9 +1106,9 @@ export default function EkycDrawer({
                     value={method.value}
                     current={selectedActiveMember}
                     onChange={(value) => {
-                    
+                   
                       updateManualPerformId(value)
-                      
+                     
                     }}
                     disabled={disableFields}
                   />
@@ -1106,15 +1158,211 @@ export default function EkycDrawer({
       //   selectedIdOption={selectedIdOption}
       // />
 
-      !pageLoader?<MessageModal open={open} message="You will be redirected to the Face Authentication application. If the app is not installed on your device, you will be directed to the Play Store to download it. Once installed, please complete the Face Authentication process to continue." handleClick = {processFaceAuth} setOpen={setOpen} successAuth= {successAuth}/>: <Box 
-      display="flex" 
-  justifyContent="center" 
-  flexDirection="column" 
-  alignItems="center" 
-  height="40vh" 
+      // !pageLoader?<MessageModal open={open} message="You will be redirected to the Face Authentication application. If the app is not installed on your device, you will be directed to the Play Store to download it. Once installed, please complete the Face Authentication process to continue." handleClick = {processFaceAuth} setOpen={setOpen} successAuth= {successAuth}/>
+     
+      !pageLoader?<MessageModal open={open} message={<div>
+
+<h3 style={{ marginBottom: "15px",width:'300px'
+ }}>
+  <strong
+    style={{
+      display: "inline-flex",
+      alignItems: "start",
+      gap: "10px",    }}
+  >
+
+
+    <MdInfo size={35} color="#3c3c37ff" />
+{t('followSteps')}
+
+
+{/* <MdMoreVert size={30} onClick={()=>{
+setShowSwitch(!showSwitch)
+}}/> */}
+{/* <div style={{width:'60px',height:'40px',borderRadius:'20px',boxShadow:'1px 8px 4px 10px lightgrey'}} onClick={()=>{
+setShowSwitch(!showSwitch)
+}}>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <filter id="edgeShadow" x="-80%" y="-80%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.5"/>
+    </filter>
+  </defs>
+
+  <path
+    d="M170 24 C184 44 184 70 170 90"
+    fill="none"
+    stroke="#080606ff"
+    stroke-width="3"
+    filter="url(#edgeShadow)"
+    transform="translate(1.5,2) rotate(-30 100 100)"
+  />
+
+  <path
+    d="M30 176 C16 156 16 130 30 110"
+    fill="none"
+    stroke="#0c0303ff"
+    stroke-width="3"
+    filter="url(#edgeShadow)"
+    transform="translate(1.5,2) rotate(-30 100 100)"
+  />
+
+  <path
+    d="M170 24 C184 44 184 70 170 90"
+    fill="none"
+    stroke="black"
+    stroke-width="10"
+    transform="rotate(-30 100 100)"
+  />
+
+  <path
+    d="M30 176 C16 156 16 130 30 110"
+    fill="none"
+    stroke="black"
+    stroke-width="10"
+    transform="rotate(-30 100 100)"
+  />
+
+  <text x="46" y="88"
+        font-size="92"
+        font-family="Arial, sans-serif"
+        fill="black">A</text>
+
+  <text x="106" y="166"
+        font-size="92"
+        font-family="Mangal, Noto Sans Devanagari, sans-serif"
+        fill="black">अ</text>
+</svg>
+
+
+
+
+
+</div> */}
+
+<div style={{ position: "relative", height: "10%",width:'75px' }}>
+  {/* your other content */}
+
+  <div
+    onClick={
+     
+     
+      () => {
+        setLang(lang === "EN" ? "HI" : "EN");
+
+        if(lang == "EN"){
+           i18n.changeLanguage("hn");
+
+        }
+
+        else{
+           i18n.changeLanguage("en");
+
+        }
+
+     
+      }
+   
+   
+   
+    }
+    style={{
+      position: "relative",
+      top: "0",
+      right: "0",   // or left: 0
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+      cursor: "pointer",
+      fontWeight: 600,
+    }}
+  >
+    <span style={{ opacity: lang === "EN" ? 1 : 0.4, fontSize: "20px" }}>A</span>
+
+    {lang === "EN" ? (
+      <MdToggleOff size={40} />
+    ) : (
+      <MdToggleOn size={40} color="#050609ff" />
+    )}
+
+    <span style={{ opacity: lang === "HI" ? 1 : 0.4, fontSize: "20px" }}>अ</span>
+  </div>
+</div>
+
+  </strong>
+
+{showSwitch && (
+  <div
+    style={{
+      position: "absolute",
+      right: 30,
+      marginTop: "6px",
+      border: "1px solid #7a7676ff",
+      borderRadius: "6px",
+      background: "#fff",
+      top:60,
+      width: "140px",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+      overflow: "hidden",
+      zIndex: 1000,
+    }}
+  >
+    <div style={{ padding: "8px 12px", cursor: "pointer", borderBottom: "1px solid #eee" }} onClick = {()=>{
+      i18n.changeLanguage("en");
+      setShowSwitch(false);
+    }}>
+      English
+    </div>
+
+    <div style={{ padding: "8px 12px", cursor: "pointer" }} onClick = {()=>{
+      i18n.changeLanguage("hn");
+      setShowSwitch(false);
+    }}>
+      ??????
+    </div>
+  </div>
+)}
+
+</h3>
+
+
+
+  <p>{t('completeFace')}</p>
+
+<ol style={{ listStyle: 'ordered', marginLeft: '20px', marginTop: '15px' }}>
+  <li>
+    <strong>{t('point1')}</strong><br />
+    <div style={{ fontSize: "0.85em", color: "#555", lineHeight: '1.6' }}>
+      {t('point1Desc')}
+    </div>
+  </li>
+
+  <li>
+    <strong> {t('point2')}</strong><br />
+    <div style={{ fontSize: "0.85em", color: "#555", lineHeight: '1.7' }}>
+       {t('point2Desc')}
+    </div>
+  </li>
+
+  <li>
+    <strong> {t('point3')}</strong><br />
+    <div style={{ fontSize: "0.85em", color: "#555", lineHeight: '1.6' }}>
+       {t('point3Desc')}
+    </div>
+  </li>
+</ol>
+
+      </div>} handleClick = {processFaceAuth} setOpen={setOpen} successAuth= {successAuth}/>
+     
+      : <Box
+      display="flex"
+  justifyContent="center"
+  flexDirection="column"
+  alignItems="center"
+  height="40vh"
   sx={{ backgroundColor: "transparent", gap: 2, textAlign: "center" }}>
       <CircularProgress sx={{ color: "red" }} />
-      
+     
       <span> {proceed?"Face Authentication in progress, Please complete or Cancel the process":"Processing your request, please wait......"}
       </span>
       <Button onClick={()=>{
@@ -1264,6 +1512,8 @@ function MessageModal({ open, onClose, message,setOpen,handleClick,successAuth }
 
       >
 
+
+
         {successAuth?<>
           <motion.div
         initial={{ scale: 0 }}
@@ -1272,7 +1522,6 @@ function MessageModal({ open, onClose, message,setOpen,handleClick,successAuth }
       >
         <CheckCircleIcon sx={{ fontSize: 60, color: "green" }} />
       </motion.div>
-
       {/* Success Message */}
       <Typography
         variant="h6"
@@ -1286,6 +1535,7 @@ function MessageModal({ open, onClose, message,setOpen,handleClick,successAuth }
         Successfully Validated
       </Typography>
         </>:<>
+       
         <Typography id="modal-message" variant="h6"   sx={{
     mb: 2,
     textAlign: "left", // Align text to the left
@@ -1294,10 +1544,14 @@ function MessageModal({ open, onClose, message,setOpen,handleClick,successAuth }
     color: "text.primary", // Use default text color
     fontSize:17
   }}>
-          {message}
+
+  {message}
+
+ 
+
         </Typography>
         <Button variant="contained" onClick={()=>{
-          
+         
           setOpen(false)
           handleClick();
           }}>

@@ -70,7 +70,6 @@ export default function Preview() {
   const[ApplicationForm,setApplicantForm] = useState(false);
 
   const[isGenerated,setIsGenerated] = useState(false);
-  const [openPennyDropMandatoryPopup, setOpenPennyDropMandatoryPopup] = useState(false);
 
 
   const[openAppFormPopup,setAppFormPopup] = useState(false)
@@ -1031,34 +1030,6 @@ return all_verified
       return;
     }
 
-
-    // penny drop check 
-
-    const applicants = values?.applicants ?? [];
-
-const pennyDropFound = applicants.some(applicant => {
-  const bankingDetails = applicant?.banking_details ?? [];
-
-  return bankingDetails.some(bank => {
-    const accountNumber = bank?.account_number;
-
-    const isValidAccountNumber =
-      typeof accountNumber === "string" && /^\d+$/.test(accountNumber);
-
-    return (
-      bank?.penny_drop_response?.result?.active === "yes" &&
-      isValidAccountNumber
-    );
-  });
-});
-
-if (!pennyDropFound) {
-  // banking penny drop is mandatory
-  setOpenBankingMandatoryPopup(true);
-  setActiveIndex(primaryIndex);
-  return;
-}
-
        // check for bre-101 null and qualifier false
 
     let isBreNull = false;
@@ -1147,26 +1118,6 @@ if (!pennyDropFound) {
       });
     }
 
-
-
-    // for (const bank of bankingDetails) {
-    //   const isValidAccountNumber =
-    // typeof bank?.account_number === 'string' && /^\d+$/.test(bank.account_number);
-    //   if (bank?.account_aggregator_response) {
-    //     accountAggregatorFound = true;
-    //   }
-
-    //   if (bank?.penny_drop_response && isValidAccountNumber) {
-    //     pennyDropFound = true;
-    //   }
-    // }
-
-    // if (accountAggregatorFound && !pennyDropFound) {
-    //   // setOpenPennyDropMandatoryPopup(true);
-    //   setOpenBankingMandatoryPopup(true)
-    //   setActiveIndex(primaryIndex);
-    //   return;
-    // }
 
     if(activeStep === coApplicantIndexes.length && (values?.lt_charges?.find((e) => e.status === 'Completed') || lt_paid == false) &&
               values?.applicants?.length >= 2
@@ -2161,28 +2112,6 @@ if (!pennyDropFound) {
           }
         />
       ) : null}
-      {/* {activeStep === coApplicantIndexes.length && openPennyDropMandatoryPopup ? (
-          <Snackbar
-          sx={{
-            '& .MuiPaper-root': {
-              backgroundColor: '#000000F2',
-              fontFamily: 'Poppins',
-            },
-
-            '& .MuiPaper-root .MuiSnackbarContent-message': {
-              color: '#FEFEFE',
-
-              fontSize: '14px',
-              fontStyle: 'normal',
-              fontWeight: 400,
-            },
-          }}
-          className='-translate-y-32 m-[10px]'
-          open={openPennyDropMandatoryPopup}
-          onClose={() => setOpenPennyDropMandatoryPopup(false)}
-          message='Penny Drop Verification Pending'
-        />
-      ) : null} */}
 
       <Popup
         handleClose={handleCloseQualifierNotActivePopup}
@@ -2194,3 +2123,5 @@ if (!pennyDropFound) {
     </>
   );
 }
+
+

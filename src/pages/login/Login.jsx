@@ -4,13 +4,26 @@ import { AuthContext } from '../../context/AuthContextProvider';
 import { ToastMessage, Button } from '../../components';
 import {
   checkLoanOfficerExists,
-  getContestUrl,
   getLoginOtp,
   getOTPonCall,
   getUserById,
   logout,
   verifyLoginOtp,
+  getLoImage
 } from '../../global';
+import {
+  ToggleButton,
+  ToggleButtonGroup,
+  Box,
+} from "@mui/material";
+import PhoneIcon from "@mui/icons-material/Phone";
+import EmailIcon from "@mui/icons-material/Email";
+import PasswordIcon from "@mui/icons-material/Password";
+import FaceIcon from "@mui/icons-material/Face";
+import SmsIcon from "@mui/icons-material/Sms";
+
+import FaceLogin from '../../components/FaceLogin'
+
 import DynamicDrawer from '../../components/SwipeableDrawer/DynamicDrawer';
 import { Header } from '../../components';
 import { Link, useNavigate } from 'react-router-dom';
@@ -50,7 +63,6 @@ export default function Login() {
     setErrorToastMessage,
     isBMAuthenticated,
     setIsBMAuthenticated,
-    setIsAdminProductAuthenticated,
     disableEkycMobiles,
     setDisableEkycMobiles,
   } = useContext(AuthContext);
@@ -69,6 +81,71 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState(false);
   const [captchaValue, setCaptchaValue] = useState('');
+
+    const [method, setMethod] = useState("OTP");
+
+  const [openFrame, setOpenFrame] = useState(false);
+  const [loImage, setLoImage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
+
+
+    // handler for changing login method ** 15/12
+
+
+    const onHandleMethodChange = (event,newMethod) =>{
+if (newMethod !== null) {
+      setMethod(newMethod);
+    }
+
+    }
+
+      const onCloseFaceDetection = () => {
+    setOpenFrame(false);
+    window.location.reload();
+  }
+
+
+   const onHandleClickDetection = async () => {
+    if (!values.username || !captchaValue) {
+      setErrorMessage("Please enter valid Mobile Number and complete captcha!");
+      return;
+    }
+    if (!values.username) {
+      setErrorMessage("Please enter valid Mobile Number!");
+      return;
+    }
+    if (!captchaValue) {
+      setErrorMessage("Please complete captcha!");
+      return;
+    }
+    if ((errors.username || !values.username || !captchaValue || showOTPInput)) {
+      return;
+    }
+    if (!captchaValue) {
+      setErrorMessage("Invalid Captcha!");
+      return;
+    }
+    try {
+      const valid_user = await checkLoanOfficerExists(values.username);
+    } catch (err) {
+      setFieldError("username", "Invalid username or password");
+      return;
+    }
+    try {
+      const loImage = await getLoImage(values.username);
+      if (!loImage.image_string || !loImage?.image_string?.length) {
+        setErrorMessage("User Authentication unsuccessful. Contact IT admin for support.");
+        return;
+      }
+      setLoImage(loImage.image_string);
+      setOpenFrame(true);
+    } catch (err) {
+      console.log("Error Fetching Lo Image", err);
+      setErrorMessage("User Authentication unsuccessful. Contact IT admin for support.");
+    }
+  };
+
+
 
   const[signleLogin,setSingleLogin] = useState(false);
   const handleOnPhoneNumberChange = useCallback(async (e) => {
@@ -126,10 +203,10 @@ export default function Login() {
 
     try {
 
-      // if (!captchaValue) {
-      //   alert('Please verify CAPTCHA');
-      //   return;
-      // }
+      if (!captchaValue) {
+        alert('Please verify CAPTCHA');
+        return;
+      }
       setDisabledOtpButton(true);
 
       await checkLoanOfficerExists(values.username);
@@ -177,8 +254,8 @@ export default function Login() {
     }
   };
 
-  const verifyOTP = useCallback(
-    async (loginotp) => {
+ const verifyOTP = useCallback(
+    async (loginotp, faceLogin) => {
       const otp = parseInt(loginotp);
 
       //For bypass
@@ -246,10 +323,9 @@ export default function Login() {
       try {
         const res = await verifyLoginOtp(values.username, {
           otp,
-        });
+        }, faceLogin);
 
-        console.log("I AM RESP LOG",res)
-
+        console.log("I AM RESP LOG", res)
 
         if (!res) return;
 
@@ -264,30 +340,31 @@ export default function Login() {
 
           // new change for refresh issue - encrypted data in Session storage
 
-          
-      let local_data = {loData:res,isAuthenticated:res?.user?.role === 'Loan Officer'?true:false,isBMAuthenticated:res?.user?.role === 'Branch Manager'?true:false,isAdminAuthenticated:res?.user?.role != 'Loan Officer' && res.user.role != 'Branch Manager'?true:false,token:res?.token};
 
-      let result = encrypt_data(local_data);
+          let local_data = { loData: res, isAuthenticated: res?.user?.role === 'Loan Officer' ? true : false, isBMAuthenticated: res?.user?.role === 'Branch Manager' ? true : false, isAdminAuthenticated: res?.user?.role != 'Loan Officer' && res.user.role != 'Branch Manager' ? true : false, token: res?.token };
 
-      if(result) {
-        sessionStorage.setItem('data_storage',result)
-        sessionStorage.setItem('user', JSON.stringify({user:{ role: res?.user?.role }}));
+          let result = encrypt_data(local_data);
 
-      }
+          if (result) {
+            sessionStorage.setItem('data_storage', result)
+            sessionStorage.setItem('user', JSON.stringify({ user: { role: res?.user?.role } }));
+          }
 
           if (res?.user?.role == 'Loan Officer') {
             setIsAuthenticated(true);
+            setSingleLogin(true)
             return true;
-          } else if(res?.user?.role == 'Branch Manager') {
+          } else if (res?.user?.role == 'Branch Manager') {
             setIsBMAuthenticated(true);
-          }
-           else if(res?.user?.role == 'Admin Product') {
-            setIsAdminProductAuthenticated(true);
+            setSingleLogin(true);
+                        return true;
           }
 
           setIsAdminAuthenticated(true);
           return true;
         }
+
+        setOpenFrame(false);
 
         setIsOpen(true);
         setToken(res?.token);
@@ -295,7 +372,7 @@ export default function Login() {
         setMobileVerified(true);
         setFieldError('username', undefined);
         setShowOTPInput(true);
-        // setIsOpen(true);
+        setIsOpen(true);
         setLoData(res);
         setDisableEkycMobiles(res?.user?.username)
       } catch (err) {
@@ -307,6 +384,7 @@ export default function Login() {
     },
     [values.username, setFieldError, setMobileVerified],
   );
+
 
   const handleLogout = async () => {
     try {
@@ -371,10 +449,7 @@ export default function Login() {
           setIsBMAuthenticated(true);
           navigate('/branch-manager')
       } 
-      else if(loData.user.role === 'Admin Product') {
-          setIsAdminProductAuthenticated(true);
-          navigate('/admin-product')
-      } 
+      
       else {
         setIsAdminAuthenticated(true);
         navigate('/admin');
@@ -382,7 +457,7 @@ export default function Login() {
     } catch (err) {
       console.log(err);
     }
-    setContest(false)
+
   };
 
   const handleNavigate = () => {
@@ -432,6 +507,41 @@ export default function Login() {
   }
   return (
     <>
+
+    {openFrame && (
+        <div
+          style={{
+            position: "fixed",       // overlay on top
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.5)", // semi-transparent backdrop
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 99999,
+          }}
+          onClick={() => setOpenFrame(false)} // close when clicking outside iframe
+
+        >
+
+          <div style={{ width: "70%" }} onClick={(e) => e.stopPropagation()}> <FaceLogin verifyOTP={verifyOTP} loimage={loImage} onCloseFaceDetection={onCloseFaceDetection} />
+          </div>
+          {/* <iframe
+      src="https://www.google.com"
+      frameBorder="0"
+      style={{
+        width: "60%",
+        height: "800px",
+        borderRadius: "8px",
+        backgroundColor: "white",
+        zIndex: 100000,
+      }}
+      onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside iframe
+    ></iframe> */}
+        </div>
+      )}
       <AdminActionControl
         title={'Reset password'}
         subtitle={'Your account is currently locked. Please reset your password to unlock access.'}
@@ -506,14 +616,143 @@ export default function Login() {
 
           <div className='px-4 py-3 md:p-0 w-full md:w-auto bg-white md:bg-transparent top-0'>
             <h2 className='text-primary-black font-semibold text-xl'>Welcome back!</h2>
-            <p className='text-dark-grey font-normal text-xs md:text-sm mt-1 md:mt-0'>
+            {/*<p className='text-dark-grey font-normal text-xs md:text-sm mt-1 md:mt-0'>
               Login to continue
-            </p>
+            </p>*/}
           </div>
+
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        mt: 0,
+      }}
+    >
+      {/* <ToggleButtonGroup
+        value={method}
+        exclusive
+        onChange={onHandleMethodChange}
+        fullWidth
+        sx={{
+          border: "1px solid #e3dedeff",
+          borderRadius: "12px",
+          overflow: "hidden",
+        }}
+      >
+        <ToggleButton
+          value="OTP"
+        sx={{
+  px: 4,
+  py: 1.5,
+  gap: 1,
+  border: "none",
+  width: "50%",
+  flex: 1,
+  "&.Mui-selected": {
+    backgroundColor: "#d32f2f",
+    color: "#fff",
+    "&:hover": {
+      backgroundColor: "#d32f2f",
+    },
+  },
+}}
+        >
+          <SmsIcon />
+          OTP
+        </ToggleButton>
+
+        <ToggleButton
+          value="face_login"
+          sx={{
+  px: 4,
+  py: 1.5,
+  gap: 1,
+  border: "none",
+  width: "50%",
+  flex: 1,
+  "&.Mui-selected": {
+    backgroundColor: "#d32f2f",//"#1976d2",
+    color: "#fff",
+    "&:hover": {
+      backgroundColor: "#d32f2f",
+    },
+  },
+}}
+        >
+          <FaceIcon  />
+          Face based Login (beta)
+        </ToggleButton>
+      </ToggleButtonGroup> */}
+
+
+      <ToggleButtonGroup
+  value={method}
+  exclusive
+  onChange={onHandleMethodChange}
+  fullWidth
+  sx={{
+    border: "1px solid #e3dedeff",
+    borderRadius: "12px",
+    overflow: "hidden",
+    height: { xs: 40, sm: 48 }, // mobile friendly
+  }}
+>
+  <ToggleButton
+    value="OTP"
+    sx={{
+      px: { xs: 1.5, sm: 4 },   // ? mobile
+      py: { xs: 0.75, sm: 1.5 },
+      gap: { xs: 0.5, sm: 1 },
+      fontSize: { xs: "0.75rem", sm: "0.875rem" },
+      border: "none",
+      flex: 1,
+      "& svg": {
+        fontSize: { xs: 16, sm: 20 }, // icon resize
+      },
+      "&.Mui-selected": {
+        backgroundColor: "#d32f2f",
+        color: "#fff",
+        "&:hover": {
+          backgroundColor: "#d32f2f",
+        },
+      },
+    }}
+  >
+    <SmsIcon />
+    OTP
+  </ToggleButton>
+
+  <ToggleButton
+    value="face_login"
+    sx={{
+      px: { xs: 1.5, sm: 4 },
+      py: { xs: 0.75, sm: 1.5 },
+      gap: { xs: 0.5, sm: 1 },
+      fontSize: { xs: "0.75rem", sm: "0.875rem" },
+      border: "none",
+      flex: 1,
+      "& svg": {
+        fontSize: { xs: 16, sm: 20 },
+      },
+      "&.Mui-selected": {
+        backgroundColor: "#d32f2f",
+        color: "#fff",
+        "&:hover": {
+          backgroundColor: "#d32f2f",
+        },
+      },
+    }}
+  >
+    <FaceIcon />
+    Face Login (Beta)
+  </ToggleButton>
+</ToggleButtonGroup>
+    </Box>
+
 
           <TextInputWithSendOtp
             type='tel'
-            hint='An OTP will be sent to the given mobile number'
+            hint= {method == "OTP"?'An OTP will be sent to the given mobile number':"Enter Registered Mobile Number"}
             inputClasses='hidearrow'
             label='Mobile Number'
             placeholder='Eg: 1234567890'
@@ -568,7 +807,7 @@ export default function Login() {
             divClasses={'px-4 md:px-0'}
           />
 
-          <TextInputWithEyeIcon
+{method == 'OTP'&&          <TextInputWithEyeIcon
             label='Password'
             required
             placeholder='Enter password'
@@ -592,9 +831,10 @@ export default function Login() {
             show={show}
             setShow={setShow}
             divClasses={'px-4 md:px-0'}
-          />
+          />}
 
-          {!showOTPInput && !mobileVerified && (
+
+          {!showOTPInput && !mobileVerified && method == 'OTP' && (
             <Link
               to={'/reset-password'}
               className='flex self-end w-fit font-semibold text-base text-primary-red mr-4 md:mr-0'
@@ -620,15 +860,32 @@ export default function Login() {
             />
           ) : null}
 
-          <br />
           <ReCAPTCHA
             sitekey="6LeJWPAqAAAAAGr0mWdraypSN33hHivp1wl1fhiV"//"6LfGyxIqAAAAAH09FYbQrOavdEjgaZDMZbkawJnk"
             onChange={handleCaptchaChange}
             className='flex self-center w-fit font-semibold text-base text-primary-red mr-0 md:mr-0'
           />
 
+
+           {method == "face_login" ? (   //!captchaValue||
+
+           <div className="flex justify-center w-[300px] max-w-md mx-auto">
+  <Button
+                disabled={errors.username || !values.username}
+                primary
+inputClasses="h-12 mt-10 w-full"
+                onClick={onHandleClickDetection}
+                login = {true}
+              >
+                Login
+              </Button>
+</div>
+            
+            ) : null}
+
+
           <div className='mt-auto flex justify-end fixed md:relative bottom-0 w-full md:w-auto bg-white md:bg-transparent'>
-            {!showOTPInput ? (   //!captchaValue||
+            {(!showOTPInput && method == "OTP") ? (   //!captchaValue||
               <Button
                 disabled={passwordError || !password || errors.username || !values.username || disabledOtpButton }
                 primary
@@ -730,6 +987,29 @@ export default function Login() {
           </Button>
         </div>
       </DynamicDrawer>
+           <ErrorModal
+        message={errorMessage}
+        onClose={() => setErrorMessage("")}
+      />
     </>
   );
 }
+
+
+export const ErrorModal = ({ message, onClose }) => {
+  if (!message) return null; // don't render if no message
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+        <h2 className="text-lg font-bold text-red-600 mb-4">Error</h2>
+        <p className="text-gray-800">{message}</p>
+        <button
+          onClick={onClose}
+          className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+};

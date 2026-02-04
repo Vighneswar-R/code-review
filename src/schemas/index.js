@@ -52,7 +52,7 @@ const applicantSchema = Yup.object().shape({
       // .min(8, 'Date of Birth is Required. Minimum age must be 18 or 18+'),
    
     mobile_number: Yup.string()
-      .matches(/^(?!.*(\d)\1{5})(?!.*(\d{5}).*\2)\d{10}$/, 'Enter a valid 10-digit mobile number').required('Mobile number is required'),
+      .matches(/^(?!.*(\d)\1{6})(?!.*(\d{5}).*\2)\d{10}$/, 'Enter a valid 10-digit mobile number').required('Mobile number is required'),
   }),
 
   personal_details: Yup.object().shape({
@@ -617,5 +617,3 @@ export const visitSchema = Yup.object({
     otherwise: (s) => s.notRequired(),
   }),
 });
-
-

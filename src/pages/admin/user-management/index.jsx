@@ -878,6 +878,7 @@ setShowActionControlPopup(false);
 
       <FormPopUp
         title={userAction ? 'Edit user' : 'Add user'}
+        className='overflow-y-auto'
         subTitle={`Created on: ${
           userAction?.createdAt ? moment(userAction?.createdAt).format('DD/MM/YYYY') : 'Today'
         }`}

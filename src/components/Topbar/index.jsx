@@ -71,7 +71,7 @@ export default function Topbar({
     <>
       <div
         id='titlebar'
-        className='sticky inset-0 bg-white h-fit flex items-start px-4 py-3 border border-[#ECECEC] z-[2000000000]'
+        className='sticky inset-0 bg-white h-fit flex items-start px-4 py-3 border border-[#ECECEC] z-[200]'
       >
         {showBack ? (
           <button

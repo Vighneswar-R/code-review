@@ -861,11 +861,13 @@ if (e.target.name == `applicants[${activeIndex}].personal_details.percentage_of_
     setShowOTPInput(true);
     setHasSentOTPOnce(true);
 
-        getEmailOtp(values?.applicants?.[activeIndex]?.personal_details?.id, {
+    getEmailOtp(values?.applicants?.[activeIndex]?.personal_details?.id, {
       headers: {
         Authorization: token,
       },
-    },values?.applicants?.[activeIndex]?.personal_details?.email);
+    } //,values?.applicants?.[activeIndex]?.personal_details?.email
+   );
+
     setToastMessage('OTP has been sent to your mail id');
   };
 
@@ -880,7 +882,10 @@ if (e.target.name == `applicants[${activeIndex}].personal_details.percentage_of_
         setShowOTPInput(false);
         setFieldValue(`applicants[${activeIndex}].personal_details.is_email_verified`, true);
         updateFields('is_email_verified', true);
-        updateFields('email',values?.applicants?.[activeIndex]?.personal_details?.email)
+
+        // updateFields('email',values?.applicants?.[activeIndex]?.personal_details?.email)
+
+        //values?.applicants?.[activeIndex]?.personal_details?    // checking here
         return true;
       })
       .catch((err) => {
@@ -1030,7 +1035,7 @@ if (e.target.name == `applicants[${activeIndex}].personal_details.percentage_of_
 
     // lo metaData watermark on ocr front image
     await generateImageWithTextWatermark(
-      null,
+   null, 
       values?.lead?.id,
       loAllDetails?.employee_code,
       loAllDetails?.first_name,
@@ -1071,7 +1076,7 @@ if (e.target.name == `applicants[${activeIndex}].personal_details.percentage_of_
 
       // lo metaData watermark on ocr back image
       await generateImageWithTextWatermark(
-        null,
+    null,
         values?.lead?.id,
         loAllDetails?.employee_code,
         loAllDetails?.first_name,
@@ -3581,6 +3586,7 @@ const handleRejectOCR = async() => {
 
       <TextInputWithSendOtp
         label='Email'
+        required
         placeholder='Eg: xyz@gmail.com'
         name={`applicants[${activeIndex}].personal_details.email`}
         value={values?.applicants?.[activeIndex]?.personal_details?.email}
@@ -3591,12 +3597,12 @@ const handleRejectOCR = async() => {
         disabledOtpButton={
           !values.applicants?.[activeIndex]?.personal_details?.email ||
           !!errors.applicants?.[activeIndex]?.personal_details?.email ||
-          values?.applicants?.[activeIndex]?.personal_details?.is_email_verified ||
+          values.applicants[activeIndex].personal_details?.is_email_verified ||
           hasSentOTPOnce
         }
         disabled={
-          disableEmailInput ||
-          values.applicants?.[activeIndex]?.personal_details?.is_email_verified ||
+         disableEmailInput ||
+          values.applicants[activeIndex].personal_details?.is_email_verified ||
           values?.applicants?.[activeIndex]?.applicant_details?.extra_params?.qualifier ||
           (values.applicants[activeIndex]?.applicant_details?.is_primary
             ? tempQualifier
@@ -3604,7 +3610,7 @@ const handleRejectOCR = async() => {
           idDisableFields
         }
         message={
-          values?.applicants?.[activeIndex]?.personal_details?.is_email_verified
+          values.applicants[activeIndex].personal_details?.is_email_verified
             ? `OTP Verfied
           <img src="${otpVerified}" alt='Otp Verified' role='presentation' />
           `
@@ -3617,7 +3623,7 @@ const handleRejectOCR = async() => {
             !errors.applicants?.[activeIndex]?.personal_details?.[name] &&
             values?.applicants?.[activeIndex]?.personal_details?.[name]
           ) {
-           // updateFields(name, values?.applicants?.[activeIndex]?.personal_details?.[name]);
+             updateFields(name, values?.applicants?.[activeIndex]?.personal_details?.[name]);
           } else {
             updateFields(name, '');
           }

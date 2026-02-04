@@ -97,7 +97,7 @@ function ImageUpload({
 
           if (validImageTypes.includes(fileType)) {
             await generateImageWithTextWatermark(
-              null,
+            null,
               values?.lead?.id,
               loAllDetails?.employee_code,
               loAllDetails?.first_name,

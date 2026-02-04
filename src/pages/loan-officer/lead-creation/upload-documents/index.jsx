@@ -1261,7 +1261,7 @@ useEffect(()=>{
 
       if (editPropertyPaper?.file?.type?.includes('image')) {
         await generateImageWithTextWatermark(
-          null,
+           null,
           values?.lead?.id,
           loAllDetails?.employee_code,
           loAllDetails?.first_name,
