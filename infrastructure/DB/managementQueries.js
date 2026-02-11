@@ -147,6 +147,9 @@ const main = {
         }
       },
       BranchMapping:{
+         where:{
+          is_active:true
+        },
         select:{
           id:true,
           user_id:true,

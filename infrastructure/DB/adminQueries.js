@@ -619,7 +619,8 @@ editUserWithPermissions:async(obj,promises)=>{
                             return pd?.branch_id
                         })
                         },
-                        user_id:p?.data?.[0]?.user_id
+                        user_id:p?.data?.[0]?.user_id,
+                        is_active:true
                     },
                     select:{
                         branch_id:true
