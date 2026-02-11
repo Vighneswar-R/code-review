@@ -1,0 +1,50 @@
+{
+  "user_management": {
+    "user_list": true,
+    "roles": true,
+    "user_license_subscription": true,
+    "createappuser":true,
+    "bulkupload":true,
+    "departmentcreate":true,
+    "organizationchart":true
+  },
+  "masters": {
+    "branchmaster": true,
+    "versionmaster": true,
+    "soa_import": true,
+    "bankmaster": true,
+    "bankbranchmaster": true,
+    "followupmaster": true,
+    "telecaller": true,
+    "excotelmaster": true,
+    "casetypemaster": true,
+    "soaimport":true
+  },
+  "reports": {
+    "collectionreport": true,
+    "followupreport": true,
+    "userreport": true,
+    "attendancereport": true,
+    "paymentreport": true,
+    "settlementreport": true,
+    "easibuzz_payment_report": true,
+    "allocationreport":true,
+    "depositionreport":true,
+    "dailyvisitreport":true
+
+  },
+  "location_tracking": {
+    "collection_app": true,
+    "productivity_report": true
+  },
+  "data_backup": {
+    "followup_backup": true,
+    "tracker_app_backup": true
+  },
+ "payment":{
+    "pay_via_link":true,
+    "pay_via_cash":true,
+    "pay_via_qr":true,
+    "pay_online":true
+  }
+}

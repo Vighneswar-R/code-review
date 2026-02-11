@@ -1,0 +1,1462 @@
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../generated/prisma"   <-- remove or comment this
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Allocation {
+  id              Int      @id @default(autoincrement())
+  loan_number      String?  @db.Text
+  case_id           Int?
+  application_id    String?  @db.Text
+  person_email       String?  @db.Text
+  allocation_type    String?  @db.Text
+  uploaded_by         String?  @db.Text
+  active              Boolean?
+  rule_id              Int?
+  batch_id             Int?
+  master_id            Int?
+  co_code              String
+  status               String?  @db.Text
+  ho_code              String?  @db.Text
+  zcm_code             String?  @db.Text
+  created_at           DateTime?
+  updated_at           DateTime?
+
+  // Relations (exact table names)
+  AllocationMaster AllocationMaster? @relation(fields: [master_id], references: [id])
+  User             User              @relation(fields: [co_code], references: [employee_id])
+
+  @@index([loan_number(length: 191), case_id])
+  @@index([master_id])
+  @@index([co_code])
+}
+
+
+model AllocationMaster {
+  id                    Int      @id @default(autoincrement())
+  type                  String
+  active                Boolean?
+  status                String?  @db.Text
+  total_cases            Int?
+  approved_by            String?  @db.Text
+  rejected_by            String?  @db.Text
+  fileName               String?  @db.Text
+  remarks                String?  @db.Text
+  successful_allocation  Int?
+  failed_allocation      Int?
+  uploaded_by             String?  @db.Text
+  processing_time         String?  @db.Text
+  created_at              DateTime?
+  updated_at              DateTime?
+
+  Allocation Allocation[]
+
+  @@index([status(length: 191), active])
+}
+
+
+model AllocationRules {
+  id              Int      @id @default(autoincrement())
+  rule_type         String?  @db.Text
+  description       String?  @db.Text
+  name              String?  @db.Text
+  active             Boolean? @default(true)
+  enable             Boolean? @default(true)
+  lastModifiedBy     String?  @db.Text
+  assigned_to         String?  @db.Text
+  created_at          DateTime?
+  lastModified        DateTime?
+    RuleConditions  RuleConditions[]
+
+}
+
+
+model BankBranchMaster {
+  id               Int      @id @default(autoincrement())
+  BANK_ID           Int?
+  BANK_BRANCH_ID    Int?
+  BANK_BRANCH_NAME  String?  @db.Text
+  BRANCH_MICR_CODE  String?  @db.Text
+  BRANCH_IFCS_CODE  String?  @db.Text
+  ADDRESS_1          String?  @db.Text
+  ADDRESS_2          String?  @db.Text
+  ADDRESS_3          String?  @db.Text
+  REGION_ID           Int?
+  BRANCH_PINCODE      String?  @db.Text
+  DISPLAY_VALUE       String?  @db.Text
+  DISPLAY_ORDER        Int?
+  CURRENT_STATUS       Int?
+  status               Int?
+  created_at            DateTime?
+  updated_at            DateTime?
+
+  bankmaster   bankmaster?   @relation(fields: [BANK_ID], references: [id])
+  MasterRegion MasterRegion? @relation(fields: [REGION_ID], references: [id])
+
+  @@index([BANK_ID])
+  @@index([REGION_ID])
+}
+
+
+model bankmaster {
+  id           Int      @id @default(autoincrement())
+  bank_name     String?  @db.Text
+  bank_id       String?  @db.Text
+  display_name  String?  @db.Text
+  created_at    DateTime @default(now())
+  updated_at    DateTime
+
+  BankBranchMaster BankBranchMaster[]
+}
+
+
+model BcpCollection {
+  id          Int      @id @default(autoincrement())
+  type         String?  @db.Text
+  type_id       Int?
+  url           String?  @db.Text
+  created_at     DateTime?
+  udpated_at     DateTime?
+}
+
+model BranchMaster {
+  id                 Int      @id @default(autoincrement())
+  branch_name          String?  @db.Text
+  collection_allowed    Boolean?
+  collection_type        String?  @db.Text
+  created_at              DateTime?
+  updated_at              DateTime?
+  bank_account_id          String?  @db.Text
+  branch_code               String?  @db.Text
+  branch_display_value       String?  @db.Text
+  branch_emp_id               String?  @db.Text
+  branch_lon                  String?  @db.Text
+  branch_lat                  String?  @db.Text
+  branch_phone_1               String?  @db.Text
+  branch_phone_2               String?  @db.Text
+  branch_value                 String?  @db.Text
+  dept_bank_account_id          String?  @db.Text
+  recipt_prefix                  String?  @db.Text
+  region_id                       Int?
+  zone_id                         Int?
+  branch_address_1                 String?  @db.Text
+  branch_address_2                 String?  @db.Text
+
+  MasterRegion MasterRegion? @relation(fields: [region_id], references: [id])
+  MasterZone   MasterZone?   @relation(fields: [zone_id], references: [id])
+  BranchMapping            BranchMapping[]
+  @@index([region_id])
+  @@index([zone_id])
+}
+
+
+model CallDuration {
+  id            Int      @id @default(autoincrement())
+  user_id         Int?
+  case_id          Int?
+  from             String?  @db.Text
+  to               String?  @db.Text
+  mobile_type        String?  @db.Text
+  call_duration      String?  @db.Text
+  date_time          DateTime
+  created_at          DateTime @default(now())
+  updated_at          DateTime @default(now())
+
+  User User? @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+}
+
+
+model casetypemaster {
+  id             Int      @id @default(autoincrement())
+  case_type_name   String?  @db.Text
+  display_name     String?  @db.Text
+  startdate         DateTime?
+  enddate           DateTime?
+  created_at         DateTime @default(now())
+  updated_at         DateTime @default(now())
+  is_active           Boolean? @default(true)
+  is_deleted          Boolean? @default(false)
+}
+
+
+model CashDeposite {
+  id                       Int      @id @default(autoincrement())
+  user_id                   Int
+  opening_balance            Int
+  todays_cash_collected        Int
+  total_cash_to_deposite        Int
+  deposited_amount               Int
+  actual_deposited_amount        Int
+  extra_amount                    Int?
+  call_charges                    Int @default(0)
+  visit_charges                   Int @default(0)
+  balance_cash_inhand              Int
+  roundof_amount                   Int
+  pending_date                     DateTime
+  remark                           String
+  file_name                         String
+  file_path                         String
+  receipt_name                      String
+  app_receipt_no                    String
+  app_receipt_date                  String
+  cashier_receipt_no                String
+  cashier_receipt_name              String
+  cashier_receipt_slip              String
+  lat                               String?  @db.Text
+  lon                               String?  @db.Text
+  accuracy                           String?  @db.Text
+  by_cron                            Int
+  approved_by_cashier                Int
+  collected_by_cashier               Int
+  casher_approved_time               DateTime
+  casher_collected_time              DateTime
+  approved_by_accountant             Int
+  accountant_approved_time           DateTime
+  approved_status                    Int? @default(0)
+  bank_name                           String?  @db.Text
+  branch_name                         String?  @db.Text
+  excel                               Int @default(0)
+  status                              Int @default(1)
+  created_at                           DateTime
+  updated_at                           DateTime
+
+  User User @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+}
+
+
+model ChequeBounce {
+  id                      Int      @id @default(autoincrement())
+  LOAN_BRANCH              String
+  LOAN_NO                  String
+  case_id                   Int
+  LOAN_CUSTOMER_NAME        String
+  INSTRUMENT_NO             String
+  INSTRUMENT_AMOUNT          String
+  INSTRUMENT_DATE            DateTime
+  RECEIPT_NO                 String
+  CHEQUE_NO                  String
+  PF_DEPO_BRANCH              String
+  BOUNCE_REASON                String
+  DEPO_BANK                    String
+  DEPO_BANK_BRANCH              String
+  DEPO_BANK_ACC_NO              String
+  ZONE                          String
+  status                        Int @default(1)
+  DEAL_BRANCH                    String
+  DEAL_NO                        String
+  DEAL_CUSTOMER_NAME              String
+  VALUE_DATE                      DateTime
+  REC_STATUS                      String
+  CHEQUE_RECEIVED_TOWARDS          String
+  CLUSTER                          String
+  created_at                        DateTime
+  updated_at                        DateTime
+
+  SoaCaseMapping SoaCaseMapping @relation(fields: [case_id], references: [id])
+
+  @@index([case_id])
+}
+
+
+model CollectionAppCategoryMaster {
+  id            Int      @id @default(autoincrement())
+  category_name  String
+  status          Int @default(1)
+  created_at      DateTime
+  updated_at      DateTime
+}
+
+
+model CollectionAppChargesMaster {
+  id              Int      @id @default(autoincrement())
+  name             String
+  DISPLAY_VALUE     String
+  multiples_amount  Int
+  count             Int
+  CURRENT_STATUS     Int @default(1)
+  status             Int @default(1)
+  created_at          DateTime
+  updated_at          DateTime
+}
+
+
+model CollectionAppFieldMaster {
+  id             Int      @id @default(autoincrement())
+  name            String
+  DISPLAY_VALUE    String
+  GENRIC_KEY        String?  @db.Text
+  PhotoRequire      Int?
+  bucket            Int?
+  followup_type      Int @default(0)
+  is_remark          Int @default(0)
+  is_image           Int @default(0)
+  nxt_followup        Int @default(0)
+  payment_type        Int @default(0)
+  FIELD_ID            String
+  DISPLAY_ORDER        Int
+  CURRENT_STATUS        Int @default(1)
+  paid_visit            Int @default(0)
+  created_at             DateTime
+  updated_at             DateTime
+}
+
+model CollectionAppPaymentTypeMaster {
+  id                 Int      @id @default(autoincrement())
+  name                String?  @db.Text
+  display_name         String?  @db.Text
+  mode_desp             String?  @db.Text
+  is_mobile_required     String?  @db.Text
+  is_paid_visit           Int @default(0)
+  is_image_required        String?  @db.Text
+  payment_type_id           Int @default(0)
+  instrument_type            String?  @db.Text
+  display_order               Int?
+  pfl_status                  Int @default(1)
+  description                  String?  @db.Text
+  online_status                 Int @default(1)
+  status                        Int @default(1)
+  created_at                     DateTime? @default(now())
+  updated_at                     DateTime? @default(now())
+}
+
+
+model CollectionAppStagesMaster {
+  id             Int      @id @default(autoincrement())
+  name            String
+  DISPLAY_VALUE    String
+  STAGES_ID         String
+  DISPLAY_ORDER      Int
+  CURRENT_STATUS      Int @default(1)
+  created_at           DateTime
+  updated_at           DateTime
+}
+
+
+model CollectionFollowUp {
+  id                        Int      @id @default(autoincrement())
+  case_id                    Int?
+  co_id                      Int?
+  current_follow_up            String?  @db.Text
+  follow_up_type                String?  @db.Text
+  follow_up_date_time            DateTime?
+  next_follow_up_date              DateTime?
+  next_follow_up_remark             String?  @db.Text
+  loan_number                      String?  @db.VarChar(191)
+  ptp_mode                          String?  @db.Text
+  ptp_amount                        String?  @db.Text
+  remarks                           String?  @db.Text
+  geo_lat                           String?  @db.Text
+  geo_long                          String?  @db.Text
+  status                            String?  @db.Text
+  next_follow_up_objective           String?  @db.Text
+  created_at                          DateTime? @default(now())
+  updated_at                          DateTime? @default(now())
+  display_value                       String?  @db.Text
+  follow_up_name                      String?  @db.Text
+  generic_key                          String?  @db.Text
+  is_image_required                    String?  @db.Text
+  is_next_followup_required            String?  @db.Text
+  is_remark_required                   String?  @db.Text
+  next_follow_up_status                String?  @db.Text
+  assigned_by                           String?  @db.Text
+  telecaller_name                       String?  @db.Text
+
+  SoaCaseMapping SoaCaseMapping? @relation(fields: [case_id], references: [id])
+  User           User?           @relation(fields: [co_id], references: [id])
+
+  HourlyLog        HourlyLog[]
+
+  Schedules        Schedules[]
+
+  DocumentStorage   DocumentStorage[]
+
+  @@index([case_id, loan_number(length: 191), co_id])
+  @@index([co_id])
+}
+
+
+model CollectionReminders {
+  id                 Int      @id @default(autoincrement())
+  notification_type   String?  @db.Text
+  employee_id          String?  @db.VarChar(191)
+  case_id               Int?
+  follow_up_id           Int?
+  content                String
+  created_at              DateTime? @default(now())
+  updated_at              DateTime? @default(now())
+
+  User User? @relation(fields: [employee_id], references: [employee_id])
+
+}
+
+
+model DepartmentMaster {
+  id                 Int      @id @default(autoincrement())
+  department_name     String?  @db.Text
+  collection_allowed   Boolean?
+  collection_type       String?  @db.Text
+  created_at             DateTime?
+  updated_at             DateTime?
+      User         User[]
+
+}
+
+
+model ENach {
+  id           Int      @id @default(autoincrement())
+  case_id        Int
+  loan_number     String?  @db.VarChar(191)
+  enach_status     String?  @db.Text
+  emi_amount       String?  @db.Text
+  created_at        DateTime? @default(now())
+  updated_at        DateTime? @default(now())
+
+  SoaCaseMapping SoaCaseMapping @relation(fields: [case_id], references: [id])
+
+  @@index([case_id])
+}
+
+model excotelmaster {
+  id              Int      @id @default(autoincrement())
+  excotelcalledid  String?  @db.Text
+  created_at        DateTime @default(now())
+  updated_at        DateTime
+}
+
+
+model FollowUpMaster {
+  id                     Int      @id @default(autoincrement())
+  name                    String?  @db.Text
+  display_value            String?  @db.Text
+  follow_up_type            String?  @db.Text
+  generic_key                Int?
+  is_remark_required          String?  @db.Text
+  is_image_required           String?  @db.Text
+  is_next_followup_required   String?  @db.Text
+  last_updated_by              String?  @db.Text
+  created_at                    DateTime?
+  updated_at                    DateTime?
+
+  GenericMaster GenericMaster? @relation(fields: [generic_key], references: [id])
+
+  @@index([generic_key])
+}
+
+model GenericMaster {
+  id                      Int      @id @default(autoincrement())
+  generic_key              String?  @db.Text
+  code                     String?  @db.Text
+  value                    String?  @db.Text
+  display_value             String?  @db.Text
+  is_paid_visit_applicable  String?  @db.Text
+  is_photo_require           String?  @db.Text
+  pfl_status                 Int @default(1)
+  ixl_status                 Int @default(1)
+  status                     Int @default(1)
+  created_at                  DateTime?
+  updated_at                  DateTime?
+
+  FollowUpMaster FollowUpMaster[]
+}
+
+
+model HourlyLog {
+  id                 Int      @id @default(autoincrement())
+  co_id               Int
+  punch_time           String?  @db.Text
+  record_type           String?  @db.Text
+  follow_up_id           Int?
+  attendance_log_id      Int
+  punch_hour              Int?
+  active                  Boolean?
+  geo_lat                 String?  @db.Text
+  geo_long                String?  @db.Text
+  created_at               DateTime? @default(now())
+  updated_at               DateTime? @default(now())
+
+  User                User                @relation(fields: [co_id], references: [id])
+  UserAttendanceLog   UserAttendanceLog   @relation(fields: [attendance_log_id], references: [id])
+  CollectionFollowUp  CollectionFollowUp? @relation(fields: [follow_up_id], references: [id])
+
+  @@index([co_id, attendance_log_id])
+  @@index([attendance_log_id])
+  @@index([follow_up_id])
+}
+
+model LegalCaseEvidences {
+  id                 Int      @id @default(autoincrement())
+  legal_case_id        Int?
+  loan_number           String?  @db.VarChar(191)
+  document_url           String?  @db.Text
+  document_fetch_url      String?  @db.Text
+  is_active               Boolean? @default(true)
+  mime_type               String?  @db.Text
+  evidence_type            String?  @db.Text
+  created_at                DateTime? @default(now())
+  updated_at                DateTime? @default(now())
+
+  LegalCases     LegalCases?     @relation(fields: [legal_case_id], references: [id])
+  SoaCaseMapping SoaCaseMapping? @relation(fields: [loan_number], references: [loan_number])
+
+  @@index([legal_case_id, loan_number(length: 191), evidence_type(length: 191)])
+}
+
+
+model LegalCases {
+  id              Int      @id @default(autoincrement())
+  legal_status_id   Int?
+  case_id            Int?
+  loan_number         String @db.VarChar(191)
+  contact             String?  @db.Text
+  remarks             String?  @db.Text
+  created_at           DateTime? @default(now())
+  updated_at           DateTime? @default(now())
+
+  LegalMaster     LegalMaster?     @relation(fields: [legal_status_id], references: [id])
+  SoaCaseMapping  SoaCaseMapping    @relation(fields: [loan_number], references: [loan_number])
+  LegalCaseEvidences LegalCaseEvidences[]
+
+  @@index([legal_status_id, case_id, loan_number])
+  @@index([loan_number])
+}
+
+model LegalMaster {
+  id          Int      @id @default(autoincrement())
+  stage_name   String?  @db.Text
+  priority     Int?
+  is_active     Boolean?
+  created_at    DateTime? @default(now())
+  updated_at    DateTime? @default(now())
+
+  LegalCases LegalCases[]
+}
+
+model LegalMeterial {
+  id                 Int      @id @default(autoincrement())
+  case_type            String?  @db.Text
+  case_stage            String?  @db.Text
+  document_fetch_url    String?  @db.Text
+  fetch_url              String?  @db.Text
+  mine_type              String?  @db.Text
+  details                Json?
+  created_at              DateTime? @default(now())
+  updated_at              DateTime? @default(now())
+}
+
+
+model MasterRegion {
+  id             Int      @id @default(autoincrement())
+  REGION_NAME     String
+  REGION_VALUE     String
+  DISPLAY_VALUE     String
+  DISPLAY_ORDER     String
+  PFL_STATUS         String
+  status              Int @default(1)
+  created_at           DateTime
+  updated_at           DateTime
+
+  BankBranchMaster BankBranchMaster[]
+  BranchMaster     BranchMaster[]
+}
+
+
+model MastersScheduler {
+  id            Int      @id @default(autoincrement())
+  master_name    String?  @db.Text
+  type            String?  @db.Text
+  updated_time     DateTime?
+}
+
+model MasterZone {
+  id            Int      @id @default(autoincrement())
+  ZONE_ID         Int
+  ZONE_DESC        String?  @db.Text
+  ZONE_DESC_L       String?  @db.Text
+  DISPLAY_VALUE      String?  @db.Text
+  DISPLAY_ORDER      String?  @db.Text
+  REC_STATUS          String?  @db.Text
+  PFL_STATUS          String?  @db.Text
+  status              Int @default(1)
+  created_at           DateTime?
+  updated_at           DateTime?
+  zone_name             String?  @db.Text
+
+  BranchMaster BranchMaster[]
+}
+
+
+model MonthMaster {
+  id          Int      @id @default(autoincrement())
+  month         String?  @db.Text
+  created_at     DateTime
+  updated_at     DateTime
+}
+
+
+model PaymentCollect {
+  id                                   Int      @id @default(autoincrement())
+  case_id                               Int
+  loan_number                            String?  @db.VarChar(191)
+  invoice_number                         String?  @db.Text
+  bounce_charges                          String?  @db.Text
+  order_id                                String?  @db.Text
+  gateway_name                             String?  @db.Text
+  mobile_number                            String?  @db.Text
+  amount                                   String
+  emi_for_month                            String?  @db.Text
+  payment_mode                              String?  @db.Text
+  payment_type                              String?  @db.Text
+  payment_date                              DateTime?
+  qr_code                                   String?  @db.Text
+  qr_expiry_time                            DateTime?
+  payment_link                              String?  @db.Text
+  merchant_request_number                   String?  @db.Text
+  cash_deposit                              Boolean?
+  cheque_number                             String?  @db.Text
+  collection_done_mobile                    String?  @db.Text
+  cash_handling_charges                     String?  @db.Text
+  instrument_collected_by                   String?  @db.Text
+  bank_acc_number                           String?  @db.Text
+  cash_otp                                  String?  @db.Text
+  cash_mobile_number                         String?  @db.Text
+  cash_otp_verified                           Boolean?
+  cash_otp_verified_at                         DateTime?
+  geo_lat                                     String?  @db.Text
+  geo_long                                    String?  @db.Text
+  gateway_veriy_amount                         String?  @db.Text
+  gateway_secure_hash                          String?  @db.Text
+  gateway_verify_transaction_id                String?  @db.Text
+  gateway_verify_bank_name                      String?  @db.Text
+  gateway_verify_billed_amount                  String?  @db.Text
+  gateway_verify_transaction_payment_status     String?  @db.Text
+  gateway_verify_transaction_time               String?  @db.Text
+  gateway_verify_customer_phone                 String?  @db.Text
+  expired                                      Boolean @default(false)
+  is_reciept_generated                          Boolean? @default(false)
+  receipt_number                                String?  @db.Text
+  status                                        String?  @db.Text
+  month                                         Int?
+  year                                          String?  @db.Text
+  created_at                                    DateTime? @default(now())
+  updated_at                                    DateTime? @default(now())
+  additional_gateway_resp                        Json?
+
+  SoaCaseMapping SoaCaseMapping @relation(fields: [case_id], references: [id])
+
+  @@index([case_id, loan_number(length: 191), invoice_number(length: 191), mobile_number(length: 191)])
+}
+
+
+model PaymentRequestLog {
+  id          Int      @id @default(autoincrement())
+  timestamp    DateTime @default(now())
+  endpoint     String
+  method       String
+  dump         Bytes?
+
+  PaymentResponseLog PaymentResponseLog[]
+}
+
+
+model PaymentResponseLog {
+  id             Int      @id @default(autoincrement())
+  timestamp       DateTime @default(now())
+  endpoint        String
+  method          String
+  dump            Bytes?
+  request_log_id   Int
+
+  PaymentRequestLog PaymentRequestLog @relation(fields: [request_log_id], references: [id])
+
+  @@index([request_log_id])
+}
+
+model PaymentTransactionOld {
+  id                     Int      @id @default(autoincrement())
+  user_id                 Int?
+  follow_up_id             Int
+  transaction_id            String?  @db.Text
+  payment_transaction_id     String
+  pg_response                String
+  branch_id                  String?  @db.Text
+  customer_name               String
+  imei                        String
+  ip_address                  String
+  amount                      String
+  tx_status                   String
+  transaction_amount           String
+  pg_txn_no                    String
+  issuer_ref_no                String
+  auth_id_code                 String
+  first_name                   String
+  last_name                    String
+  pg_resp_code                 String
+  address_zip                  String
+  status                       Int? @default(1)
+  created_at                   DateTime?
+  updated_at                   DateTime?
+}
+
+
+model PermissionMaster {
+  id             Int      @id @default(autoincrement())
+  name             String?  @db.Text
+  type             String?  @db.Text
+  status           Boolean?
+  last_updated_by  String?  @db.Text
+  created_at        DateTime?
+  updated_at        DateTime?
+
+  PermissionMapping PermissionMapping[]
+}
+
+
+model PermissionMapping {
+  id             Int      @id @default(autoincrement())
+  type_id           Int
+  map_type           String
+  permission_id      Int
+  status             Boolean?
+  last_updated_by    String?  @db.Text
+  created_at          DateTime?
+  updated_at          DateTime?
+
+  PermissionMaster PermissionMaster @relation(fields: [permission_id], references: [id])
+
+  @@index([type_id, map_type, permission_id, status])
+}
+
+
+model ReAssignment {
+  id              Int      @id @default(autoincrement())
+  user_id            Int
+  employee_id         String?  @db.VarChar(191)
+  case_id              Int?
+  loan_number           String?  @db.VarChar(191)
+  reason                String?  @db.Text
+  status                String?  @db.Text
+  remarks               String?  @db.Text
+  new_user_id            Int?
+  new_employee_id         String?  @db.Text
+  allocationMaster        Int?
+  approved_by              String?  @db.Text
+  approved_at              DateTime?
+  created_at               DateTime?
+  updated_at               DateTime?
+
+  User           User           @relation(fields: [user_id], references: [id])
+  SoaCaseMapping SoaCaseMapping? @relation(fields: [case_id], references: [id])
+}
+
+
+model ReceiptData {
+  id                    Int      @id @default(autoincrement())
+  user_id                Int?
+  case_id                Int?
+  loan_number             String?  @db.VarChar(191)
+  receipt_type             String?  @db.Text
+  receipt_number           String?  @db.Text
+  receipt_for_the_month    String?  @db.Text
+  fetch_url                 String?  @db.Text
+  original_url              String?  @db.Text
+  created_at                DateTime
+  updated_at                DateTime
+
+  User           User?           @relation(fields: [user_id], references: [id])
+  SoaCaseMapping SoaCaseMapping? @relation(fields: [case_id], references: [id])
+}
+
+
+model RoleMaster {
+  id              Int      @id @default(autoincrement())
+  name              String
+  status            Boolean @default(true)
+  last_updated_by    String?  @db.Text
+  created_at          DateTime?
+  updated_at          DateTime?
+
+  UserRoles           UserRoles[]
+}
+
+
+model RolesPermission {
+  id                  Int      @id @default(autoincrement())
+  role_id                Int
+  permission_id          Int
+  status                 Int @default(1)
+  collection_allowed       Boolean? @default(false)
+  created_at               DateTime
+  updated_at               DateTime
+}
+
+
+model RolesPermissionState {
+  id          Int      @id @default(autoincrement())
+  role_id        Int
+  state_id       Int
+  status         Int @default(1)
+  created_at      DateTime
+  updated_at      DateTime
+}
+
+
+model RuleConditions {
+  id         Int      @id @default(autoincrement())
+  rule_id     Int?
+  type        String?  @db.Text
+  operator    String?  @db.Text
+  value       String?  @db.Text
+  active      Boolean? @default(true)
+  created_at  DateTime? @default(now())
+  updated_at  DateTime  @default(now())
+
+  AllocationRules AllocationRules? @relation(fields: [rule_id], references: [id])
+}
+
+
+model Schedules {
+  id              Int      @id @default(autoincrement())
+  loan_number        String
+  user_id             Int
+  repeat_master_id     Int?
+  message_type_id      Int?
+  follow_up_id          Int?
+  PTP                   String?  @db.Text
+  date                  String?  @db.Text
+  time                  String?  @db.Text
+  is_active              Boolean?
+  created_at             DateTime @default(now())
+  updated_at             DateTime @default(now())
+
+  SoaCaseMapping      SoaCaseMapping      @relation(fields: [loan_number], references: [loan_number])
+  CollectionFollowUp CollectionFollowUp? @relation(fields: [follow_up_id], references: [id])
+  User                User                @relation(fields: [user_id], references: [id])
+}
+
+
+model SearchMaster {
+  id           Int      @id @default(autoincrement())
+  name           String?  @db.Text
+  display_name   String?  @db.Text
+  category       String?  @db.Text
+  is_active       Boolean? @default(true)
+  is_deleted      Boolean? @default(false)
+
+}
+
+
+model Settlement {
+  id              Int      @id @default(autoincrement())
+  case_id            Int
+  application_id      String
+  POS                 Int?
+  settlement_type      String?  @db.Text
+  overdue_amount       Int?
+  other_charges         Int?
+  legal_charges          Int?
+  tranche                Int?
+  if_foreclosure          Boolean?
+  status                  String?  @db.Text
+  payment_date             DateTime
+  approver_id               Int?
+  approver_role             String?  @db.Text
+  approved_at               DateTime?
+  remarks                   String?  @db.Text
+  created_at                 DateTime? @default(now())
+  updated_at                 DateTime? @default(now())
+
+  SoaCaseMapping SoaCaseMapping @relation(fields: [case_id], references: [id])
+}
+
+
+model SMSRequestLog {
+  id        Int      @id @default(autoincrement())
+  timestamp   DateTime @default(now())
+  endpoint    String
+  method      String
+  dump        Json?
+
+  SMSResponseLog SMSResponseLog[]
+}
+
+
+model SMSResponseLog {
+  id              Int      @id @default(autoincrement())
+  timestamp          DateTime @default(now())
+  endpoint           String
+  method             String
+  dump               Json?
+  request_log_id       Int
+
+  SMSRequestLog SMSRequestLog @relation(fields: [request_log_id], references: [id])
+}
+
+
+model SoaAdditionalAddressMapping {
+  id             Int      @id @default(autoincrement())
+  case_id           Int
+  applicant_id       Int?
+  address_line1       String
+  address_line2       String?  @db.Text
+  address_line3       String?  @db.Text
+  landmark            String?  @db.Text
+  state               String?  @db.Text
+  state_code           Int?
+  pincode              String?  @db.Text
+  phone_number_1        String?  @db.Text
+  phone_number_2        String?  @db.Text
+  phone_number_3        String?  @db.Text
+  get_lat               String?  @db.Text
+  geo_long              String?  @db.Text
+  is_active              Boolean?
+  is_deleted             Boolean?
+
+  SoaCaseMapping SoaCaseMapping @relation(fields: [case_id], references: [id])
+}
+
+
+model SoaAddressDetail {
+  id             Int      @id @default(autoincrement())
+  applicant_id      Int
+  address_line1      String
+  address_line2      String?  @db.Text
+  address_line3      String?  @db.Text
+  landmark           String?  @db.Text
+  city               String?  @db.Text
+  state              String?  @db.Text
+  state_code           Int?
+  pincode              String?   @db.Text
+  geo_lat              String?  @db.Text
+  geo_long             String?  @db.Text
+  is_active             Boolean?
+  is_deleted            Boolean?
+  loan_number            String?  @db.VarChar(191)
+  sequence_number         Int?
+
+  SoaApplicantDetail SoaApplicantDetail @relation(fields: [applicant_id], references: [id])
+
+  @@index([applicant_id])
+}
+
+
+model SoaApplicantDetail {
+  id                Int      @id @default(autoincrement())
+  case_id              Int
+  is_primary            Boolean?
+  first_name             String?  @db.Text
+  middle_name            String?  @db.Text
+  sequence_number         Int?
+  last_name               String?  @db.Text
+  mobile_number            String
+  alternate_number          String?  @db.Text
+  email                    String?  @db.Text
+  additional_email           String?  @db.Text
+  is_guarantor                Boolean?
+  adhaar_number               String?  @db.Text
+  salesforce_ref_id            String?  @db.Text
+  loan_number                   String?  @db.VarChar(191)
+
+  SoaCaseMapping SoaCaseMapping @relation(fields: [case_id], references: [id])
+  SoaAddressDetail SoaAddressDetail[]
+  SoaApplicantHistory SoaApplicantHistory[]
+  SoaBankingDetails SoaBankingDetails[]
+}
+
+
+model SoaApplicantHistory {
+  id             Int      @id @default(autoincrement())
+  applicant_id      Int
+  case_id            Int
+  table_name           String
+  data_changed          DateTime? @default(now())
+  history_detail         Json?
+
+  SoaApplicantDetail  SoaApplicantDetail@relation(fields:[applicant_id],references:[id])
+}
+
+
+model SoaBankingDetails {
+  id                     Int      @id @default(autoincrement())
+  applicant_id              Int
+  case_id                    Int
+  branch                      String
+  account_number               String?  @db.Text
+  ifsc_code                     String?  @db.Text
+  registered_phone_number        String?  @db.Text
+  loan_number                    String  @db.VarChar(191)
+  is_active                       Boolean?
+  is_primary                      Boolean?
+  auto_debit                      Boolean?
+
+  SoaApplicantDetail SoaApplicantDetail @relation(fields: [applicant_id], references: [id])
+  SoaCaseMapping SoaCaseMapping @relation(fields: [loan_number], references: [loan_number])
+
+  @@index([case_id])
+}
+
+
+model SoaCaseMapping {
+  id                          Int      @id @default(autoincrement())
+  loan_number                   String   @unique @db.VarChar(191)
+  loan_tenure                   String?  @db.Text
+  application_id               String?   @db.Text
+  opportunity_id               String?  @db.Text
+  disbursed_amount              String?  @db.Text
+  co_id                         Int?
+  bcm_id                         Int?
+  assigned_user                  String?  @db.Text
+  loan_purpose                   String?  @db.Text
+  loan_principal_balance          Int?
+  principal_outstanding            Int?
+  bureau_balances_current           String?  @db.Text
+  bureau_balances_overdue           String?  @db.Text
+  bucket                           String?   @db.VarChar(191)
+  dpd_opening                       String?  @db.Text
+  bureau_accounts_total             String?  @db.Text
+  bureau_accounts_overdue           String?  @db.Text
+  bureau_accounts_zero_balance      String?  @db.Text
+  bureau_date_opened_recent          String?  @db.Text
+  bureau_date_opened_oldest          String?  @db.Text
+  bureau_active_acc                  String?  @db.Text
+  bureau_new_delinquent_acc          String?  @db.Text
+  bureau_account_status              String?  @db.Text
+  bureau_name                        String?  @db.Text
+  bureau_mobile                      String?  @db.Text
+  bureau_address                     String?  @db.Text
+  geo_tag_link                        String?  @db.Text
+  incentive                           Int?
+  case_type                           String?  @db.Text
+  loan_branch_id                      Int?
+  branch_id                            Int?
+  approved_by                          Int?
+  branch                                String?  @db.Text
+  legal_status                           String?  @db.Text
+  legal_stage                            String?  @db.Text
+  loan_approval_date                     String?  @db.Text
+  disbursal_status                        String?  @db.Text
+  rate_of_interest                         String?  @db.Text
+  sanctioned_amount                        Int?
+  date_from                                 DateTime?
+  date_to                                   DateTime?
+  status                                     Int?
+  created_at                                 DateTime?
+  udpated_at                                 DateTime?
+  approved_at                                DateTime?
+  account_type                                String?  @db.Text
+  active_acc                                  String?  @db.Text
+  total_dues                                  String?  @db.Text
+  new_delinquent_acc                           String?  @db.Text
+  balance_collectible                           String?  @db.Text
+  SoaApplicantDetail SoaApplicantDetail[]
+  CollectionFollowUp       CollectionFollowUp[]
+  settlement     Settlement[]
+  SoaEmiMapping    SoaEmiMapping[]
+  PaymentCollect PaymentCollect[]
+  User           User ?@relation(fields: [co_id], references: [id])
+  SoaBankingDetails SoaBankingDetails[]
+
+  SoaPropertyDetail SoaPropertyDetail[]
+  SoaReferenceDetail SoaReferenceDetail[]
+  ENach      ENach[]
+  SoaAdditionalAddressMapping SoaAdditionalAddressMapping[]
+  ChequeBounce      ChequeBounce[]
+
+  ReceiptData       ReceiptData[]
+
+  ReAssignment      ReAssignment[]
+
+  LegalCases        LegalCases[]
+
+  LegalCaseEvidences  LegalCaseEvidences[]
+ 
+  Schedules           Schedules[]
+  @@index([co_id])
+  @@index([co_id, bucket, status])
+}
+
+
+model SoaEmiMapping {
+  id                      Int      @id @default(autoincrement())
+  case_id                   Int
+  loan_number               String @db.VarChar(191)
+  application_id             String?  @db.Text
+  visit_charges               String?  @db.Text
+  emi_for_month               String?  @db.Text
+  foreclosure_charges          String?  @db.Text
+  due_for_month                String?  @db.Text
+  odi_charges                  String?  @db.Text
+  total_dues_ftm                String?  @db.Text
+  charges_for_month             String?  @db.Text
+  bounce_charges                String?  @db.Text
+  arrear_emi                    String?  @db.Text
+  arrear_bounce_emi              String?  @db.Text
+  future_emi                    String?  @db.Text
+  total_payment                 String?  @db.Text
+  original_due                  String?  @db.Text
+  legal_charges                 String?  @db.Text
+  call_charges                  String?  @db.Text
+  payment_date                  DateTime?
+  selected_payment_method       String?  @db.Text
+  legal_case_id                  Int?
+  emi_pending_no                 String?  @db.Text
+  emi_pemi_dues                  String?  @db.Text
+  rate_of_interest               String?  @db.Text
+  conveyance_charges             String?  @db.Text
+  total_updated_at               DateTime?
+  created_at                     DateTime? @default(now())
+  updated_at                     DateTime? @default(now())
+  cash_handling_charges          String?  @db.Text
+  lpp_charges                    String?  @db.Text
+  total_dues                     String?  @db.Text
+  charges_payable                String?  @db.Text
+  cbc_charges                    String?  @db.Text
+  emi_paid                       String?  @db.Text
+  anchor_rate                    String?  @db.Text
+  bounce_reason                  String?  @db.Text
+  balances_current               String?  @db.Text
+  balances_overdue               String?  @db.Text
+
+  SoaCaseMapping SoaCaseMapping @relation(fields: [case_id], references: [id])
+  SoaEmiMappingHistory SoaEmiMappingHistory[]
+
+  @@index([loan_number, case_id])
+  @@index([case_id])
+}
+
+
+model SoaEmiMappingHistory {
+  id               Int      @id @default(autoincrement())
+  emi_details_id     Int?
+  update_for_month    String?  @db.Text
+  update_for_year     String?  @db.Text
+  update              Json?
+
+  SoaEmiMapping SoaEmiMapping? @relation(fields: [emi_details_id], references: [id])
+}
+
+model SoaPropertyDetail {
+  id               Int      @id @default(autoincrement())
+  case_id            Int
+  property_value     String?  @db.Text
+  property_address   String?  @db.Text
+  property_pincode   String?  @db.Text
+  state              String?  @db.Text
+  city               String?  @db.Text
+  state_code          Int?
+  loan_number          String?  @db.VarChar(191)
+
+  SoaCaseMapping SoaCaseMapping @relation(fields: [case_id], references: [id])
+
+  @@index([case_id, loan_number(length: 191)])
+}
+
+
+model SoaReferenceDetail {
+  id                      Int      @id @default(autoincrement())
+  case_id                   Int
+  reference_1_type           String?  @db.Text
+  reference_1_full_name       String?  @db.Text
+  loan_number                 String   @db.VarChar(191)
+  reference_1_phone_number     String?  @db.Text
+  reference_1_address          String?  @db.Text
+  reference_1_pincode          String?  @db.Text
+  reference_1_city             String?  @db.Text
+  reference_1_state            String?  @db.Text
+  reference_1_email            String?  @db.Text
+  reference_2_type             String?  @db.Text
+  reference_2_full_name         String?  @db.Text
+  reference_2_phone_number       String?  @db.Text
+  reference_2_address            String?  @db.Text
+  reference_2_pincode            String?  @db.Text
+  reference_2_city               String?  @db.Text
+  reference_2_state              String?  @db.Text
+  reference_2_email              String?  @db.Text
+  extra_params                  Json?
+  created_at                     DateTime? @default(now())
+  updated_at                     DateTime? @default(now())
+
+  SoaCaseMapping SoaCaseMapping @relation(fields: [case_id], references: [id])
+
+  @@index([case_id, loan_number])
+}
+
+model StateMaster {
+  id                  Int      @id @default(autoincrement())
+  country_id            Int
+  state_id              Int?
+  state_desc            String?  @db.Text
+  display_value          String?  @db.Text
+  display_order          Int?
+  omnifin_status          Int?
+  current_status          Int?
+  pmay_state_id           Int?
+  retirement_age_gov      Int?
+  retirement_age_pvt      Int?
+  created_at              DateTime?
+  updated_at              DateTime?
+}
+
+model SyncHistory {
+  id          Int      @id @default(autoincrement())
+  sync_date     DateTime? @default(now())
+  sync_count     Int?
+}
+
+
+model User {
+  id                         Int      @id @default(autoincrement())
+  name                        String
+  email_id                    String?  @db.Text
+  primary_email                String?  @db.Text
+  employee_id                  String   @unique @db.VarChar(191)
+  department_id                Int?
+  username                     String @db.Text
+  password                     String?  @db.Text
+  otp                          String?  @db.Text
+  temp_token                   String?  @db.Text
+  mobile_number                String?  @db.Text
+  IMEI_latest                  String?  @db.Text
+  IMEI_previous                String?  @db.Text
+  device_id                    String?  @db.Text
+  device_id_previous           String?  @db.Text
+  network_type                 String?  @db.Text
+  battery_life                 String?  @db.Text
+  brand_name                   String?  @db.Text
+  model_name                   String?  @db.Text
+  os_version                   String?  @db.Text
+  network_source               String?  @db.Text
+  file_tracing_user_type       Int?
+  vendor_id                    Int?
+  vendor_pdc                   Int?
+  role_id                      Int?
+  role_master_id               Int?
+  all_branch                   Int?      @default(0)
+  team_leader_id               Int?
+  invalid_credential_count     Int?      @default(0)
+  invalid_credential_time      DateTime?
+  user_type                    Int?      @default(0)
+  online_status                Int?      @default(1)
+  online_payment               Int       @default(1)
+  first_login_time             DateTime?
+  last_login_time              DateTime?
+  status                       String
+  shift_start_time             String?  @db.Text
+  shift_end_time               String?  @db.Text
+  geo_lat                      String?  @db.Text
+  geo_long                     String?  @db.Text
+  created_at                   DateTime? @default(now())
+  updated_at                   DateTime? @default(now())
+
+  UserSessions       UserSessions[]
+  UserHistory   UserHistory[]      
+  SoaCaseMapping   SoaCaseMapping[]
+  CollectionFollowUp      CollectionFollowUp[]  
+  UserAttendanceLog UserAttendanceLog[]
+  HourlyLog     HourlyLog[]
+  CollectionReminders CollectionReminders[]
+
+    CashDeposite      CashDeposite[]
+
+    CallDuration     CallDuration[]
+
+    UserMapping     UserMapping[]
+
+    DepartmentMaster     DepartmentMaster?@relation(fields:[department_id],references:[id])
+    ReceiptData              ReceiptData[]
+
+    ReAssignment         ReAssignment[]
+
+    UserRoles                UserRoles[]
+
+    Allocation               Allocation[]
+
+    Schedules                Schedules[]
+    BranchMapping            BranchMapping[]
+
+  @@index([username(length: 191), mobile_number(length: 191), email_id(length: 191)])
+}
+
+
+model UserAttendanceLog {
+  id           Int      @id @default(autoincrement())
+  co_id          Int
+  start_time      DateTime? @default(now())
+  end_time        DateTime? @default(now())
+  log_type         String?  @db.Text
+  created_at       DateTime? @default(now())
+  updated_at       DateTime? @default(now())
+  geo_lat          String?  @db.Text
+  geo_long          String?  @db.Text
+  active            Boolean?
+
+  User      User      @relation(fields: [co_id], references: [id])
+  HourlyLog  HourlyLog[]
+
+  @@index([co_id])
+}
+
+model UserHistory {
+  id             Int      @id @default(autoincrement())
+  user_id          Int
+  change_history   Json?
+  updated_at        DateTime
+
+  User User @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+}
+
+
+model UserMapping {
+  id            Int      @id @default(autoincrement())
+  employee_code   String?  @db.VarChar(191)
+  manager_code    String?  @db.Text
+  map_type         String?  @db.Text
+  created_at       DateTime?
+  updated_at       DateTime?
+  changed_by       Int?
+
+  User User? @relation(fields: [employee_code], references: [employee_id])
+
+  @@index([employee_code(length: 191), map_type(length: 191), manager_code(length: 191)])
+}
+
+
+model UserRoles {
+  id            Int      @id @default(autoincrement())
+  user_id         Int?
+  user_code        String?  @db.Text
+  role_id          Int?
+  type              Int       @default(0)
+  status            Int?
+  display_order     Int       @default(1)
+  created_at         DateTime?
+  updated_at         DateTime?
+
+  User       User?       @relation(fields: [user_id], references: [id])
+  RoleMaster RoleMaster? @relation(fields: [role_id], references: [id])
+
+  @@index([user_id])
+  @@index([role_id])
+}
+
+
+model UserSessions {
+  id            Int      @id @default(autoincrement())
+  user_id         Int
+  token            String   @unique
+  imei             String?  @db.Text
+  device_id         String?  @db.Text
+  user_agent         String?  @db.Text
+  logged_in_at        DateTime?
+  logged_out_at       DateTime?
+  active              Boolean?
+  created_at          DateTime  @default(now())
+  updated_at          DateTime
+  expires_at           DateTime?
+
+  User User @relation(fields: [user_id], references: [id])
+
+  @@index([user_id, token, created_at])
+}
+
+
+model VendorMaster {
+  id                  Int      @id @default(autoincrement())
+  vendor_code           String
+  name                  String
+  address               String
+  contact_person_it      String
+  designation            String
+  telephone_no            String
+  mobile_no               String
+  fax_no                  String
+  email_id                String
+  contact_person_ac        String
+  telephone_no_ac           String
+  items                     String
+  nature_of_business         String
+  commencement_date          String
+  pan_no                     String
+  tin_no                     String
+  service_tax_reg_no           String
+  category_service_no           String
+  vat_no                       String
+  cst_no                       String
+  tan_no                       String
+  gst_no                       String
+  account_name                 String
+  account_number               String
+  pay_to_name                  String
+  account_type                 String
+  bank_name                    String
+  branch_name                  String
+  bank_address                 String
+  bank_rtgs                    String
+  bank_isfc                    String
+  bank_micr                    String
+  bank_swift                   String
+  status                       Int      @default(1)
+  created_at                   DateTime
+  updated_at                   DateTime
+}
+
+
+
+model versionmaster {
+  id                     Int      @id @default(autoincrement())
+  application              String?  @db.Text
+  platform                 String?  @db.Text
+  current_version_update    String?  @db.Text
+  updated_app_url            String?  @db.Text
+  created_at                 DateTime @default(now())
+  updated_at                 DateTime
+}
+
+  model BranchMapping {
+
+      id           Int              @id @default(autoincrement())
+
+      user_id       Int?
+
+      branch_id  Int?
+
+      is_active    Boolean?   @default(true)
+
+      BranchMaster    BranchMaster?@relation(fields:[branch_id],references:[id])
+
+      User    User?@relation(fields:[user_id],references:[id])
+
+  }
+ 
+
+ model DocumentStorage {
+      id           Int              @id @default(autoincrement())
+      follow_up_id       Int?
+      loan_number  String?
+      s3_url       String?
+      fetch_url    String?
+      doc_type     String?
+      doc_sub_type String?
+      is_active    Boolean?   @default(true)
+      created_at   DateTime?
+      updated_at   DateTime?
+      CollectionFollowUp    CollectionFollowUp?@relation(fields:[follow_up_id],references:[id])
+  }
+
+
+
+
+
+
+
+

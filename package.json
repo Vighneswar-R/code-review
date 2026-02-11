@@ -1,0 +1,31 @@
+{
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.987.0",
+    "@aws-sdk/lib-storage": "^3.987.0",
+    "@prisma/client": "^6.19.2",
+    "@rodrigogs/mysql-events": "^0.6.0",
+    "axios": "^1.12.2",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "jwks-rsa": "^3.2.2",
+    "luxon": "^3.7.2",
+    "multer": "^2.0.2",
+    "mysql2": "^3.16.0",
+    "node-cron": "^4.2.1",
+    "socket.io": "^4.8.3",
+    "uuidv4": "^6.2.13",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "chai": "^4.5.0",
+    "mocha": "^11.7.5",
+    "prisma": "^6.19.2"
+  },
+  "scripts": {
+    "test": "mocha infrastructure/db/unit-testing/**/*.test.js"
+  }
+}
