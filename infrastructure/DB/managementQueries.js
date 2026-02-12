@@ -444,12 +444,19 @@ const main = {
                 User: {
                   select: {
                     employee_id: true,
-                    branch_id: true,
-                    BranchMaster: {
-                      select: {
-                        branch_name: true
+                    BranchMapping:{
+                      where:{
+                        is_active:true
+                      },
+                      select:{
+                        BranchMaster:{
+                          select:{
+                            branch_name:true,
+                            id:true
+                          }
+                        }
                       }
-                    },
+                    }
                   }
                 },
                 loan_number: true,
@@ -564,12 +571,19 @@ const main = {
             select: {
               User: {
                 select: {
-                  branch_id: true,
                   email_id: true,
                   employee_id: true,
-                  BranchMaster: {
-                    select: {
-                      branch_name: true
+                  BranchMapping:{
+                    where:{
+                      is_active:true
+                    },
+                    select:{
+                      BranchMaster:{
+                        select:{
+                          id:true,
+                          branch_name:true
+                        }
+                      }
                     }
                   }
                 }
@@ -835,9 +849,17 @@ const main = {
                     email_id: true,
                     employee_id: true,
                     mobile_number: true,
-                    BranchMaster: {
-                      select: {
-                        branch_name: true
+                  BranchMapping:{
+                      where:{
+                        is_active:true
+                      },
+                      select:{
+                        BranchMaster:{
+                          select:{
+                            branch_name:true,
+                            id:true
+                          }
+                        }
                       }
                     }
                   }
