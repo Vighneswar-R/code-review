@@ -153,7 +153,6 @@ const main = {
         select:{
           id:true,
           user_id:true,
-          branch_id:true,
           BranchMaster:{
             select:{
               id:true,
@@ -410,12 +409,19 @@ const main = {
               User: {
                 select: {
                   employee_id: true,
-                  branch_id: true,
-                  BranchMaster: {
+                  BranchMapping:{
+                    where:{
+                      is_active:true
+                    },
+                    select:{
+      BranchMaster: {
                     select: {
-                      branch_name: true
+                      branch_name: true,
+                      id:true
                     }
                   },
+                    }
+                  }
                 }
               },
 
