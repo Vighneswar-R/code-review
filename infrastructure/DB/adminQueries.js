@@ -99,10 +99,17 @@ getAllUser:async(skip,take,query)=>{
 
     let queryObj = {where:{},
 include:{
-    BranchMaster:{
+    BranchMapping:{
+        where:{
+            is_active:true
+        },
         select:{
-            branch_name:true,
-            id:true
+            BranchMaster:{
+                select:{
+                    branch_name:true,
+                    id:true
+                }
+            }
         }
     },
     UserRoles:{
@@ -171,10 +178,18 @@ include:{
             return {...r,name:name}
         })
 
-        res.branch_name = branch_name;
 
         res.UserRoles = roles;
 
+        let branches = res.BranchMapping || [];
+
+        branches = branches.map((b)=>{
+            return b?.BranchMaster
+        });
+
+        res.branches = branches;
+
+        if(res?.BranchMapping) delete res.BranchMapping;
         return res;
         }) 
 
