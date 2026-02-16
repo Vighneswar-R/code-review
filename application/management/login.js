@@ -188,7 +188,33 @@ const login_otp_verify = async(req) =>{
 
         // update the token in session 
 
-        resp.user = structure_login_data(resp.user)
+
+        console.log("USER DATA",resp.user)
+
+        resp.user = structure_login_data(resp.user);
+
+
+        // sanitize branches for only management login
+
+        if(resp.user?.BranchMapping?.length){
+
+            resp.user.branches = resp.user?.BranchMapping?.map((b)=>{
+                let obj = {};
+
+                obj.id = b?.BranchMaster?.id;
+
+                obj.branch_name = b?.BranchMaster?.branch_name;
+
+                obj.state_id = b?.BranchMaster?.AvailableStates?.id;
+
+                obj.state_name = b?.BranchMaster?.AvailableStates?.state_name;
+
+                return obj;
+
+            });
+
+            delete resp.user.BranchMapping;
+        }
 
         return resp;
 

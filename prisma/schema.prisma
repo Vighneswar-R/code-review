@@ -146,10 +146,12 @@ model BranchMaster {
   zone_id                         Int?
   branch_address_1                 String?  @db.Text
   branch_address_2                 String?  @db.Text
+  state_id                         Int?
 
   MasterRegion MasterRegion? @relation(fields: [region_id], references: [id])
   MasterZone   MasterZone?   @relation(fields: [zone_id], references: [id])
   BranchMapping            BranchMapping[]
+  AvailableStates          AvailableStates?@relation(fields:[state_id],references:[id])
   @@index([region_id])
   @@index([zone_id])
 }
@@ -1451,6 +1453,18 @@ model versionmaster {
       created_at   DateTime?
       updated_at   DateTime?
       CollectionFollowUp    CollectionFollowUp?@relation(fields:[follow_up_id],references:[id])
+  }
+
+
+
+  model AvailableStates{
+          id           Int              @id @default(autoincrement())
+          state_name   String?
+          is_active    Boolean?
+          created_at   DateTime?
+          updated_at   DateTime?
+
+          BranchMaster BranchMaster[]
   }
 
 

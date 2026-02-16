@@ -76,4 +76,8 @@ router.post('/update-status',masteradminControllers.udpateStatus);
 
 router.get('/get-generic-key', masteradminControllers.get_generic_key);
 
+
+router.get('/get-state-master', masteradminControllers.get_generic_key);
+
+
 module.exports = router;

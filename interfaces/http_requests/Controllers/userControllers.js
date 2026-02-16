@@ -32,11 +32,11 @@ const main = {
         try {
 
 
-            const{sso,access_token} = req.query;
+            const{sso} = req.query;
 
-            const { username, password, otp } = req.body;
+            const { username, password, otp, access_token, id_token,email } = req.body;
 
-            if (!username || (!otp && sso == false) || (sso == true && !access_token)) throw new Error("Missing Credentials");
+            if ((!username && (!sso || sso == 'false')) || (!otp && (!sso || sso == 'false')) || (sso == 'true' && (!id_token || !email))) throw new Error("Missing Credentials");
 
             const result = await userCases.verify_login_otp(req);
 

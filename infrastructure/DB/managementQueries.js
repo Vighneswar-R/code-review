@@ -71,8 +71,26 @@ const main = {
           select: {
             RoleMaster: true
           },
-
+        },
+      BranchMapping:{
+        where:{
+          is_active:true
+        },
+        select:{
+          BranchMaster:{
+            select:{
+              id:true,
+              branch_name:true,
+              AvailableStates:{
+                select:{
+                  id:true,
+                  state_name:true
+                }
+              }
+            }
+          }
         }
+      }
       }
     });
 
@@ -956,8 +974,293 @@ const main = {
     return await prisma[model].findMany(query_obj)
   },
 
+  get_dash_items:async()=>{
+
+    const data = await prisma.$transaction(async(tx)=>{
 
 
+      let request_batch = [];
+
+
+      // all users
+
+      const getUsers = async() =>{
+
+        const all_users = await tx.user.findMany({
+          where:{
+            status:"Active"
+          },
+          select:{
+            id:true,
+            name:true
+          }
+        });
+
+
+const startOfMonth = new Date();
+startOfMonth.setDate(1);
+startOfMonth.setHours(0, 0, 0, 0);
+
+const today = new Date();
+
+const current_users = await tx.user.findMany({
+  where: {
+    created_at: {
+      gte: startOfMonth,
+      lte: today
+    }
+  },
+  select:{
+    id:true,
+    name:true
+  }
+});
+
+
+
+let difference_count = all_users?.length - current_users?.length;
+
+return {total_users:all_users?.length || 0,user_comparison:difference_count}
+
+};    // end of func
+
+
+const get_allocation = async() =>{
+
+const allocations = await tx.allocation.findMany({
+  where: {
+    active: true
+  },
+  select: {
+    id: true,
+    created_at: true,
+    status:true
+  }
+});
+
+// start of current month
+const startOfMonth = new Date();
+startOfMonth.setDate(1);
+startOfMonth.setHours(0, 0, 0, 0);
+
+const now = new Date();
+
+const currentMonthAllocations = allocations.filter(a =>
+  a.created_at >= startOfMonth && a.created_at <= now
+);
+
+
+  const pending = allocations.filter((a)=>a?.status == 'in process');
+
+
+  if(allocations?.length){
+
+    return {total_allocations:allocations?.length || 0,pending_allocations:pending?.length,allocation_comparison:currentMonthAllocations?.length}
+  }
+
+
+};
+
+
+request_batch.push(getUsers());
+
+request_batch.push(get_allocation());
+
+
+const resolved = await Promise.all(request_batch);
+
+console.log("resolveddata",JSON.stringify(resolved));
+
+let obj = {};
+
+for(const item of resolved){
+
+  obj = {...obj,...item};
+}
+
+
+return {message:"Success",result:obj}
+    });
+
+
+    return data;
+
+  },
+
+
+fetchBranchRelatedReport:async(id,state_report)=>{
+
+  console.log("STATE REPORT",state_report)
+
+
+  const startOfMonth = new Date();
+startOfMonth.setDate(1);
+startOfMonth.setHours(0, 0, 0, 0);
+
+const today = new Date();
+
+  const data = await prisma.$transaction(async(tx)=>{
+
+
+    let where = {};
+
+
+    if(state_report == 'true'){
+
+      let all_branches = await tx.branchMaster.findMany({
+        where:{
+          state_id:Number(id),
+          // is_active:true
+        },
+        select:{
+          id:true,
+          branch_name:true
+        }
+      });
+
+      if(!all_branches?.length) throw new Error("No Branches Found For this State!");
+
+      const branch_ids = all_branches.map((branch)=>branch.id);
+
+      where = {
+        branch_id:{
+          in:branch_ids
+        },
+        is_active:true
+      }
+    }
+
+    else{
+      where = {
+        branch_id:Number(id),
+        is_active:true
+      }
+    }
+
+
+    const branch_result = await tx.branchMapping.findMany({
+      where:where,
+      select:{
+        branch_id:true,
+        BranchMaster:true,
+        user_id:true,
+        User:{
+          select:{
+            id:true,
+            employee_id:true,
+            name:true,
+            SoaCaseMapping:{
+              // where:{
+              //   created_at:{
+              //     lte:startOfMonth,
+              //     gte:today
+              //   }
+              // },
+              select:{
+                id:true,
+                balance_collectible:true,
+                PaymentCollect:{
+                  where:{
+                    status:"completed"
+                  },
+                  select:{
+                    case_id:true,
+                    loan_number:true,
+                    amount:true,
+                    status:true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    return branch_result;
+  
+  });
+
+
+  
+  let result = data.map((res)=>{
+
+
+    let obj = {target:0,collection:0};
+
+    obj.name = res?.User?.name;
+
+    obj.location = res?.BranchMaster?.branch_name;
+
+
+    if(!res?.User?.SoaCaseMapping?.length){
+
+      return obj;
+    }
+
+    let target = res?.User?.SoaCaseMapping.reduce((sum, item) => {
+  return sum + Number(item.balance_collectible || 0);
+}, 0);
+
+      let collection = 0;
+
+    console.log(res?.User?.SoaCaseMapping)
+
+  for(const cases of res?.User?.SoaCaseMapping){
+
+
+ let total = cases?.PaymentCollect?.reduce((sum, item) => {
+  return sum + Number(item.amount || 0);
+}, 0);
+    console.log("TOPTAL",total)
+
+    collection+=total
+
+  }
+  
+  obj.target = target;
+
+  obj.collection = collection;
+
+  return obj;
+  });
+
+  // calculate the highest and lowest in branch;
+
+  let merged_data = {performance:{top_performer:"",need_support:""},users:result};
+
+  let highest = {index:null,percent:0};
+
+  let lowest = {index:null,percent:0};
+
+
+  for(let i = 0; i<result?.length; i++){
+        let calc = (result[i].collection/result[i].target)*100;
+
+    if(calc > highest.percent) highest = {...highest,index:i,percent:calc};
+
+    if(i !== 0){
+          if(calc < lowest.percent) lowest = {...lowest,index:i,percent:calc};
+    }
+
+    else{
+      lowest = {...lowest,index:i,percent:calc};
+    }
+
+  }
+
+
+  console.log("HIGH",lowest)
+  merged_data.performance.top_performer = result[highest["index"]]
+
+  merged_data.performance.need_support = result[lowest["index"]]
+
+
+
+
+  return {message:"Success",result:merged_data}
+
+}
 
 
 }

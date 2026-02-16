@@ -632,4 +632,45 @@ const get_reports = async (id, type, skip, take, from, to, sub_type, body) => {
     }
 }
 
-module.exports = { get_reports }
+
+const get_dashboard_main = async(id) =>{
+
+
+    try{
+
+
+    const get_dash_info = await managementQueries.get_dash_items();
+
+
+    return get_dash_info;
+
+    }
+
+
+    catch(err){
+
+throw err;
+    }
+}
+
+
+const get_branch_report = async(id,state_report) => {
+
+
+    try{
+
+        const result = await managementQueries.fetchBranchRelatedReport(id,state_report);
+
+        return result;
+
+    }
+
+    catch(err){
+
+        console.log(err);
+        throw err;
+    }
+
+}
+
+module.exports = { get_reports,get_dashboard_main,get_branch_report }

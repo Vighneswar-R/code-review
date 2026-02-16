@@ -136,7 +136,19 @@ findCoMapped: async (loggedInEmpId,getCount) => {
 
   // 3. Find matching users with CO role
 
-  let includeQuery = { UserRoles: true, BranchMaster:true };
+  let includeQuery = { UserRoles: true, BranchMapping:{
+    where:{
+      is_active:true
+    },
+    select:{
+      BranchMaster:{
+        select:{
+          id:true,
+          branch_name:true
+        }
+      }
+    }
+  } };
 
 
 

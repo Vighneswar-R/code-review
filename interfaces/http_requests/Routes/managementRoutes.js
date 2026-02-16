@@ -79,6 +79,13 @@ router.get('/legal/get-case-list',legalControllers.get_case_list);
 
 router.get('/legal/dashboard',legalControllers.get_dashboard_data)      // add legal master options to be available
 
+router.get('/dashboard-main',managementControllers.dashboard_data);  //1
+
+router.get('/branch-report/:id',managementControllers.branchReport);  //2
+
+router.get('/state-report/:id',managementControllers.stateReport);  //3
+
+
 
 
 

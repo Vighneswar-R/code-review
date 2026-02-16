@@ -38,7 +38,7 @@ const verify_token = async(req,res,next)=>{
         let split_path = req.originalUrl.split('/')
 
         console.log(split_path[split_path.length-1])
-        if(['login-otp-verify','login'].includes(split_path[split_path.length-1])){
+        if(['login-otp-verify','login','login-otp-verify?sso=true'].includes(split_path[split_path.length-1])){
              return next()
         }
 

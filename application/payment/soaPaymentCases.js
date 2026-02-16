@@ -197,7 +197,7 @@ const zlib = require('zlib');
 
 
 
-const check_status = async(orderId,id,loan_number,mobile,amount) =>{
+const check_status = async(orderId,id,loan_number,mobile,amount,query) =>{
 
         try{
 
@@ -210,6 +210,13 @@ const check_status = async(orderId,id,loan_number,mobile,amount) =>{
 
             const hash = crypto.createHash('sha512').update(hashSequence).digest('hex');
             const authorization_string = hash;
+
+
+            // capture lat and long of the user **
+
+            let geo_lat = query?.lat || "";
+
+            let geo_long = query?.long || "";
 
 
             const axiosInstance = axios.create();
@@ -299,7 +306,9 @@ console.log("Preview:", Buffer.from(JSON.stringify(response.data)));
                         gateway_verify_transaction_payment_status  :   payment_verified?.transaction_order?.transactions.filter((t)=>t.status == 'unsettled' || t.status == 'settled')?.[0]?.status,
                         payment_date:payment_verified?.transaction_order?.transactions.filter((t)=>t.status == 'unsettled' || t.status == 'settled')?.[0]?.transaction_date?new Date(payment_verified?.transaction_order?.transactions.filter((t)=>t.status == 'unsettled' || t.status == 'settled')?.[0]?.transaction_date):null,
                         status: payment_verified?.transaction_order?.status == 'completed'? 'completed' :null,
-                        expired:true
+                        expired:true,
+                        geo_lat:geo_lat || "",
+                        geo_long:geo_long || ""
                         // method: 'Online'
             }
             // update payment collect table**
@@ -979,7 +988,7 @@ return {Message:"Success",result:created_entry}
 
 
 
-    const verify_payment_QR = async(loan_number) =>{
+    const verify_payment_QR = async(loan_number,query) =>{
 
         try{
 
@@ -1001,7 +1010,7 @@ return {Message:"Success",result:created_entry}
 
         // if(paymentDetails.status == 'completed') throw new Error("Payment Already Verified");
 
-        const transaction_details = await check_status(paymentDetails?.invoice_number,paymentDetails?.id,loan_number,paymentDetails?.mobile_number,paymentDetails?.amount);
+        const transaction_details = await check_status(paymentDetails?.invoice_number,paymentDetails?.id,loan_number,paymentDetails?.mobile_number,paymentDetails?.amount,query);
 
 
         return {message:"Success",result:transaction_details}
@@ -1060,7 +1069,7 @@ return {Message:"Success",result:created_entry}
     }
 
 
-    const checkStatusPaymentLink = async(orderId,id,loan,mobile)=>{
+    const checkStatusPaymentLink = async(orderId,id,loan,mobile,query)=>{
 
         try {
 
@@ -1073,6 +1082,12 @@ return {Message:"Success",result:created_entry}
 
             const hash = crypto.createHash('sha512').update(hashSequence).digest('hex');
             const authorization_string = hash;
+
+           // capture lat and long of the user **
+
+            let geo_lat = query?.lat || "";
+
+            let geo_long = query?.long || "";
            
             const axiosInstance = axios.create();
 
@@ -1152,6 +1167,8 @@ return {Message:"Success",result:created_entry}
                         gateway_verify_transaction_payment_status  :   payment_verified?.transaction_id && payment_verified?.payment_made !== 0? 'Completed' : 'Failed',
                         payment_date:new Date(payment_verified?.quick_pay_transaction_date),
                         status: payment_verified?.transaction_id && payment_verified?.payment_made !== 0? 'Completed' : 'Failed',
+                        geo_lat:geo_lat || "",
+                        geo_long:geo_long ||""
                         // method: 'Online'
             }
     
@@ -1211,7 +1228,7 @@ const dateOfCollection = new Date().toISOString().split("T")[0];
 
     }
 
-    const verify_payment_link = async(loan_number)=>{
+    const verify_payment_link = async(loan_number,query)=>{
 
         try{   
 
@@ -1234,7 +1251,7 @@ const dateOfCollection = new Date().toISOString().split("T")[0];
         if(!paymentDetails)  throw new Error("No Payment Details Found!")
 
 
-        const transaction_details = await checkStatusPaymentLink(paymentDetails?.invoice_number,paymentDetails?.id,loan_number);
+        const transaction_details = await checkStatusPaymentLink(paymentDetails?.invoice_number,paymentDetails?.id,loan_number,query);
 
 
         return {message:"Success",result:transaction_details}

@@ -19,10 +19,11 @@ const {verify_ms_token} = require('../../../interfaces/middlewares/auth')
 
 // *** I collect app login for CO **//
 
+//verify_ms_token
 
 router.post('/login',userControllers.log_in);
 
-router.post('/login-otp-verify',verify_ms_token,userControllers.login_otp_verify);
+router.post('/login-otp-verify',userControllers.login_otp_verify);
 
 router.post('/hourly-punch',userControllers.hourly_punch_in);
 

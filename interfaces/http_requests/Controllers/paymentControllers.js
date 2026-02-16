@@ -69,7 +69,7 @@ const main = {
 
           if(!loan_number) throw new Error("No Loan Data Found!");
 
-          const result = await paymentCases.verify_payment_QR(loan_number);
+          const result = await paymentCases.verify_payment_QR(loan_number,req.query);
 
           return res.json(result);
 
@@ -110,7 +110,7 @@ next(err);
 
         if(!loan_number) throw new Error("No Loan Number Provided!");
 
-        const result = await paymentCases.verify_payment_link(loan_number);
+        const result = await paymentCases.verify_payment_link(loan_number,req.query);
 
         return res.json(result)
 

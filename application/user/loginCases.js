@@ -11,14 +11,24 @@ const {getIstTime} = require('../../infrastructure/helper');
 
 const jwksClient =  require('jwks-rsa');
 
+
+const client = jwksClient({
+  jwksUri: 'https://login.microsoftonline.com/40c38e7e-7a74-4a92-aa6e-5cb451ab6db7/discovery/v2.0/keys',
+  cache: true,
+  rateLimit: true,
+  jwksRequestsPerMinute: 5
+});
+
 const axios = require('axios')
 
-const MICROSOFT_TENANT = "common";
+const MICROSOFT_TENANT = process.env.MICROSOFT_TENANT;
 const CLIENT_ID = process.env.MS_CLIENT_ID;
 const CLIENT_SECRET = process.env.MS_CLIENT_SECRET;
 const REDIRECT_URI = process.env.MS_REDIRECT_URI;
 
-const {structure_login_data} = require('../../domain/user')
+const {structure_login_data} = require('../../domain/user');
+
+const jwt = require("jsonwebtoken")
 
 
 const login = async (req) =>{
@@ -60,10 +70,29 @@ const verify_login_otp = async(req) =>{
 
     try{
 
-    const {username,otp} = req.body;
+    const {username,otp,access_token,id_token,email} = req.body;
 
 
-    const User = await userQueries.getUser(username);
+    let sso_login = req.query?.sso == 'true'?true:false;
+
+
+    console.log("IF SSPO",sso_login)
+    
+
+    let User;
+
+
+    if(sso_login == true){
+
+      User = await userQueries.getUser(email,"email");
+
+    }
+    else{
+
+     User = await userQueries.getUser(username);
+
+    }
+
 
     if(!User) throw new Error("Invalid Username or Password");
 
@@ -73,14 +102,35 @@ const verify_login_otp = async(req) =>{
 
     //admin role specify once finalised**
 
-    if(User.otp !== otp) throw new Error("Invalid OTP");
+    // if((User.otp !== otp)) throw new Error("Invalid OTP");
 
 
+
+    if(sso_login == true){
+
+      const token_verified = await verifyMicrosoftIdToken(id_token);
+
+      console.log("TOKEN VERIFIED",token_verified);
+
+      if(!token_verified || token_verified?.email !== email){
+        let error = new Error();
+
+        error.status = 403;
+
+        error.message = 'UNAUTHORIZED';
+
+        throw error;
+      }
+    }
+
+    else{
+     if((User.otp !== otp)) throw new Error("Invalid OTP");
+    }
 
 
     const new_token = issue_login_token(User.id,User.role,User.employee_id);
 
-    console.log("NEW TOKEN",new_token)
+    console.log("NEW TOKEN",new_token);
 
     // find existing sessions
 

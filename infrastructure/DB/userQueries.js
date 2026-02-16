@@ -26,11 +26,22 @@ const main = {
   //         }
   //     })
   // },
-  getUser: async (username) => {
+  getUser: async (value,type) => {
+
+    
+    let whereClause = {};
+
+    if(type == "email"){
+      key = "email_id"
+    }
+
+    else{
+      key = "username"
+    }
 
     const data = await prisma.user.findFirst({
       where: {
-        username: username
+        [key]: value
       },
       include: {
         UserRoles: {
@@ -41,6 +52,9 @@ const main = {
         }
       }
     });
+
+
+
 
     if (data && data?.UserRoles?.length) {
 
@@ -295,7 +309,8 @@ const main = {
           select: {
             first_name: true,
             middle_name: true,
-            last_name: true
+            last_name: true,
+            mobile_number:true
           }
         },
         SoaEmiMapping: true,
@@ -1128,6 +1143,8 @@ const main = {
         follow_up_date_time: true,
         status: true,
         loan_number: true,
+        geo_lat:true,
+        geo_long:true,
         SoaCaseMapping: {
           select: {
             SoaApplicantDetail: {
