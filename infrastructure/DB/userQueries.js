@@ -1141,6 +1141,7 @@ const main = {
         next_follow_up_date: true,
         next_follow_up_objective: true,
         follow_up_date_time: true,
+        follow_up_type:true,
         status: true,
         loan_number: true,
         geo_lat:true,
