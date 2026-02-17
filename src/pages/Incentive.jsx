@@ -25,7 +25,7 @@ import {
 
 
 const Incentive = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
     const{loData} = useContext(AuthContext);
 
@@ -39,85 +39,78 @@ const Incentive = () => {
 
 
     const[loader,setLoader] = useState(false);
- 
-    const onHandleSelect = (args) => {
+
+  const onHandleSelect = (args) => {
 
         if(args == "self"){
-            setErrorMsg("");
-            setSelectedType(args);
+      setErrorMsg("");
+      setSelectedType(args);
 
-            return;
-        }
+      return;
+    }
 
         if(selectedType == "team" && !selectedLO){
-            setErrorMsg("Please Select The Loan Officer Below");
-        }
+      setErrorMsg("Please Select The Loan Officer Below");
+    }
 
-                setSelectedType(args);
+    setSelectedType(args);
 
     }
 
     const[errorMsg,setErrorMsg] = useState("")
 
-    
-    const getIncentives = async() => {
 
-  try{
+  const getIncentives = async (isMounted) => {
+    try {
+      setLoader(true);
 
-  setLoader(true)
+      const response = await getIncentiveData({
+        type: selectedType,
+        id: loData?.user?.id,
+        lo_id: selectedLO,
+      });
 
-  const response = await getIncentiveData({
-    type:selectedType,
-    id:loData?.user?.id,
-    lo_id:selectedLO
-  })
+      if (!isMounted) return;
 
-  if(!response || !response?.incentive){
-    setErrorMsg("Error Fetching Incentive Data Please Try Again11");
-        setLoader(false)
-    return;
-  }
+      if (!response || !response?.incentive) {
+        setErrorMsg("Error Fetching Incentive Data Please Try Again11");
+        setLoader(false);
+        return;
+      }
 
-  console.log("RESSS",response?.incentive)
+      // console.log("RESSS", response?.incentive);
 
-  setData(response?.incentive);
+      setData(response?.incentive);
 
-     setLoader(false)
-
-
-
-}
-
-
-catch(err){
-    setLoader(false)
-    setErrorMsg("Error Fetching Incentive Data Please Try Again");
-
-}
-
+      setLoader(false);
+    } catch (err) {
+       if (!isMounted) return;
+      setLoader(false);
+      setErrorMsg("Error Fetching Incentive Data Please Try Again");
     }
+  };
 
-    useEffect(()=> {
+  useEffect(() => {
+    if (!selectedType) return;
 
-    if(!selectedType) return;
+    if (selectedType == "team" && !selectedLO) return;
 
-    if(selectedType == "team" && !selectedLO) return;
+    let isMounted = true; // For Mounting Issue i done that
 
-        
-  // api call for getting data based on LO Or BM
+    // api call for getting data based on LO Or BM
 
-      getIncentives();
+    getIncentives(isMounted);
 
-    },[selectedType,selectedLO])
-
-
-
+    return () => {
+      isMounted = false;    // cleanup function to set isMounted to false when component unmounts
+    };
+  }, [selectedType, selectedLO]);
 
     useEffect(()=> {
 
         if(loData?.user?.role == "Loan Officer"){
-            setSelectedType("self");
-        }
+      setSelectedType("self");
+    }
 
 
     },[loData])
@@ -131,7 +124,7 @@ catch(err){
 
     <div className='flex justify-between items-center'>
           <Header className='flex justify-between items-center'></Header>
-          <Button
+        <Button
                 primary = {true}
           inputClasses='mr-3 w-20 h-8 text-sm'
 
@@ -142,22 +135,22 @@ catch(err){
        if(loData && loData?.user?.role == "Branch Manager"){              
               if(!selectedType){
                navigate('/branch-manager');
-               return;
-              }
+                  return;
+                }
               setSelectedType(null)
             }
 
             else{   
                 navigate('/')
-            }
+              }
         },0)
         
           }}
-          >
-            Back
-          </Button>
+        >
+          Back
+        </Button>
           
-          </div>
+      </div>
     {(loData && loData?.user?.role == "Branch Manager" && !selectedType)?<SelectComponent onHandleSelect = {onHandleSelect}/>:null}
 
     {loader? <LoaderDynamicText text='Loading...' textColor='black' height='100%'/>:
@@ -179,27 +172,27 @@ const SelectComponent = ({onHandleSelect}) => {
         <Box sx = {{height:'100%',display:'flex'}}>
 
         <Box sx={{width:'70%',margin:'auto',textAlign:'center',height:'30%'}}>
-      <Button
+        <Button
       primary = {true}
           inputClasses='w-[50%] h-[46px] m-auto'
           onClick = {()=>onHandleSelect("self")}
         >
-         My Incentives
-        </Button> 
+          My Incentives
+        </Button>
 
-        
-             <Button
+
+        <Button
          primary = {true}
           inputClasses='w-[50%] h-[46px] mt-10 m-auto'
           onClick = {()=>onHandleSelect("team")}
 
         >
-            LO Incentive
-        </Button> 
+          LO Incentive
+        </Button>
           
-           </Box>
+      </Box>
 
-        </Box>
+    </Box>
     )
 
 }
@@ -221,100 +214,100 @@ const IncentiveData = ({data,selectedType,loList,setSelectedLO,setErrorMsg,selec
 
   }
 
-//    return (
-    // <Box sx={{ maxWidth: 700, mx: 'auto', py: 4 }}>
-    //   <Typography variant="h5" align="center" gutterBottom>
-    //     Incentive Last 12 Months
-    //   </Typography>
+  //    return (
+  // <Box sx={{ maxWidth: 700, mx: 'auto', py: 4 }}>
+  //   <Typography variant="h5" align="center" gutterBottom>
+  //     Incentive Last 12 Months
+  //   </Typography>
 
-    //   {selectedType == "team" && <DropDown
-    //             options={loList}
-    //             onChange={(e)=>{
-    //                 setSelectedLO(e);
-    //                 setErrorMsg("")
-    //             }}
-    //             disabled={false}
-    //             defaultSelected='All'
-    //             className='flex-grow' // Ensure dropdown takes remaining space
-    //     />}
+  //   {selectedType == "team" && <DropDown
+  //             options={loList}
+  //             onChange={(e)=>{
+  //                 setSelectedLO(e);
+  //                 setErrorMsg("")
+  //             }}
+  //             disabled={false}
+  //             defaultSelected='All'
+  //             className='flex-grow' // Ensure dropdown takes remaining space
+  //     />}
 
-//         {data?.length == 0 || !data?.length?<NoIncentives/>:
+  //         {data?.length == 0 || !data?.length?<NoIncentives/>:
 
-//       <Box sx={{ mt: 6, position: 'relative' }}>
-//         {/* Vertical Line */}
-//         <Box
-//           sx={{
-//             position: 'absolute',
-//             left: '50%',
-//             top: 0,
-//             bottom: 0,
-//             width: '2px',
-//             bgcolor: 'grey.400',
-//             transform: 'translateX(-50%)',
-//           }}
-//         />
+  //       <Box sx={{ mt: 6, position: 'relative' }}>
+  //         {/* Vertical Line */}
+  //         <Box
+  //           sx={{
+  //             position: 'absolute',
+  //             left: '50%',
+  //             top: 0,
+  //             bottom: 0,
+  //             width: '2px',
+  //             bgcolor: 'grey.400',
+  //             transform: 'translateX(-50%)',
+  //           }}
+  //         />
 
-//         {data.map((month, index) => {
-//           const isLeft = index % 2 === 0;
+  //         {data.map((month, index) => {
+  //           const isLeft = index % 2 === 0;
 
-//           return (
-//             <Box
-//               key={index}
-//               sx={{
-//                 display: 'flex',
-//                 justifyContent: 'space-between',
-//                 height: 80,
-//                 alignItems: 'center',
-//               }}
-//             >
-//               <Box
-//                 sx={{
-//                   width: '50%',
-//                   textAlign: isLeft ? 'right' : 'left',
-//                   pr: isLeft ? 2 : 0,
-//                   pl: isLeft ? 0 : 2,
-//                   borderRight: isLeft ? '1px solid' : 'none',
-//                   borderColor: 'grey.300',
-//                 }}
-//               >
-//                 {isLeft ? (
-//                   <Typography color="error" fontWeight="bold">
-//                     ₹{month.Incentive_amount.toLocaleString()} ——————
-//                   </Typography>
-//                 ) : (
-//                   <Typography fontWeight="medium" sx={{marginLeft: '25%'}}>
-//                     {month.Incentive_month} {month.Year}
-//                   </Typography>
-//                 )}
-//               </Box>
+  //           return (
+  //             <Box
+  //               key={index}
+  //               sx={{
+  //                 display: 'flex',
+  //                 justifyContent: 'space-between',
+  //                 height: 80,
+  //                 alignItems: 'center',
+  //               }}
+  //             >
+  //               <Box
+  //                 sx={{
+  //                   width: '50%',
+  //                   textAlign: isLeft ? 'right' : 'left',
+  //                   pr: isLeft ? 2 : 0,
+  //                   pl: isLeft ? 0 : 2,
+  //                   borderRight: isLeft ? '1px solid' : 'none',
+  //                   borderColor: 'grey.300',
+  //                 }}
+  //               >
+  //                 {isLeft ? (
+  //                   <Typography color="error" fontWeight="bold">
+  //                     ₹{month.Incentive_amount.toLocaleString()} ——————
+  //                   </Typography>
+  //                 ) : (
+  //                   <Typography fontWeight="medium" sx={{marginLeft: '25%'}}>
+  //                     {month.Incentive_month} {month.Year}
+  //                   </Typography>
+  //                 )}
+  //               </Box>
 
-//               <Box
-//                 sx={{
-//                   width: '50%',
-//                   textAlign: isLeft ? 'left' : 'right',
-//                   pl: isLeft ? 2 : 0,
-//                   pr: isLeft ? 0 : 2,
-//                   borderLeft: isLeft ? 'none' : '1px solid',
-//                   borderColor: 'grey.300',
-//                 }}
-//               >
-//                 {isLeft ? (
-//                   <Typography fontWeight="medium">
-//                     {month.Incentive_month} {month.Year}
-//                   </Typography>
-//                 ) : (
-//                   <Typography color="error" fontWeight="bold">
-//                     —————— ₹{month.Incentive_amount.toLocaleString()}
-//                   </Typography>
-//                 )}
-//               </Box>
-//             </Box>
-//           );
-//         })}
-//       </Box>
-// }
-//     </Box>
-//   );
+  //               <Box
+  //                 sx={{
+  //                   width: '50%',
+  //                   textAlign: isLeft ? 'left' : 'right',
+  //                   pl: isLeft ? 2 : 0,
+  //                   pr: isLeft ? 0 : 2,
+  //                   borderLeft: isLeft ? 'none' : '1px solid',
+  //                   borderColor: 'grey.300',
+  //                 }}
+  //               >
+  //                 {isLeft ? (
+  //                   <Typography fontWeight="medium">
+  //                     {month.Incentive_month} {month.Year}
+  //                   </Typography>
+  //                 ) : (
+  //                   <Typography color="error" fontWeight="bold">
+  //                     —————— ₹{month.Incentive_amount.toLocaleString()}
+  //                   </Typography>
+  //                 )}
+  //               </Box>
+  //             </Box>
+  //           );
+  //         })}
+  //       </Box>
+  // }
+  //     </Box>
+  //   );
 return(
     <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4 }}>
       <Typography variant="h5" align="center" gutterBottom>
@@ -324,16 +317,16 @@ return(
       <Box sx={{width:'88%',margin:'auto',padding:'30px'}}>
 
       {selectedType == "team" && <DropDown
-                options={loList}
+            options={loList}
                 onChange={(e)=>{
-                    setSelectedLO(e);
+              setSelectedLO(e);
                     setErrorMsg("")
-                }}
-                disabled={false}
+            }}
+            disabled={false}
                 defaultSelected={selectedLO?selectedLO:"All"}
                 className='flex-grow' // Ensure dropdown takes remaining space
         />}
-        </Box>
+      </Box>
 
         {((!data?.length || data?.length== 0 && selectedType)) && 
         <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
@@ -341,10 +334,13 @@ return(
         </div>}
       <Timeline position="right">
         {data.map((event, index) => (
-          <TimelineItem key={index}>
+          <TimelineItem 
+          // key={index}
+          key= {event.id}
+          >
             {/* Time on the left */}
             <TimelineOppositeContent
-  sx={{
+              sx={{
     flex: 'none',         // Prevent it from growing or shrinking
     width: '150px',       // Set your desired width
     pr: 1.5,              // Optional padding between text and dot
@@ -354,7 +350,6 @@ return(
     marginLeft:'30px'
   }}            >     
               {sanitizeMonth(event?.Incentive_month)} {event.Year}
-              
             </TimelineOppositeContent>
 
             {/* Dot and connector */}
@@ -366,14 +361,14 @@ return(
             {/* Event details */}
             <TimelineContent sx={{ py: 1 }}>
               <Paper elevation={0}   sx={{
-    p: 1.5,
+                  p: 1.5,
     width: '150px',
     borderBottom: '2px solid #555555',
-    borderRadius: 0, // Optional: remove rounded corners
+                  borderRadius: 0, // Optional: remove rounded corners
   }}>
                 <Typography fontWeight="bold">{event.title}</Typography>
                 <Typography variant="body2" color="text.secondary">
-                ₹{event.Incentive_amount?.toLocaleString("en-us")}
+                  ₹{event.Incentive_amount?.toLocaleString("en-us")}
 
                 </Typography>
               </Paper>

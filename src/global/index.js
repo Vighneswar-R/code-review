@@ -5,12 +5,12 @@ import moment from 'moment';
 
 //const API_URL = import.meta.env.VITE_API_URL || 'https://uatagile.indiashelter.in/api';
 //const API_URL = import.meta.env.VITE_API_URL || 'https://itrustuat.indiashelter.in/api';
- const API_URL = import.meta.env.VITE_API_URL || 'https://itrust.indiashelter.in:6443/api';
+//  const API_URL = import.meta.env.VITE_API_URL || 'https://itrust.indiashelter.in:6443/api';
 //const API_URL = import.meta.env.VITE_API_URL;
 
 //const API_URL = "https://itrust.indiashelter.in:6443/api";
 
-//const API_URL = "http://localhost:8005/api";
+const API_URL = "http://localhost:8000/api";
 
 const FACE_DETECTION_URL = "/account/check_if_face_authencticate/"
  const FACE_LIVE_PATRON_ID = import.meta.env.VITE_FACE_LIVE_PATRON_ID;

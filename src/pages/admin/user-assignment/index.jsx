@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState,useRef } from 'react';
 import { AuthContext } from '../../../context/AuthContextProvider';
 import {
   deleteUserMapping,
@@ -44,33 +44,64 @@ function UserAssigning() {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentDisplayedList, setCurrentDisplayedList] = useState([]);
   const [displayedList, setDisplayedList] = useState([]);
+
+  const isMountedRef = useRef(true);
+
+
   const bmAndLoCodes = async () => {
+
+    try{
     const response = await getBmAndLoCodes({
       headers: {
         Authorization: token,
       },
     });
+
+
+    if (!isMountedRef.current) return;
+
     const { loanOfficerCodes, branchManagerCodes } = response?.data?.data || {};
 
     setBranchManagerCodes(branchManagerCodes);
     setLoanOfficerCodes(loanOfficerCodes);
     return response;
+  } catch (error) {
+    console.error("Error fetching BM/LO codes:", error);
+    return null; // prevent unhandled rejection
+  }
   };
 
-  const userMappingList = async () => {
+const userMappingList = async () => {
+  try {
     const response = await getUserMappingList({
-      headers: {
-        Authorization: token,
-      },
+      headers: { Authorization: token },
     });
+
+    if (!isMountedRef.current) return;
+
     const { result } = response?.data || [];
-   
-    setDisplayedList(result);
-  };
+    setDisplayedList(result || []);
+  } catch (error) {
+    console.error("Error fetching user mapping list:", error);
+  }
+};
+
+
+
   useEffect(() => {
+    
+      if (!token) return;
+
+    
+    isMountedRef.current = true;
+
     bmAndLoCodes();
     userMappingList();
-  }, []);
+
+      return () => {
+    isMountedRef.current = false;
+  };
+  }, [token]);
 
   const loList = branchManagerCodes.map((manager) => ({
     value: manager.employee_code,
@@ -84,6 +115,8 @@ function UserAssigning() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    try{
     const bmCode = branchManagerCodes.find(
       (manager) => manager.employee_code === selectedBM,
     )?.employee_code;
@@ -100,19 +133,36 @@ function UserAssigning() {
         Authorization: token,
       },
     });
+
+    if (!isMountedRef.current) return;
+
     setIsPopupOpen(false);
-    onClose();
+    // onClose();
+
+
+        setSelectedOfficers([]);
+    setSelectedBM('');
+
+     await userMappingList();
+
+     await bmAndLoCodes();
+  } catch(error){
+        console.error("Error saving mapping:", error);
+
+  }
+
   };
 
   const onClose = () => {
     setSelectedOfficers([]);
     setSelectedBM('');
-    userMappingList();
-    bmAndLoCodes();
+    // userMappingList();
+    // bmAndLoCodes();
   };
 
   const togglePopup = () => {
-    setIsPopupOpen(!isPopupOpen);
+    // setIsPopupOpen(!isPopupOpen);
+    setIsPopupOpen(prev => !prev);
     onClose();
   };
 
@@ -123,10 +173,13 @@ function UserAssigning() {
         : [...prevSelected, officer],
     );
   };
-  const handleDelete = (deleteId) => {
-    setShowActionControlPopup(true);
-    setUserActionId(deleteId);
-  };
+const handleDelete = React.useCallback((deleteId) => {
+  setShowActionControlPopup(true);
+  setUserActionId(deleteId);
+}, []);
+
+
+
   const deleteUser = async (deleteId) => {
     try {
       const response = await deleteUserMapping(deleteId, {
@@ -135,12 +188,20 @@ function UserAssigning() {
         },
       });
       if (response.status && response.data) {
-        console.log(response.data.message);
+        // console.log(response.data.message);
+
+         if (!isMountedRef.current) return;
+
+          setDisplayedList((prev) =>
+        prev.filter((user) => user.id !== deleteId)
+      );
+
+
         setUserStatus(true);
         setShowActionControlPopup(false);
         setUserActionId(null);
-        userMappingList();
-        bmAndLoCodes();
+        // userMappingList();
+        // bmAndLoCodes();
       }
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -156,11 +217,7 @@ function UserAssigning() {
   useEffect(() => {
     setCurrentPage(1);
     setCount(Math.ceil(displayedList.length / 10));
-    setCurrentDisplayedList(
-      displayedList.filter((_, i) => {
-        return i < 10;
-      }),
-    );
+    setCurrentDisplayedList(displayedList.slice(0, 10));
   }, [displayedList]);
 
   // pagination filter
@@ -171,12 +228,8 @@ function UserAssigning() {
     // Calculate the start and end count based on the current page
     const startCount = (value - 1) * itemsPerPage;
     const endCount = value * itemsPerPage - 1;
-    setCurrentDisplayedList(
-      displayedList.filter((log, i) => {
-        return i >= startCount && i <= endCount;
-      }),
-    );
-    console.log(displayedList);
+    setCurrentDisplayedList(displayedList.slice(startCount, endCount));
+    // console.log(displayedList);
   };
 
   return (
@@ -209,12 +262,12 @@ function UserAssigning() {
       </div>
       <div className='px-6 py-4 bg-medium-grey grow overflow-y-auto overflow-x-hidden false'>
         <div className='overflow-x-auto'>
-          {displayedList.length && (
+          {displayedList.length > 0  && (
             <AdminTable TableHeaderList={TableHeaderList}>
               {currentDisplayedList.map(({ id ,LO,BM}, i) => {
                 return (
                   <tr
-                    key={i}
+                    key={id}
                     className='bg-white text-primary-black font-normal text-sm hover:bg-gray-50'
                   >
                     <td className='p-4 text-gray-700'>{id}</td>

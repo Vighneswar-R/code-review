@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState,useEffect,useRef } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../../../context/AuthContextProvider';
 import { uploadIncentive } from '../../../global';
@@ -7,6 +7,9 @@ export default function UploadIncentive() {
   const [file, setFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [tableData, setTableData] = useState([]);
+
+  const readerRef = useRef(null);
+
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -23,6 +26,10 @@ export default function UploadIncentive() {
   // Parse CSV file for preview
   const parseCSV = (file) => {
     const reader = new FileReader();
+
+     readerRef.current = reader;
+
+
     reader.onload = (e) => {
       const text = e.target.result;
       const rows = text
@@ -36,6 +43,8 @@ export default function UploadIncentive() {
 
   // Handle file upload (API call commented)
   const handleUpload = async () => {
+
+
     if (!file) {
       alert('Please select a file.');
       return;
@@ -63,6 +72,10 @@ export default function UploadIncentive() {
       setUploadProgress(0);
       setTableData([]);
     } catch (error) {
+        if (error.name === 'CanceledError') {
+      console.log('Upload canceled');
+      return;
+    }
       console.error('Upload error:', error);
 
       if(error?.response?.data?.message){
@@ -72,6 +85,19 @@ export default function UploadIncentive() {
       alert('Upload failed');
     }
   };
+
+  useEffect(() => {
+
+  return () => {
+
+    // Abort any ongoing FileReader
+    if (readerRef.current && readerRef.current.readyState === 1) { // LOADING
+      readerRef.current.abort();
+    }
+    
+  };
+}, []);
+
 
   return (
     <div className='max-w-screen-lg mx-auto mt-10 p-6 bg-white shadow-md rounded-lg'>

@@ -109,7 +109,7 @@ const IdentificationDoneFields = ({
 
       const generated = checkIfApplicationDone(app?.applicant_details);
 
-      console.log("GYENERATED",generated)
+      // console.log("GYENERATED",generated)
 
       if(generated){
 
@@ -258,19 +258,19 @@ const IdentificationDoneFields = ({
       parseInt(values?.lead?.applied_amount) >=
       parseInt(values?.property_details?.property_value_estimate)
     ) {
-      setFieldError(
-        'property_details.property_value_estimate',
-        'Property estimation value should be greater than Loan Amount',
-      );
-      setPropertyValueEstimateError('Property estimation value should be greater than Loan Amount');
-    } else {
-      setPropertyValueEstimateError('');
-    }
-  }, [
-    values?.property_details?.property_value_estimate,
-    setFieldError,
-    errors?.property_details?.property_value_estimate,
-  ]);
+    setFieldError(
+      'property_details.property_value_estimate',
+      'Property estimation value should be greater than Loan Amount',
+    );
+    setPropertyValueEstimateError('Property estimation value should be greater than Loan Amount');
+  } else {
+    setPropertyValueEstimateError('');
+  }
+}, [
+  values?.property_details?.property_value_estimate,
+  setFieldError,
+  errors?.property_details?.property_value_estimate,
+]);
 
   return (
     <>

@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import AdminHeader from '../../../../components/Header/AdminHeader.jsx';
 import AdminPagination from '../../../../components/AdminPagination/index.jsx';
 import AdminTable from '../../../../components/UserTable/AdminTable.jsx';
@@ -71,6 +71,9 @@ const History = () => {
   const [open, setOpen] = useState(false);
   const [range, setRange] = useState(false);
 
+  const PAGE_SIZE = 100;
+  const ITEMS_PER_PAGE = 10;
+
   const [selectionRange, setSelectionRange] = useState({
     startDate: parseISO(moment().subtract(30, 'days').format('YYYY-MM-DD')),
     endDate: parseISO(moment().add(1, 'day').format('YYYY-MM-DD')),
@@ -79,8 +82,22 @@ const History = () => {
 
   const [refresh, setRefresh] = useState(null);
 
+  const searchAbortRef = useRef(null);
+
+  // Abort in-flight search on unmount
+  useEffect(() => {
+    return () => {
+      if (searchAbortRef.current) {
+        searchAbortRef.current.abort();
+      }
+    };
+  }, []);
+
   // fetch new logs when date filter value changes
   useEffect(() => {
+
+    let isMounted = true; 
+
     if (dateState === 'Range') {
       setOpen(true);
       setRange(true);
@@ -93,7 +110,7 @@ const History = () => {
             from_date: moment().subtract(30, 'days').format('YYYY-MM-DD'),
             to_date: moment().add(1, 'day').format('YYYY-MM-DD'),
             page: 1,
-            page_size: 10000000,
+            page_size: PAGE_SIZE,
           };
           break;
         }
@@ -102,7 +119,7 @@ const History = () => {
             from_date: moment().format('YYYY-MM-DD'),
             to_date: moment().add(1, 'days').format('YYYY-MM-DD'),
             page: 1,
-            page_size: 10000000,
+            page_size: PAGE_SIZE,
           };
           break;
         }
@@ -111,7 +128,7 @@ const History = () => {
             from_date: moment().subtract(1, 'days').format('YYYY-MM-DD'),
             to_date: moment().format('YYYY-MM-DD'),
             page: 1,
-            page_size: 10000000,
+            page_size: PAGE_SIZE,
           };
           break;
         }
@@ -120,7 +137,7 @@ const History = () => {
             from_date: moment().subtract(7, 'days').format('YYYY-MM-DD'),
             to_date: moment().add(1, 'day').format('YYYY-MM-DD'),
             page: 1,
-            page_size: 10000000,
+            page_size: PAGE_SIZE,
           };
           break;
         }
@@ -137,13 +154,23 @@ const History = () => {
         },
       })
         .then((logs) => {
+            if (isMounted) {  
           setFetchedList(logs);
           setListToDisplay(logs);
+            }
         })
         .catch((error) => {
-          console.log('GET_LOGS_ERROR', error);
+            if (isMounted) {  
+              console.log('error in fetching logs', error);
+            } 
+            console.log('GET_LOGS_ERROR', error);
+
         });
     }
+
+      return () => {
+    isMounted = false;   // cleanup when component unmounts
+  };
   }, [dateState]);
 
   // fetch logs based on date range
@@ -153,7 +180,7 @@ const History = () => {
         from_date: moment(selectionRange.startDate).format('YYYY-MM-DD'),
         to_date: moment(selectionRange.endDate).add(1, 'day').format('YYYY-MM-DD'),
         page: 1,
-        page_size: 10000000,
+        page_size: PAGE_SIZE,
       };
 
       const paramString = Object.entries(params)
@@ -176,74 +203,86 @@ const History = () => {
   }, [selectionRange]);
 
   useEffect(() => {
-    if (refresh) {
-      let params;
-      switch (dateState) {
-        case 'Last 30 days': {
-          params = {
-            from_date: moment().subtract(30, 'days').format('YYYY-MM-DD'),
-            to_date: moment().add(1, 'day').format('YYYY-MM-DD'),
-            page: 1,
-            page_size: 10000000,
-          };
-          break;
-        }
-        case 'Today': {
-          params = {
-            from_date: moment().format('YYYY-MM-DD'),
-            to_date: moment().add(1, 'days').format('YYYY-MM-DD'),
-            page: 1,
-            page_size: 10000000,
-          };
-          break;
-        }
-        case 'Yesterday': {
-          params = {
-            from_date: moment().subtract(1, 'days').format('YYYY-MM-DD'),
-            to_date: moment().format('YYYY-MM-DD'),
-            page: 1,
-            page_size: 10000000,
-          };
-          break;
-        }
-        case 'Last 7 days': {
-          params = {
-            from_date: moment().subtract(7, 'days').format('YYYY-MM-DD'),
-            to_date: moment().add(1, 'day').format('YYYY-MM-DD'),
-            page: 1,
-            page_size: 10000000,
-          };
-          break;
-        }
-        case 'Range': {
-          params = {
-            from_date: moment(selectionRange.startDate).format('YYYY-MM-DD'),
-            to_date: moment(selectionRange.endDate).add(1, 'day').format('YYYY-MM-DD'),
-            page: 1,
-            page_size: 10000000,
-          };
-          break;
-        }
-        default:
-          break;
-      }
-      const paramString = Object.entries(params)
-        .map(([key, value]) => `${key}=${value}`)
-        .join('&');
+    if (!refresh) return;
 
-      getLogs(paramString, {
-        headers: {
-          Authorization: token,
-        },
-      })
-        .then((logs) => {
-          setFetchedList(logs);
-          setListToDisplay(logs);
-        })
-        .catch((error) => {
-          console.log('GET_LOGS_ERROR', error);
-        });
+    let isMounted = true;
+    const controller = new AbortController();
+
+    let params;
+    switch (dateState) {
+      case 'Last 30 days': {
+        params = {
+          from_date: moment().subtract(30, 'days').format('YYYY-MM-DD'),
+          to_date: moment().add(1, 'day').format('YYYY-MM-DD'),
+          page: 1,
+          page_size: PAGE_SIZE,
+        };
+        break;
+      }
+      case 'Today': {
+        params = {
+          from_date: moment().format('YYYY-MM-DD'),
+          to_date: moment().add(1, 'days').format('YYYY-MM-DD'),
+          page: 1,
+          page_size: PAGE_SIZE,
+        };
+        break;
+      }
+      case 'Yesterday': {
+        params = {
+          from_date: moment().subtract(1, 'days').format('YYYY-MM-DD'),
+          to_date: moment().format('YYYY-MM-DD'),
+          page: 1,
+          page_size: PAGE_SIZE,
+        };
+        break;
+      }
+      case 'Last 7 days': {
+        params = {
+          from_date: moment().subtract(7, 'days').format('YYYY-MM-DD'),
+          to_date: moment().add(1, 'day').format('YYYY-MM-DD'),
+          page: 1,
+          page_size: PAGE_SIZE,
+        };
+        break;
+      }
+      case 'Range': {
+        params = {
+          from_date: moment(selectionRange.startDate).format('YYYY-MM-DD'),
+          to_date: moment(selectionRange.endDate).add(1, 'day').format('YYYY-MM-DD'),
+          page: 1,
+          page_size: PAGE_SIZE,
+        };
+        break;
+      }
+      default:
+        return;
     }
+    const paramString = Object.entries(params)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('&');
+
+    getLogs(paramString, {
+      headers: {
+        Authorization: token,
+      },
+      signal: controller.signal,
+    })
+      .then((logs) => {
+        if (!isMounted) return;
+        setFetchedList(logs);
+        setListToDisplay(logs);
+      })
+      .catch((error) => {
+        if (!isMounted) return;
+        if (error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
+        console.log('GET_LOGS_ERROR', error);
+      });
+
+    return () => {
+      isMounted = false;
+      controller.abort();   // on Unmouting 
+    };
   }, [refresh]);
 
   //date filter
@@ -305,9 +344,9 @@ const History = () => {
     setCurrentPage(1);
     setCount(Math.ceil(listToDisplay.length / 10));
     setCurrentDisplayedList(
-      listToDisplay.filter((_, i) => {
-        return i < 10;
-      }),
+      // listToDisplay.filter((_, i) => {
+      //   return i < 10;
+      listToDisplay.slice(0, 10),
     );
   }, [listToDisplay]);
 
@@ -315,22 +354,39 @@ const History = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
 
+    if (searchAbortRef.current) {
+      searchAbortRef.current.abort();
+    }
+    searchAbortRef.current = new AbortController();
+
     const params = {
       search: query,
       page: 1,
-      page_size: 10000000,
+      page_size: PAGE_SIZE,
     };
-    const paramString = Object.entries(params)
-      .map(([key, value]) => `${key}=${value}`)
-      .join('&');
+    // const paramString = Object.entries(params)
+    //   .map(([key, value]) => `${key}=${value}`)
+    //   .join('&');
 
-    const searchedResults = await getLogs(paramString, {
-      headers: {
-        Authorization: token,
-      },
-    });
-    setSearch(true);
-    setListToDisplay(searchedResults);
+    const paramString = Object.entries(params)
+  .map(([key, value]) =>
+    `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+  )
+  .join('&');
+
+    try {
+      const searchedResults = await getLogs(paramString, {
+        headers: {
+          Authorization: token,
+        },
+        signal: searchAbortRef.current.signal,
+      });
+      setSearch(true);
+      setListToDisplay(searchedResults);
+    } catch (error) {
+      if (error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
+      console.log('GET_LOGS_ERROR', error);
+    }
   };
 
   const handleResetSearch = (e) => {
@@ -341,17 +397,26 @@ const History = () => {
 
   // pagination filter
   const handleChange = (event, value) => {
+
+    const totalPages = Math.ceil(listToDisplay.length / ITEMS_PER_PAGE);
+     // Bounds checking
+  if (value < 1 || value > totalPages) {
+    return;
+  }
+
+
     setCurrentPage(value);
     // Assuming each page contains a fixed number of items, let's say 10 items per page
-    const itemsPerPage = 10;
+    // const itemsPerPage = 10;
 
     // Calculate the start and end count based on the current page
-    const startCount = (value - 1) * itemsPerPage;
-    const endCount = value * itemsPerPage - 1;
+    const startCount = (value - 1) * ITEMS_PER_PAGE;
+    // const endCount = value * ITEMS_PER_PAGE - 1;
     setCurrentDisplayedList(
-      listToDisplay.filter((log, i) => {
-        return i >= startCount && i <= endCount;
-      }),
+      // listToDisplay.filter((log, i) => {
+      //   return i >= startCount && i <= endCount;
+      // }),
+      listToDisplay.slice(startCount, startIndex + ITEMS_PER_PAGE),
     );
   };
 

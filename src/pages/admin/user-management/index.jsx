@@ -115,6 +115,9 @@ const UserManagement = () => {
 
   const[localToken,setLocalToken] = useState();
 
+  const PAGE_SIZE = 100; // API fetch size
+  const ITEMS_PER_PAGE = 1; // Display 10 users per page
+
 
   useEffect(()=> {
 
@@ -188,29 +191,16 @@ const UserManagement = () => {
     }
   }
 
-  //pagination filter
+  // Pagination: slice displayed list when user clicks Prev/Next or page number
   const handleChange = (event, value) => {
     setCurrentPage(value);
-    // Assuming each page contains a fixed number of items, let's say 10 items per page
-    const itemsPerPage = 10;
-
-    // Calculate the start and end count based on the current page
-    const startCount = (value - 1) * itemsPerPage;
-    const endCount = value * itemsPerPage - 1;
-
-    if (filteredList.length) {
-      setDisplayedList(
-        filteredList.filter((lead, i) => {
-          return i >= startCount && i <= endCount;
-        }),
-      );
-    } else {
-      setDisplayedList(
-        leadList.filter((lead, i) => {
-          return i >= startCount && i <= endCount;
-        }),
-      );
-    }
+    // console.log(value , "222 ")
+    const startCount = (value - 1) * ITEMS_PER_PAGE;
+    const endCount = value * ITEMS_PER_PAGE - 1;
+    const sourceList = filteredList.length ? filteredList : leadList;
+    setDisplayedList(
+      sourceList.filter((_, i) => i >= startCount && i <= endCount),
+    );
   };
 
   //search filter
@@ -250,7 +240,7 @@ const UserManagement = () => {
             start_date: moment().subtract(30, 'days').format('YYYY-MM-DD'),
             end_date: moment().add(1, 'day').format('YYYY-MM-DD'),
             page: 1,
-            page_size: 10000000,
+            page_size: PAGE_SIZE,
           };
 
           getUsersList(payload, {
@@ -260,7 +250,7 @@ const UserManagement = () => {
           })
             .then((users) => {
               setLeadList(users.data);
-              setCount(Math.ceil(users.data.length / 10));
+              setCount(Math.ceil(users.data.length / ITEMS_PER_PAGE) || 1);
             })
             .catch((error) => {
               console.log('GET_USERLIST_ERROR', error);
@@ -273,7 +263,7 @@ const UserManagement = () => {
             start_date: moment().format('YYYY-MM-DD'),
             end_date: moment().add(1, 'days').format('YYYY-MM-DD'),
             page: 1,
-            page_size: 10000000,
+            page_size: PAGE_SIZE,
           };
 
           getUsersList(payload, {
@@ -283,7 +273,7 @@ const UserManagement = () => {
           })
             .then((users) => {
               setLeadList(users.data);
-              setCount(Math.ceil(users.data.length / 10));
+              setCount(Math.ceil(users.data.length / ITEMS_PER_PAGE) || 1);
             })
             .catch((error) => {
               console.log('GET_USERLIST_ERROR', error);
@@ -296,7 +286,7 @@ const UserManagement = () => {
             start_date: moment().subtract(1, 'days').format('YYYY-MM-DD'),
             end_date: moment().format('YYYY-MM-DD'),
             page: 1,
-            page_size: 10000000,
+            page_size: PAGE_SIZE,
             yesterday: true,
           };
 
@@ -307,7 +297,7 @@ const UserManagement = () => {
           })
             .then((users) => {
               setLeadList(users.data);
-              setCount(Math.ceil(users.data.length / 10));
+              setCount(Math.ceil(users.data.length / ITEMS_PER_PAGE) || 1);
             })
             .catch((error) => {
               console.log('GET_USERLIST_ERROR', error);
@@ -320,7 +310,7 @@ const UserManagement = () => {
             start_date: moment().subtract(7, 'days').format('YYYY-MM-DD'),
             end_date: moment().add(1, 'day').format('YYYY-MM-DD'),
             page: 1,
-            page_size: 10000000,
+            page_size: PAGE_SIZE,
           };
 
           getUsersList(payload, {
@@ -330,7 +320,7 @@ const UserManagement = () => {
           })
             .then((users) => {
               setLeadList(users.data);
-              setCount(Math.ceil(users.data.length / 10));
+              setCount(Math.ceil(users.data.length / ITEMS_PER_PAGE) || 1);
             })
             .catch((error) => {
               console.log('GET_USERLIST_ERROR', error);
@@ -356,7 +346,7 @@ const UserManagement = () => {
         start_date: moment(selectionRange.startDate).format('YYYY-MM-DD'),
         end_date: moment(selectionRange.endDate).add(1, 'day').format('YYYY-MM-DD'),
         page: 1,
-        page_size: 10000000,
+        page_size: PAGE_SIZE,
       };
 
       getUsersList(payload, {
@@ -366,13 +356,13 @@ const UserManagement = () => {
       })
         .then((users) => {
           setLeadList(users.data);
-          setCount(Math.ceil(users.data.length / 10));
+          setCount(Math.ceil(users.data.length / ITEMS_PER_PAGE) || 1);
         })
         .catch((error) => {
           console.log('GET_USERLIST_ERROR', error);
         });
     }
-  }, [selectionRange]);
+  }, [range, selectionRange, token,  PAGE_SIZE]);
 
   //form handlers
   const handleEmpCodeChange = useCallback(
@@ -507,7 +497,7 @@ const UserManagement = () => {
         start_date: '2022-01-01',
         end_date: moment(selectionRange.endDate).add(1, 'day').format('YYYY-MM-DD'),
         page: 1,
-        page_size: 10000000,
+        page_size: PAGE_SIZE,
       };
 
       getUsersList(payload, {
@@ -528,7 +518,7 @@ const UserManagement = () => {
             start_date: moment().subtract(30, 'days').format('YYYY-MM-DD'),
             end_date: moment().add(1, 'day').format('YYYY-MM-DD'),
             page: 1,
-            page_size: 10000000,
+            page_size: PAGE_SIZE,
           };
 
           try {
@@ -538,7 +528,7 @@ const UserManagement = () => {
               },
             });
             setLeadList(users.data);
-            setCount(Math.ceil(users.data.length / 10));
+            setCount(Math.ceil(users.data.length / ITEMS_PER_PAGE) || 1);
           } catch (error) {
             console.log('GET_USERLIST_ERROR', error);
           }
@@ -550,7 +540,7 @@ const UserManagement = () => {
             start_date: moment().format('YYYY-MM-DD'),
             end_date: moment().add(1, 'days').format('YYYY-MM-DD'),
             page: 1,
-            page_size: 10000000,
+            page_size: PAGE_SIZE,
           };
 
           getUsersList(payload, {
@@ -560,7 +550,7 @@ const UserManagement = () => {
           })
             .then((users) => {
               setLeadList(users.data);
-              setCount(Math.ceil(users.data.length / 10));
+              setCount(Math.ceil(users.data.length / ITEMS_PER_PAGE) || 1);
             })
             .catch((error) => {
               console.log('GET_USERLIST_ERROR', error);
@@ -573,7 +563,7 @@ const UserManagement = () => {
             start_date: moment().subtract(1, 'days').format('YYYY-MM-DD'),
             end_date: moment().format('YYYY-MM-DD'),
             page: 1,
-            page_size: 10000000,
+            page_size: PAGE_SIZE,
             yesterday: true,
           };
 
@@ -584,7 +574,7 @@ const UserManagement = () => {
           })
             .then((users) => {
               setLeadList(users.data);
-              setCount(Math.ceil(users.data.length / 10));
+              setCount(Math.ceil(users.data.length / ITEMS_PER_PAGE) || 1);
             })
             .catch((error) => {
               console.log('GET_USERLIST_ERROR', error);
@@ -597,7 +587,7 @@ const UserManagement = () => {
             start_date: moment().subtract(7, 'days').format('YYYY-MM-DD'),
             end_date: moment().add(1, 'day').format('YYYY-MM-DD'),
             page: 1,
-            page_size: 10000000,
+            page_size: PAGE_SIZE,
           };
 
           getUsersList(payload, {
@@ -607,7 +597,7 @@ const UserManagement = () => {
           })
             .then((users) => {
               setLeadList(users.data);
-              setCount(Math.ceil(users.data.length / 10));
+              setCount(Math.ceil(users.data.length / ITEMS_PER_PAGE) || 1);
             })
             .catch((error) => {
               console.log('GET_USERLIST_ERROR', error);
@@ -620,7 +610,7 @@ const UserManagement = () => {
             start_date: moment(selectionRange.startDate).format('YYYY-MM-DD'),
             end_date: moment(selectionRange.endDate).add(1, 'day').format('YYYY-MM-DD'),
             page: 1,
-            page_size: 10000000,
+            page_size: PAGE_SIZE,
           };
 
           getUsersList(payload, {
@@ -630,7 +620,7 @@ const UserManagement = () => {
           })
             .then((users) => {
               setLeadList(users.data);
-              setCount(Math.ceil(users.data.length / 10));
+              setCount(Math.ceil(users.data.length / ITEMS_PER_PAGE) || 1);
             })
             .catch((error) => {
               console.log('GET_USERLIST_ERROR', error);
@@ -692,20 +682,16 @@ const UserManagement = () => {
     }
   }, []);
 
-  //display users
+  // When leadList changes, update filter and reset to first page
   useEffect(() => {
     dispatch({ type: 'All users', payload: 'All users' });
-    setDisplayedList(
-      leadList.filter((_, i) => {
-        return i < 10;
-      }),
-    );
   }, [leadList]);
 
-  //set filtered users
+  // When filteredList changes, update count, displayed list, reset to page 1
   useEffect(() => {
-    setCount(Math.ceil(filteredList.length / 10));
-    setDisplayedList(filteredList.filter((_, i) => i < 10));
+    const totalPages = Math.ceil(filteredList.length / ITEMS_PER_PAGE) || 1;
+    setCount(totalPages);
+    setDisplayedList(filteredList.filter((_, i) => i < ITEMS_PER_PAGE));
     setCurrentPage(1);
   }, [filteredList]);
 

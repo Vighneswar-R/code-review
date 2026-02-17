@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState,useRef,useEffect} from 'react';
 import axios from 'axios';
 import { AuthContext } from '../../../context/AuthContextProvider';
 import { uploadCsvStatePin } from '../../../global'; // Assuming this function is correctly imported
@@ -9,21 +9,48 @@ export default function StatePin() {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [tableData, setTableData] = useState([]);
 
+     const readerRef = useRef(null);
+
+    const PREVIEW_LIMIT = 40;
+    const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
+
     // Function to handle file upload
     const handleFileUpload = (event) => {
         const selectedFile = event.target.files[0];
-        setFile(selectedFile);
+        if (!selectedFile) return;
 
+      // Validate file type
+    //   if (
+    //         selectedFile.type !== "text/csv" &&
+    //         !selectedFile.name.toLowerCase().endsWith(".csv")
+    //     ) {
+    //         alert("Only CSV files are allowed.");
+    //         return;
+    //     }
+
+          // Validate file size
+        if (selectedFile.size > MAX_FILE_SIZE) {
+            alert("File too large. Maximum 2MB allowed.");
+            return;
+        }
+
+        setFile(selectedFile);
         // Parse the CSV file and set table data
         parseCSV(selectedFile);
+
     };
 
     // Function to parse CSV file and set table data
     const parseCSV = (file) => {
         const reader = new FileReader();
+        readerRef.current = reader;
+
         reader.onload = (e) => {
             const text = e.target.result;
-            const rows = text.split('\n').map(row => row.split(','));
+            const allRows = text.split('\n');
+            const previewRows = allRows.slice(0, PREVIEW_LIMIT);
+            const rows = previewRows.map(row => row.split(','));
+
             setTableData(rows);
         };
         reader.readAsText(file);
@@ -53,6 +80,7 @@ export default function StatePin() {
 
             await uploadCsvStatePin(formData, options);
             setFile(null);
+            setTableData([]);
             setUploadProgress(0);
             alert('File uploaded successfully!');
         } catch (error) {
@@ -60,6 +88,14 @@ export default function StatePin() {
             alert('Error uploading file. Please try again.');
         }
     };
+
+       useEffect(() => {   // clean-up for mounting 
+        return () => {
+            if (readerRef.current) {
+                readerRef.current.abort();
+            }
+        };
+    }, []);
 
     return (
         <div className="max-w-screen-lg mx-auto mt-10 p-6 bg-white shadow-md rounded-lg flex">
