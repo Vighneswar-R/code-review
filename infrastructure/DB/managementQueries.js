@@ -981,6 +981,40 @@ const main = {
 
       let request_batch = [];
 
+      const now = new Date();
+
+// Start of current month
+const startOfThisMonth = new Date(
+  now.getFullYear(),
+  now.getMonth(),
+  1,
+  0, 0, 0, 0
+);
+
+// Start of last month
+const startOfLastMonth = new Date(
+  now.getFullYear(),
+  now.getMonth() - 1,
+  1,
+  0, 0, 0, 0
+);
+
+// End of last month
+const endOfLastMonth = new Date(
+  now.getFullYear(),
+  now.getMonth(),
+  0,
+  23, 59, 59, 999
+);
+
+function getGrowth(last, current) {
+  if (last === 0 && current > 0) return null;
+  if (last === 0 && current === 0) return "0%";
+
+  const pct = ((current - last) / last) * 100;
+  return `${pct.toFixed(0)}%`;
+}
+
 
       // all users
 
@@ -992,33 +1026,30 @@ const main = {
           },
           select:{
             id:true,
-            name:true
+            name:true,
+            created_at:true
           }
         });
 
 
-const startOfMonth = new Date();
-startOfMonth.setDate(1);
-startOfMonth.setHours(0, 0, 0, 0);
+let thisMonthCount = 0;
+let lastMonthCount = 0;
 
-const today = new Date();
+for (const user of all_users) {
+  const createdAt = new Date(user.created_at);
 
-const current_users = await tx.user.findMany({
-  where: {
-    created_at: {
-      gte: startOfMonth,
-      lte: today
-    }
-  },
-  select:{
-    id:true,
-    name:true
+  if (createdAt >= startOfThisMonth && createdAt <= now) {
+    thisMonthCount++;
   }
-});
+
+  if (createdAt >= startOfLastMonth && createdAt <= endOfLastMonth) {
+    lastMonthCount++;
+  }
+}
 
 
+let difference_count = getGrowth(lastMonthCount,thisMonthCount);
 
-let difference_count = all_users?.length - current_users?.length;
 
 return {total_users:all_users?.length || 0,user_comparison:difference_count}
 
@@ -1038,26 +1069,34 @@ const allocations = await tx.allocation.findMany({
   }
 });
 
-// start of current month
-const startOfMonth = new Date();
-startOfMonth.setDate(1);
-startOfMonth.setHours(0, 0, 0, 0);
 
-const now = new Date();
+let thisMonthCount = 0;
+let lastMonthCount = 0;
 
-const currentMonthAllocations = allocations.filter(a =>
-  a.created_at >= startOfMonth && a.created_at <= now
-);
+for (const allocation of allocations) {
+  const createdAt = new Date(allocation.created_at);
+
+  if (createdAt >= startOfThisMonth && createdAt <= now) {
+    thisMonthCount++;
+  }
+
+  if (createdAt >= startOfLastMonth && createdAt <= endOfLastMonth) {
+    lastMonthCount++;
+  }
+}
+
+
+let rise_percent = getGrowth(lastMonthCount,thisMonthCount);
 
 
   const pending = allocations.filter((a)=>a?.status == 'in process');
 
 
+  console.log("RISE",rise_percent) 
   if(allocations?.length){
 
-    return {total_allocations:allocations?.length || 0,pending_allocations:pending?.length,allocation_comparison:currentMonthAllocations?.length}
+    return {total_allocations:allocations?.length || 0,pending_allocations:pending?.length,allocation_comparison:rise_percent}
   }
-
 
 };
 

@@ -987,6 +987,156 @@ const get_generic_key = async (req)=>{
 }
 
 
+//.................................................        Bulk Branch Mapping Upload Route ................................................
+const branchMappingUpload = async (req) => {
+  const fs = require("fs");
+  const xlsx = require("xlsx");
+ 
+  try {
+    if (!req.file) {
+      throw new Error("No file uploaded");
+    }
+ 
+    const filePath = req.file.path;
+    const originalName = req.file.originalname;
+    const ext = originalName.split(".").pop().toLowerCase();
+ 
+    if (!["xlsx", "xls", "csv"].includes(ext)) {
+      throw new Error(
+        "Invalid file type. Only .xlsx, .xls, and .csv are supported.",
+      );
+    }
+ 
+    let sheetData = [];
+ 
+    if (ext === "csv") {
+      const workbook = xlsx.readFile(filePath, { codepage: 65001 });
+      const sheetName = workbook.SheetNames[0];
+      sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], {
+        defval: "",
+      });
+    } else {
+      const workbook = xlsx.readFile(filePath);
+      const sheetName = workbook.SheetNames[0];
+      sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], {
+        defval: "",
+      });
+    }
+ 
+    if (!sheetData || sheetData.length === 0) {
+      throw new Error("File is empty or contains no data rows");
+    }
+ 
+    const firstRow = sheetData[0];
+    const headers = Object.keys(firstRow).map((h) => h.trim().toLowerCase());
+    const originalHeaders = Object.keys(firstRow); // Keep original column names
+ 
+    const empCodeKeys = [
+      "employeecode",
+      "employee_code",
+      "empcode",
+      "emp_code",
+      "employee id",
+      "employee_id",
+      "empid",
+      "emp_id",
+      "code",
+    ];
+ 
+    const branchKeys = [
+      "branchname",
+      "branch_name",
+      "branch",
+      "branchcode",
+      "branch_code",
+      "branch id",
+      "branch_id",
+    ];
+ 
+    let employeeCodeCol = null;
+    let branchNameCol = null;
+ 
+    for (const key of empCodeKeys) {
+      const foundIndex = headers.findIndex((h) => h.includes(key));
+      if (foundIndex !== -1) {
+        employeeCodeCol = originalHeaders[foundIndex]; // Get the original column name
+        break;
+      }
+    }
+ 
+    for (const key of branchKeys) {
+      const foundIndex = headers.findIndex((h) => h.includes(key));
+      if (foundIndex !== -1) {
+        branchNameCol = originalHeaders[foundIndex]; // Get the original column name
+        break;
+      }
+    }
+ 
+    if (!employeeCodeCol || !branchNameCol) {
+      throw new Error(
+        `Required columns not found.\n` +
+          `Expected something like: employeeCode / empCode / employee_code\n` +
+          `and branchName / branch / branch_name\n` +
+          `Found headers: ${headers.join(", ")}`,
+      );
+    }
+ 
+    const mappingArray = [];
+    const skippedRows = [];
+ 
+    sheetData.forEach((row, index) => {
+      const employeeCode = (row[employeeCodeCol] || "").toString().trim();
+      const branchName = (row[branchNameCol] || "").toString().trim();
+ 
+      if (!employeeCode || !branchName) {
+        skippedRows.push(index + 2); // +2 because Excel row 1 = header, row 2 = first data
+        return;
+      }
+ 
+      mappingArray.push({
+        employeeCode,
+        branchName,
+      });
+    });
+ 
+    if (mappingArray.length === 0) {
+      throw new Error("No valid rows found after validation");
+    }
+ 
+   
+    const syncResult = await adminmaster.bulkBranchMappingUpload(mappingArray);
+ 
+   
+ 
+    // Clean up file
+    fs.unlink(filePath, (err) => {
+      if (err) console.error("Error deleting uploaded file:", err);
+    });
+ 
+    return {
+      success: true,
+      message: "Branch mapping file processed successfully",
+      file: originalName,
+      file_type: ext,
+      total_rows_in_file: sheetData.length,
+      valid_records: mappingArray.length,
+      skipped_rows: skippedRows.length > 0 ? skippedRows : undefined,
+      sync_result: syncResult,
+    };
+  } catch (error) {
+    if (req.file?.path) {
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.error("Error deleting file on failure:", err);
+      });
+    }
+ 
+    console.error("Branch mapping upload error:", error);
+ 
+    throw new Error(error.message || "Failed to process branch mapping file");
+  }
+};
+
+
 module.exports = {
     addbranchmaster, 
     get_branch_master,
@@ -1021,6 +1171,7 @@ module.exports = {
     update_case_type_master,
     create_role,
     getAvailablePermissions,
-    edit_role
+    edit_role,
+    branchMappingUpload
 }  
    

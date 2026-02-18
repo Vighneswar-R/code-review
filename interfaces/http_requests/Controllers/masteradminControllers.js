@@ -789,6 +789,21 @@ get_generic_key:async(req,res,next)=>{
     },
 
 
+        //.................................................        Bulk Branch Mapping Upload ................................................
+    branchMappingUpload: async (req, res, next) => {
+        try {
+
+            const result = await admincases.branchMappingUpload(req);
+            return res.json(result);
+
+        }
+        catch (err) {
+            console.log(err);
+            next(err);
+        }
+    }
+
+
 }
 
 

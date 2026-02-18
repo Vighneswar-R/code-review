@@ -79,5 +79,6 @@ router.get('/get-generic-key', masteradminControllers.get_generic_key);
 
 router.get('/get-state-master', masteradminControllers.get_generic_key);
 
+router.post('/bulkbranch-mapping-upload', upload.single("file"), masteradminControllers.branchMappingUpload);
 
 module.exports = router;

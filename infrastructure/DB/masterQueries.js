@@ -519,7 +519,167 @@ findAndRemovePermissions:async(id,permission_ids)=>{
     };
     
 
-}
+},
+
+//.................................................        Bulk Branch Mapping Upload ................................................
+
+bulkBranchMappingUpload: async (mappingArray) => {
+    if (!mappingArray || mappingArray.length === 0) {
+      return { message: "No data provided", code: 400 };
+    }
+ 
+    const employeeCodes = [
+      ...new Set(
+        mappingArray.map((m) => m.employeeCode?.trim()).filter(Boolean),
+      ),
+    ];
+    const branchNames = [
+      ...new Set(mappingArray.map((m) => m.branchName?.trim()).filter(Boolean)),
+    ];
+ 
+    if (employeeCodes.length === 0) {
+      return { message: "No valid employeeCode found", code: 400 };
+    }
+ 
+    try {
+      const result = await prisma.$transaction(async (tx) => {
+        const errors = [];
+ 
+        const users = await tx.user.findMany({
+          where: { employee_id: { in: employeeCodes } },
+          select: { id: true, employee_id: true },
+        });
+ 
+        const userMap = new Map(users.map((u) => [u.employee_id, u.id]));
+        const missingEmployees = employeeCodes.filter(
+          (code) => !userMap.has(code),
+        );
+ 
+        if (missingEmployees.length > 0) {
+          errors.push(
+            `Employee code(s) not found: ${missingEmployees.join(", ")}`,
+          );
+        }
+ 
+        const branches = await tx.branchMaster.findMany({
+          where: { branch_name : { in: branchNames } },
+          select: { id: true, branch_name: true },
+        });
+ 
+        const branchMap = new Map(branches.map((b) => [b.branch_name, b.id]));
+        const missingBranches = branchNames.filter(
+          (name) => !branchMap.has(name),
+        );
+ 
+        if (missingBranches.length > 0) {
+          errors.push(
+            `Branch name(s) not found: ${missingBranches.join(", ")}`,
+          );
+        }
+ 
+        if (errors.length > 0) {
+          throw new Error(errors.join(" | "));
+        }
+ 
+        const currentMappings = await tx.branchMapping.findMany({
+          where: {
+            user_id: { in: Array.from(userMap.values()) },
+            is_active: true,
+          },
+          select: {
+            id: true,
+            user_id: true,
+            branch_id: true,
+          },
+        });
+ 
+        const currentActive = new Map();
+        currentMappings.forEach((m) => {
+          if (!currentActive.has(m.user_id)) {
+            currentActive.set(m.user_id, new Set());
+          }
+          currentActive.get(m.user_id).add(m.branch_id);
+        });
+ 
+        const desired = new Map();
+        mappingArray.forEach((item) => {
+          const empCode = item.employeeCode?.trim();
+          const brName = item.branchName?.trim();
+ 
+          if (!empCode || !brName) return;
+ 
+          const userId = userMap.get(empCode);
+          const branchId = branchMap.get(brName);
+ 
+          if (!userId || !branchId) return;
+ 
+          if (!desired.has(userId)) {
+            desired.set(userId, new Set());
+          }
+          desired.get(userId).add(branchId);
+        });
+ 
+        const toDisable = [];
+        const toCreate = [];
+ 
+        for (const [userId, desiredBranches] of desired) {
+          const currentBranches = currentActive.get(userId) || new Set();
+ 
+          for (const branchId of desiredBranches) {
+            if (!currentBranches.has(branchId)) {
+              toCreate.push({ user_id: userId, branch_id: branchId });
+            }
+          }
+ 
+          for (const branchId of currentBranches) {
+            if (!desiredBranches.has(branchId)) {
+              const mapping = currentMappings.find(
+                (m) => m.user_id === userId && m.branch_id === branchId,
+              );
+              if (mapping?.id) {
+                toDisable.push(mapping.id);
+              }
+            }
+          }
+        }
+ 
+        if (toDisable.length > 0) {
+          await tx.branchMapping.updateMany({
+            where: { id: { in: toDisable } },
+            data: { is_active: false },
+          });
+        }
+ 
+        if (toCreate.length > 0) {
+          const batchSize = 500;
+          for (let i = 0; i < toCreate.length; i += batchSize) {
+            const batch = toCreate.slice(i, i + batchSize);
+            await tx.branchMapping.createMany({
+              data: batch.map((m) => ({ ...m, is_active: true })),
+              skipDuplicates: true,
+            });
+          }
+        }
+ 
+        const totalChanges = toCreate.length + toDisable.length;
+        return {
+          message:
+            totalChanges > 0
+              ? `Sync completed: ${toCreate.length} added, ${toDisable.length} disabled`
+              : "No changes needed - already in sync",
+          code: 200,
+        };
+      });
+ 
+      return result;
+    } catch (err) {
+      console.error(err);
+      return {
+        message: "Sync failed: " + (err.message || "Unknown error"),
+        code: 400,
+      };
+    }
+  }
 
 
 }
