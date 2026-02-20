@@ -5,7 +5,7 @@ import ScannerIcon from '../../../../assets/icons/scanner.svg';
 import CashIcon from '../../../../assets/icons/cash.svg';
 import LinkIcon from '../../../../assets/icons/link.svg';
 import { Button, ToastMessage } from '../../../../components';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState,useRef} from 'react';
 import DynamicDrawer from '../../../../components/SwipeableDrawer/DynamicDrawer';
 import { IconClose } from '../../../../assets/icons';
 import { LeadContext } from '../../../../context/LeadContextProvider';
@@ -93,7 +93,9 @@ const AirpayPayment = () => {
 
   const[goBack,setGoBack] = useState(false);
 
-  const[breDone,setBreDone] = useState(false)
+  const[breDone,setBreDone] = useState(false);
+
+  const isMountedRef = useRef(true);
 
 
   const handleClick = (label = 'UPI Payment') => {
@@ -121,6 +123,13 @@ const AirpayPayment = () => {
 
   },[])
 
+  useEffect(() => {
+  return () => {
+    isMountedRef.current = false;
+  };
+}, []);
+
+
 
   const handleSwitch = async() => {
 
@@ -139,21 +148,26 @@ const AirpayPayment = () => {
  
 
   const addQR=async () =>{
- const resps = await addLnTCharges(values?.lead?.id, {
-        headers: {
-          Authorization: token,
-        },
-      });
-      setLntId(resps.id);	  
+ 
+    try{
   const resp = await addLnTCharges(values?.lead?.id, {
     headers: {
       Authorization: token,
     },
   });
+  if (!isMountedRef.current) return;
   setLntId(resp.id);
-}	
+} catch(err){
+  console.log("ERROR ADDING LNT CHARGES",err);
+}
+};
+
+
   const fetchQR = async () => {
+    
     try {
+      if (!isMountedRef.current) return;
+
       setLoadingQr(true);
       setAmount(values?.applicants?.[activeIndex]?.applicant_details?.bre_101_response?.body?.Display?.[
         'L&T_Charges'
@@ -191,12 +205,14 @@ const AirpayPayment = () => {
             });
 
             
-            console.log(breregenerate);
+            // console.log(breregenerate);
 
-            
+              if (!isMountedRef.current) return;
             // check for the amount and bypass if 0 - First attempt
 
             if(breregenerate?.bre_101_response?.body?.['L&T_Charges'] == 0) {
+
+
               setPaymentStatus('success');
               setBreDone(true);
               setLoadingQr(false);
@@ -212,7 +228,7 @@ const AirpayPayment = () => {
           }
 
           catch(err) {
-            console.log("ERROR REGENERATING LNT Bre101 >",err)
+            console.log("ERROR REGENERATING LNT Bre101 >");
           }
    
         }
@@ -226,12 +242,17 @@ const AirpayPayment = () => {
           Authorization: token,
         },
       });
+
+      if (!isMountedRef.current) return;
       if (resp.DecryptedData?.QRCODE_STRING) setQrCode(resp.DecryptedData.QRCODE_STRING);
     } catch (err) {
       console.log(err);
     } finally {
+
+        if (isMountedRef.current) {
       setLoadingQr(false);
     }
+  }
   };
 
 
@@ -335,128 +356,145 @@ const AirpayPayment = () => {
   }, [applicantNumberList, activeIndex]); // Add dependencies here as needed
    
   
-  useEffect(()=> {
+    useEffect(()=> {
 
+      if(single_payment == true){
+        navigate('/lead/easebuzz-payment');
+        return;
+      }
 
-    if(single_payment == true){
-      navigate('/lead/easebuzz-payment');
-      return;
-    }
+      (async () => {
+        try {
+          // check whether LnT exists
+          if (values?.lead?.id) {
+            const resp = await checkIfLntExists(values?.lead?.id, {
+              headers: {
+                Authorization: token,
+              },
+            });
 
-    (async () => {
-      try {
-        // check whether LnT exists
-        if (values?.lead?.id) {
-          const resp = await checkIfLntExists(values?.lead?.id, {
-            headers: {
-              Authorization: token,
-            },
-          });
-          setFieldValue('lt_charges', resp);
+            if (!isMountedRef.current) return;
+
+            setFieldValue('lt_charges', resp);
+          }
+
+          if (!isMountedRef.current) return;
+
+          setPaymentStatus('success');
+
+                    // if LNT BRE Already exists for any of the applicant (Looking for all as there could be switch cases as well);
+
+                    const activeApplicants = values.applicants;
+
+                    let lnt_bre;
+          
+          
+                    for(const applicant of activeApplicants){
+          
+                      if(applicant?.applicant_details?.lt_bre_101_response){
+                        lnt_bre = applicant?.applicant_details?.lt_bre_101_response;
+          
+                        break;
+                      }
+          
+                    };
+
+                    if (!isMountedRef.current) return;
+          
+                    // check if lt_bre exists already & if the amount is 0 to bypass
+          
+                    if(lnt_bre && lnt_bre?.["body"]?.["L&T_Charges"] == 0){
+                      setAmount(0);
+                    }
+
+          updateCompleteFormProgress();
         }
+        catch (err) {
+          console.error(err);
 
-        setPaymentStatus('success');
+          // if LNT BRE Already exists for any of the applicant (Looking for all as there could be switch cases as well);
 
-                   // if LNT BRE Already exists for any of the applicant (Looking for all as there could be switch cases as well);
+          const activeApplicants = values.applicants;
 
-                   const activeApplicants = values.applicants;
-
-                   let lnt_bre;
-         
-         
-                   for(const applicant of activeApplicants){
-         
-                     if(applicant?.applicant_details?.lt_bre_101_response){
-                       lnt_bre = applicant?.applicant_details?.lt_bre_101_response;
-         
-                       break;
-                     }
-         
-                   };
-         
-                   // check if lt_bre exists already & if the amount is 0 to bypass
-         
-                   if(lnt_bre && lnt_bre?.["body"]?.["L&T_Charges"] == 0){
-                     setAmount(0);
-                   }
-
-        updateCompleteFormProgress();
-      } catch (err) {
-        console.error(err);
-
-         // if LNT BRE Already exists for any of the applicant (Looking for all as there could be switch cases as well);
-
-         const activeApplicants = values.applicants;
-
-         let lnt_bre;
+          let lnt_bre;
 
 
-         for(const applicant of activeApplicants){
+          for(const applicant of activeApplicants){
 
-           if(applicant?.applicant_details?.lt_bre_101_response){
-             lnt_bre = applicant?.applicant_details?.lt_bre_101_response;
+            if(applicant?.applicant_details?.lt_bre_101_response){
+              lnt_bre = applicant?.applicant_details?.lt_bre_101_response;
 
-             break;
-           }
+              break;
+            }
 
-         };
+          };
 
-         // check if lt_bre exists already & if the amount is 0 to bypass
-
-         if(lnt_bre && lnt_bre?.["body"]?.["L&T_Charges"] == 0){
-           setBreDone(true);
-           setLoadingQr(false);
-           setAmount(0);
-updateCompleteFormProgress();
-         }
-
-        (async function fetchCode() {
-  
-          let bypass = false;
-
-          let body = {};
+          // check if lt_bre exists already & if the amount is 0 to bypass
 
           if(lnt_bre && lnt_bre?.["body"]?.["L&T_Charges"] == 0){
-            bypass = true;
-            body = {lead_id:values?.lead?.id,
-              airpay_verify_ap_transaction_id:`BP-${uuidv4()}`,
-              status:'Completed',
-              payable_amount:Number(0)
-            }
-          }
 
-          else {
-            body = values?.lead?.id
-          }
+            if (!isMountedRef.current) return;
 
-
-          const resp = await addLnTCharges(values?.lead?.id, {
-            headers: {
-              Authorization: token,
-            },
-          },bypass);
-
-          if(bypass == true){
-            setPaymentStatus('success');
+            setBreDone(true);
+            setLoadingQr(false);
             setAmount(0);
-            return;
-          } 
-          
-          setLntId(resp.id);
-          await fetchQR();
+  updateCompleteFormProgress();
+          }
+
+          (async function fetchCode() {
+    
+            let bypass = false;
+
+            let body = {};
+
+            if(lnt_bre && lnt_bre?.["body"]?.["L&T_Charges"] == 0){
+              bypass = true;
+              body = {lead_id:values?.lead?.id,
+                airpay_verify_ap_transaction_id:`BP-${uuidv4()}`,
+                status:'Completed',
+                payable_amount:Number(0)
+              }
+            }
+
+            else {
+              body = values?.lead?.id
+            }
+
+
+            const resp = await addLnTCharges(values?.lead?.id, {
+              headers: {
+                Authorization: token,
+              },
+            },bypass);
+
+            if (!isMountedRef.current) return;
+
+
+            if(bypass == true){
+              setPaymentStatus('success');
+              setAmount(0);
+              return;
+            } 
+            
+  if (!isMountedRef.current) return;
+
+            setLntId(resp.id);
+            await fetchQR();
+    
+            // Reset
+            setHasSentOTPOnce(false);
+            setShowResendLink(false);
+            setActiveItem('UPI Payment');
+    
+            updateCompleteFormProgress();
+    
+        })()
+        }
+      })();
+
   
-          // Reset
-          setHasSentOTPOnce(false);
-          setShowResendLink(false);
-          setActiveItem('UPI Payment');
-  
-          updateCompleteFormProgress();
-   
-      })()
-      }
-    })();
-  
-  },[])
+    
+    },[])
  
 
   useEffect(() => {
@@ -469,18 +507,24 @@ updateCompleteFormProgress();
               Authorization: token,
             },
           });
+            if (!isMountedRef.current) return;
+
           setFieldValue('lt_charges', resp);
         }
+
+          if (!isMountedRef.current) return;
 
         setPaymentStatus('success');
 
 
-        console.log("I AM THE PAID RESP",resp)
+        // console.log("I AM THE PAID RESP",resp)
         updateCompleteFormProgress();
       } catch (err) {
         console.error(err);
       }
     })();
+
+   
   }, [paymentStatus]);
 
   const handleCheckingStatus = async (label = '') => {
@@ -498,16 +542,24 @@ updateCompleteFormProgress();
       // }else if (resp?.airpay_response_json?.airpay_verify_transaction_status == '400') {
       //   setPaymentStatus('failure');
       // }
+
+       if (!isMountedRef.current) return;
+
+
       if (resp?.airpay_response_json?.airpay_verify_transaction_status == '200') {
         setPaymentStatus('success');
       }else if (resp?.airpay_response_json?.airpay_verify_transaction_status == '400') {
         // setPaymentStatus('failure');
-        alert('Failed')
+        // alert('Failed')
+      ToastMessage.error('Payment failed'); 
+
 
       }else{
         alert(resp?.airpay_response_json?.airpay_verify_message);
+        ToastMessage.error(resp?.airpay_response_json?.airpay_verify_message);
       }
     } catch (error) {
+       if (!isMountedRef.current) return;
       if (error?.code === 'ERR_CANCELED') {
         console.log('canceled check status');
         return;
@@ -517,7 +569,9 @@ updateCompleteFormProgress();
 
       console.log(error);
     } finally {
+       if (isMountedRef.current) {
       setCheckingStatus('');
+       }
     }
   };
 
@@ -618,7 +672,7 @@ updateCompleteFormProgress();
       },
     );
     if (resp) {
-      setToastMessage('Link has been sent to the entered mobile number');
+      set ('Link has been sent to the entered mobile number');
     }
     setShowResendLink(false);
     setSendLinkTime(LINK_RESEND_TIME);

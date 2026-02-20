@@ -1,4 +1,4 @@
-import { useCallback, useState, useContext, useEffect } from 'react';
+import { useCallback, useState, useContext, useEffect,useRef } from 'react';
 import { IconPropertyIdentified, IconPropertyUnIdentified } from '../../../../assets/icons';
 import { CardRadio } from '../../../../components';
 import IdentificationDoneFields from './IdentificationDoneFields';
@@ -68,23 +68,41 @@ const PropertyDetails = () => {
   }
 
 
+  const isMountedRef = useRef(true);
+
   useEffect(() => {
+
+     isMountedRef.current = true;
     let userLocation = navigator.geolocation;
 
     if (userLocation) {
-      userLocation.getCurrentPosition(success);
+      userLocation.getCurrentPosition(success,error);
     } else {
       console.log('The geolocation API is not supported by your browser.');
     }
 
     function success(data) {
+
+       if (!isMountedRef.current) return;
       let lat = data.coords.latitude;
       let long = data.coords.longitude;
+    
       setLatLong({
         geo_lat: String(lat),
         geo_long: String(long),
       });
+    
     }
+
+     function error(err) {
+     if (!isMountedRef.current) return;
+    console.log('Geolocation error:', err.message);
+  }
+
+    return () => {  // cleanup 
+     
+       isMountedRef.current = false; 
+    };
   }, []);
   
 
@@ -118,9 +136,12 @@ const PropertyDetails = () => {
               },
             },
           );        
-          
-          setFieldValue(`applicants[${activeIndex}].applicant_details.extra_params`, existing_params);    
 
+          if (!isMountedRef.current) return;
+
+         
+          setFieldValue(`applicants[${activeIndex}].applicant_details.extra_params`, existing_params);    
+          
 
         }
   
@@ -129,9 +150,12 @@ const PropertyDetails = () => {
     }
 
     catch(err){
+        if (!isMountedRef.current) return;
       console.log("error updating qualifier",err)
+
     }
 
+    if (!isMountedRef.current) return;
     setUpdated(true)
   }
 
@@ -146,12 +170,25 @@ updateQualifier();
 
   useEffect(() => {
 
+     
+
     if(!updated) return;
 
     // check if already application form is created ** in case user comes back and change data
+     const run = async () => {
+    try {
+      await updateProgressApplicantSteps(
+        'property_details',
+        requiredFieldsStatus,
+        'property'
+      );
+    } catch (err) {
+      console.error('Progress update failed', err);
+    }
+  };
 
+  run();
     
-    updateProgressApplicantSteps('property_details', requiredFieldsStatus, 'property');
   }, [requiredFieldsStatus,updated]);
 
   const [openModal, setOpenModal] = useState(false);
@@ -165,7 +202,8 @@ updateQualifier();
       setFieldValue('property_details.property_identification_is', e.value);
       if (values?.property_details?.id) {  //values?.property_details?.id
         if (e.value === 'not-yet') {
-          editPropertyById(
+          try{
+         await editPropertyById(
             values?.property_details?.id,
             {
               property_identification_is: e.value,
@@ -191,6 +229,9 @@ updateQualifier();
               },
             },
           );
+        } catch(err){
+          console.error(' failed:', err);
+        }
 
           setFieldValue('property_details', {
             ...values.property_details,
@@ -215,7 +256,8 @@ updateQualifier();
             property_identification_is: true,
           });
         } else {
-          editPropertyById(
+          try{
+         await editPropertyById(
             values?.property_details?.id,
             {
               property_identification_is: e.value,
@@ -246,6 +288,9 @@ updateQualifier();
               },
             },
           );
+        } catch(err){
+          console.log(' failed:', err);
+        }
           setRequiredFieldsStatus({
             current_owner_name: false,
             pincode: false,
@@ -321,6 +366,9 @@ updateQualifier();
     },
     [requiredFieldsStatus, setFieldValue],
   );
+
+
+
   return (
     <>
 

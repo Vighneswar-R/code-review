@@ -5,7 +5,7 @@ import ScannerIcon from '../../../../assets/icons/scanner.svg';
 import CashIcon from '../../../../assets/icons/cash.svg';
 import LinkIcon from '../../../../assets/icons/link.svg';
 import { Button, ToastMessage } from '../../../../components';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState ,useRef} from 'react';
 import DynamicDrawer from '../../../../components/SwipeableDrawer/DynamicDrawer';
 import { IconClose } from '../../../../assets/icons';
 import { LeadContext } from '../../../../context/LeadContextProvider';
@@ -60,6 +60,8 @@ const LnTCharges = () => {
 
   const [toastMessage, setToastMessage] = useState('');
 
+   const isMountedRef = useRef(true); 
+
   const [mobile_number, setMobileNumber] = useState('');
   const [applicantNumberList, setApplicantNumberList] = useState([]);
   const navigate = useNavigate();
@@ -97,40 +99,57 @@ const LnTCharges = () => {
 
   const handleSwitch = async() => {
 
-    setSwitchedMode(false)
+    setSwitchedMode(false);
 
     if(activeItem !== 'UPI Payment') {
-      addQR();
+      try{
+      await addQR();
 
-      fetchQR();
+      await fetchQR();
   
       setQrTime(QR_TIMEOUT);
+      } catch(err){
+        console.log("something went wrong ",err);
+
+      }
     }
 
-  }
+  };
 
  
 
   const addQR=async () =>{
+    try{
  const resps = await addLnTCharges(values?.lead?.id, {
         headers: {
           Authorization: token,
         },
       });
-      setLntId(resps.id);	  
-  const resp = await addLnTCharges(values?.lead?.id, {
-    headers: {
-      Authorization: token,
-    },
-  });
-  setLntId(resp.id);
+
+      if (isMountedRef.current){
+      setLntId(resps.id);	 
+      } 
+  // const resp = await addLnTCharges(values?.lead?.id, {
+  //   headers: {
+  //     Authorization: token,
+  //   },
+  // });
+  // setLntId(resp.id);
+}catch(err){
+  console.log(err);
+}
 }	
   const fetchQR = async () => {
     try {
+
+      if (isMountedRef.current){
       setLoadingQr(true);
       setAmount(values?.applicants?.[activeIndex]?.applicant_details?.bre_101_response?.body?.Display?.[
         'L&T_Charges'
       ] ?? 1500);
+    }
+
+
       for (var i=0;i<values?.applicants.length;i++){
         if(values?.applicants[i].applicant_details.applicant_type=='Primary Applicant' && values?.applicants[i].applicant_details.lead_id==values?.lead?.id){
           const breregenerate=await checkLntBre101(values?.applicants[i].applicant_details.id, {
@@ -138,7 +157,7 @@ const LnTCharges = () => {
               Authorization: token,
             },
           });
-          console.log(breregenerate);
+          // console.log(breregenerate);
           setAmount(breregenerate?.bre_101_response?.body?.['L&T_Charges']);
         }
       }
@@ -147,11 +166,13 @@ const LnTCharges = () => {
           Authorization: token,
         },
       });
-      if (resp.DecryptedData?.QRCODE_STRING) setQrCode(resp.DecryptedData.QRCODE_STRING);
+      if (resp.DecryptedData?.QRCODE_STRING && isMountedRef.current) setQrCode(resp.DecryptedData.QRCODE_STRING);
     } catch (err) {
       console.log(err);
     } finally {
+      if (isMountedRef.current){
       setLoadingQr(false);
+      }
     }
   };
 
@@ -209,6 +230,8 @@ const LnTCharges = () => {
   
   useEffect(() => {
 
+      isMountedRef.current = true;
+
     (async () => {
       try {
         if (values?.applicants != null) {
@@ -229,6 +252,7 @@ const LnTCharges = () => {
             },
           });
 
+            if (!isMountedRef.current) return;
           setFieldValue('lt_charges', resp);
           setPaymentStatus('success');
         }
@@ -279,11 +303,18 @@ const LnTCharges = () => {
 
         console.log("ERROR",err)
       } finally {
+          if (isMountedRef.current){
         setLoadingPaymentStatus(false);
+          }
       }
     
   
   })();
+
+      return () => {
+      isMountedRef.current = false;  // clean up function 
+    };
+
   }, []);
 
   return (

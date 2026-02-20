@@ -47,7 +47,7 @@ export default function SalesforceRetry() {
   const [leadData, setLeadData] = useState(null);
 
 
-  const mounted = useRef(false);
+  const isMounted = useRef(false);
 
   const docMount = useRef(false)
   const { id } = useParams();
@@ -67,10 +67,17 @@ export default function SalesforceRetry() {
           Authorization: token,
         },
       });
+
+      if(response && isMounted.current){
       setLeadData(response);
-      console.log('Lead data fetched:', response);
+      }else{
+        console.log("Invalid data recieved ", response);
+      }
+      // console.log('Lead data fetched:', response);
     } catch (error) {
+      if(isMounted.current){
       console.error('Error fetching lead data:', error);
+      }
     }
   };
 
@@ -79,10 +86,14 @@ export default function SalesforceRetry() {
   }
 
   useEffect(()=> {
-
+  isMounted.current = true; 
     if(sfdc_push_res === true) {
       callAfterPush();
     }
+
+      return () => {
+    isMounted.current = false; // cleanup when component 
+  };
   },[sfdc_push_res])
 
   //console.log('lead data in retry bsalesforce', leadData)
@@ -94,11 +105,16 @@ export default function SalesforceRetry() {
 }, [salesForceSuccessIcon]);
 
   useEffect(() => {
+
+    if (!isMounted.current) return;
+
     const fetchDataAndProcess = async () => {
      
-     
+     if (!isMounted.current) return;
       if(leadData==undefined)
       await getLeadData();
+
+      if (!isMounted.current) return;
 
      
       if (leadData && !hasLogged.current) { // Ensure leadData is available before accessing it
@@ -164,11 +180,16 @@ export default function SalesforceRetry() {
   const handleSalesforceSubmit = async () => {
     console.log('handleSalesforceSubmit data in retry bsalesforce start');
     try {
+        if (!isMounted.current) return;
+        
       if (leadData?.lead?.applicant_type === "C" || leadData?.lead?.applicant_type === "G" || leadData?.lead?.is_co_applicant_required==true) {
         if(leadData?.lead?.service_query_sfdc_submit_pwa?.Status === 'Success' || leadData?.lead?.service_query_sfdc_submit_pwa?.[0]?.Status === 'Success'){
+         if (!isMounted.current) return;
           setSalesForceSuccessIcon(true);
           return;
         }
+
+        if (!isMounted.current) return;
         setSalesForceLoader(true);
 
         const sfdcres1 = await serviceQueryPushToSalesforce(
@@ -180,7 +201,9 @@ export default function SalesforceRetry() {
           }
         );
 
-        console.log("SFRES>>",sfdcres1)
+        if (!isMounted.current) return;
+
+        // console.log("SFRES>>",sfdcres1)
          if (sfdcres1?.salesforce_response?.service_query_sfdc_submit_pwa?.Message == 'Applicant addition not allowed post sanction. Please unlock CAM and do the needful.' && sfdcres1?.salesforce_response?.service_query_sfdc_submit_pwa?.Status == 'Error') {
           await editFieldsById(     // bm submit request to push the case to BM
             values?.lead?.id,
@@ -199,6 +222,9 @@ export default function SalesforceRetry() {
               },
             },
           );
+
+          if (!isMounted.current) return;
+
           setFieldValue(
             `lead.bm_submit`,
             true,
@@ -208,10 +234,14 @@ export default function SalesforceRetry() {
           setToastMessage(sfdcres1?.salesforce_response?.service_query_sfdc_submit_pwa?.Message);
           return;
         }
+
+        if (!isMounted.current) return;
         setSfdcRes(sfdcres1)
  
         if (sfdcres1?.lead?.service_query_sfdc_submit_pwa?.[0]?.Status == 'Success' || sfdcres1?.lead?.service_query_sfdc_submit_pwa?.Status == 'Success')
         {
+
+          if (!isMounted.current) return;
           setSalesForceLoader(false);
           setSalesForceSuccessIcon(true);
           setSalesForceDocsLoader(true);
@@ -221,6 +251,7 @@ export default function SalesforceRetry() {
 
         } else {
           console.log("FAILED");
+          if (!isMounted.current) return;
           setSalesForceLoader(false);
           setSalesForceSuccessIcon(false);
 
@@ -236,6 +267,7 @@ export default function SalesforceRetry() {
          
         }
       } else {
+        if (!isMounted.current) return;
         setSalesForceLoader(true);
         const sfdcres = await pushToSalesforce(
           leadData?.applicants?.[activeIndex]?.applicant_details?.lead_id,
@@ -245,14 +277,18 @@ export default function SalesforceRetry() {
             },
           }
         );
+
+        if (!isMounted.current) return;
         
         if (sfdcres.lead.sfdc_submit_pwa?.Status === 'Success') {
+          if (!isMounted.current) return;
           setSalesForceLoader(false);
           setSalesForceSuccessIcon(true);
           // await handleSalesforceDocumentSubmit();
           setSalesforceID(sfdcres.lead?.salesforce_application_id)
           setSfdc_push_res(true)            //**mark */
         } else {
+          if (!isMounted.current) return;
             setSalesForceLoader(false);
             setSalesForceSuccessIcon(false);
          
@@ -260,6 +296,7 @@ export default function SalesforceRetry() {
       }
     } catch (err) {
       console.log(err);
+      if (!isMounted.current) return;
       setSalesForceLoader(false);
       setSalesForceDocsLoader(false);
       //setEnablePrevious(true);
@@ -267,6 +304,7 @@ export default function SalesforceRetry() {
       let message = err?.response?.data?.error || err?.response?.data?.message
       // setToastMessage(message?.length?message:'The data push to Salesforce has failed');
         if (message == 'No Token 1 found'){
+          if (!isMounted.current) return;
           setErrorMsg('Employee ID & Branch Name Is Mismatched. Please contact Itrust Admin')
         }
       //setErrorMsg(message?.length?message:'The data push to Salesforce has failed')
@@ -278,17 +316,26 @@ export default function SalesforceRetry() {
  
   const handleSalesforceDocumentSubmit = async () => {
     console.log('handleSalesforceDocumentSubmit data in retry bsalesforce start');
+   
+    if (!isMounted.current) return;
+
    // debugger;
     try {
       // if (((leadData?.lead?.service_query_sfdc_submit_pwa?.[0]?.Status === 'Success' || setSfdcRes?.lead?.service_query_sfdc_submit_pwa?.[0]?.Status === 'Success') || (leadData?.lead?.service_query_sfdc_submit_pwa?.Status === 'Success' || setSfdcRes?.lead?.service_query_sfdc_submit_pwa?.Status === 'Success')) && (leadData?.lead?.applicant_type === "C" ||leadData?.lead?.is_co_applicant_required==true || leadData?.lead?.applicant_type === "G"))
       if (((leadData?.lead?.service_query_sfdc_submit_pwa?.[0]?.Status === 'Success' || sfdcRes?.["lead"]?.["service_query_sfdc_submit_pwa"]?.[0]?.["Status"] === 'Success') || (leadData?.lead?.service_query_sfdc_submit_pwa?.Status === 'Success' || sfdcRes?.["lead"]?.["service_query_sfdc_submit_pwa"]?.["Status"] === 'Success')) && (leadData?.lead?.applicant_type === "C" ||leadData?.lead?.is_co_applicant_required==true || leadData?.lead?.applicant_type === "G"))
         {
 
+          
+      if (!isMounted.current) return;
+
           if(sfdcRes?.lead?.sfdc_submit_pwa?.Status == 'Success' || sfdcRes?.lead?.sfdc_submit_pwa?.[0]?.Status == 'Success') {   // additional if first api is success for service query cases
             setSalesForceSuccessIcon(true)
           }
 
           setSalesForceDocsLoader(true);
+
+          
+      if (!isMounted.current) return;
 
           // exit on this specific error ** No dms to be called.
          
@@ -306,6 +353,8 @@ export default function SalesforceRetry() {
             },
           }
         );
+
+        if (!isMounted.current) return; 
  
         if (sfdc_doc_res?.lead?.sfdc_service_query_upload_document_function?.Status==='Success' || sfdc_doc_res?.lead?.sfdc_service_query_upload_document_function?.Message == 'Any one of the final flag is not True therefore Application status cannot be changed.') {
           setSalesForceDocsLoader(false);
@@ -318,9 +367,9 @@ export default function SalesforceRetry() {
           setErrorMsg('The data push to Salesforce has failed');
         }
       } else if(sfdc_push_res == true ||leadData?.lead?.sfdc_submit_pwa?.Status === 'Success'){
-        console.log("PWA STATUS",leadData?.lead?.service_query_sfdc_submit_pwa?.[0]?.Status)
-        console.log("PWA  2",leadData?.lead?.service_query_sfdc_submit_pwa?.Status)
-        console.log("PWA  3 from sfcres",setSfdcRes?.["lead"]?.["service_query_sfdc_submit_pwa"])
+        // console.log("PWA STATUS",leadData?.lead?.service_query_sfdc_submit_pwa?.[0]?.Status)
+        // console.log("PWA  2",leadData?.lead?.service_query_sfdc_submit_pwa?.Status)
+        // console.log("PWA  3 from sfcres",setSfdcRes?.["lead"]?.["service_query_sfdc_submit_pwa"])
 
         setSalesForceDocsLoader(true);
         const sfdc_doc_res = await pushToSalesforceDocs(
@@ -331,6 +380,9 @@ export default function SalesforceRetry() {
             },
           }
         );
+
+        
+      if (!isMounted.current) return;
  
         if (sfdc_doc_res?.lead?.sfdc_upload_document_function?.Status==='Success') {
           setSalesForceDocsLoader(false);
@@ -344,6 +396,7 @@ export default function SalesforceRetry() {
       }
     } catch (error) {
       console.log(error);
+        if (!isMounted.current) return; 
       setSalesForceDocsLoader(false);
       setSalesForceDocsSuccessIcon(false);
       //setEnablePrevious(true);
@@ -352,9 +405,9 @@ export default function SalesforceRetry() {
     console.log('handleSalesforceDocumentSubmit data in retry bsalesforce end');
   };
 
-  useEffect(()=> {
-   console.log("response >> Caught",sfdcRes)
-  },[sfdcRes])
+  // useEffect(()=> {
+  // //  console.log("response >> Caught",sfdcRes)
+  // },[sfdcRes])
  
 
   return (

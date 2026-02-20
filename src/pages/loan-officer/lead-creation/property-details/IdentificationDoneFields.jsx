@@ -581,7 +581,7 @@ const IdentificationDoneFields = ({
         touched={touched.property_details?.pincode}
         onBlur={async (e) => {
           handleBlur(e);
-          handleOnPincodeChange();
+          await handleOnPincodeChange();
           await checkAppFormStatus();
 
           if (
@@ -592,7 +592,7 @@ const IdentificationDoneFields = ({
               ...prev,
               ['pincode']: false,
             }));
-            editPropertyById(
+           await editPropertyById(
               values?.property_details?.id,
               {
                 pincode: '',

@@ -685,10 +685,10 @@ const ReferenceDetails = () => {
               error={errors?.reference_details?.reference_1_pincode || pincodeErr?.reference_1}
               touched={touched?.reference_details?.reference_1_pincode}
               disabled={inputDisabled || approved}
-              onBlur={(e) => {
+              onBlur={async (e) => {
                 handleBlur(e);
                 const name = e.currentTarget.name.split('.')[1];
-                handleOnPincodeChangeOne();
+                await handleOnPincodeChangeOne();
                 if (
                   !errors?.reference_details?.reference_1_pincode &&
                   values?.reference_details?.reference_1_pincode

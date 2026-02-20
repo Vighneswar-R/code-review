@@ -11,17 +11,21 @@ const PaymentSuccess = ({ amount, method }) => {
   const { values, setCurrentStepIndex } = useContext(LeadContext);
   const {token} = useContext(AuthContext)
 
-  const updateLeadStatus = () => {
+  const updateLeadStatus = async() => {
 
     const lead_status = values?.lead?.status
 
 
     if(lead_status !== 'L&T Paid') {
-      editFieldsById(values?.lead?.id,'lead',{status:'L&T Paid'},{
+      try{
+     await editFieldsById(values?.lead?.id,'lead',{status:'L&T Paid'},{
         headers: {
           Authorization: token,
         },
       })      // setting up for testing cases where the status is changed from database
+    } catch(err){
+      console.log("something went wrong ", err);
+    }
     }
 
   }
