@@ -157,9 +157,12 @@ next(err);
 
            const{loan_number,otp,id} = req.body;
 
+                      const {type} = req.query;
+
+
            if(!loan_number || !otp || !id ) throw new Error("Missing Parameters for request!");
 
-           const result = await paymentCases.verifyCashOtp(id,loan_number,otp);
+           const result = await paymentCases.verifyCashOtp(id,loan_number,otp,type);
 
            return res.json(result)
 

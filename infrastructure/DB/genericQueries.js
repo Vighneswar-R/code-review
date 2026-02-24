@@ -121,11 +121,15 @@ const main = {
 
 findCoMapped: async (loggedInEmpId,getCount) => {
 
+  console.log("LOGGEDIN",loggedInEmpId)
+
   // 1. Find users who report to loggedInEmpId
   const mapped = await prisma.userMapping.findMany({
     where: { manager_code: loggedInEmpId,employee_code:{not:null} },
     select: { employee_code: true }
   });
+
+  console.log("MAP",mapped)
 
   if (!mapped.length) return [];
 
@@ -186,6 +190,8 @@ includeQuery = {
   },
 };
 }
+
+console.log("employeeCodes",employeeCodes)
   const result = await prisma.user.findMany({
     where: {
       employee_id: { in: employeeCodes },
@@ -197,6 +203,8 @@ includeQuery = {
     },
     include:includeQuery
   });
+
+  console.log("RES",result)
 
   return result;
 },

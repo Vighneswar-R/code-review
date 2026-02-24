@@ -240,15 +240,12 @@ const main = {
   WHERE sb2.applicant_id = sad.id
 ) AS banking_detail
   FROM SoaCaseMapping s
-  LEFT JOIN Allocation a
-    ON s.loan_number = a.loan_number AND a.status = 'in process'
   LEFT JOIN SoaApplicantDetail sad
     ON sad.case_id = s.id AND sad.is_primary = 1
   LEFT JOIN SoaAddressDetail sa
     ON sa.applicant_id = sad.id
   LEFT JOIN SoaBankingDetails sb
     ON sb.applicant_id = sad.id
-  WHERE a.loan_number IS NULL
   AND s.co_id IS NULL
 `;
     const params = [];
@@ -271,7 +268,6 @@ const main = {
     s.id, s.loan_number, s.application_id, s.loan_purpose, s.created_at,
     sad.id, sad.is_primary, sad.first_name, sad.middle_name, sad.last_name, sad.mobile_number
   ORDER BY s.created_at DESC
-  LIMIT ${take ?? 100} OFFSET ${skip ?? 0}
 `;
 
     const results = await prisma.$queryRawUnsafe(query, ...params);

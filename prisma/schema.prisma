@@ -964,9 +964,8 @@ model SoaApplicantDetail {
   additional_email           String?  @db.Text
   is_guarantor                Boolean?
   adhaar_number               String?  @db.Text
-  salesforce_ref_id            String?  @db.Text
   loan_number                   String?  @db.VarChar(191)
-
+  otp                           String?
   SoaCaseMapping SoaCaseMapping @relation(fields: [case_id], references: [id])
   SoaAddressDetail SoaAddressDetail[]
   SoaApplicantHistory SoaApplicantHistory[]

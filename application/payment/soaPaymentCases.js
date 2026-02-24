@@ -1303,10 +1303,27 @@ const dateOfCollection = new Date().toISOString().split("T")[0];
 
 
 
-
-    const verifyCashOtp = async(id,loan_number,otp)=>{
+    const verifyCashOtp = async(id,loan_number,otp,type)=>{
 
         try{
+            
+        if(type && type == 'applicant-otp'){
+
+            const applicant = await userQueries.findFirst('SoaApplicantDetail',{
+                id:Number(id)
+            });
+
+            console.log("APPLICANT",applicant)
+
+            if(!applicant) throw new Error("No Applicant Found!");
+
+            if(otp == applicant?.otp){
+                return {message:"Success"}
+            }
+            else{
+                throw new Error("Invalid OTP");
+            }
+        }
 
         const find_latest_entry = await paymentQueries.findLatestEntry(loan_number);
 

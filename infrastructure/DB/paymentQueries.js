@@ -111,8 +111,8 @@ findLatestEntry:async(loan)=>{
         },
         include:{
             SoaCaseMapping:{
-                id:true,
                 select:{
+                    id:true,
                     SoaEmiMapping:true
                 }
             }

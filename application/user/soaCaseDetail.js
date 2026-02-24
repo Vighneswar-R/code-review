@@ -99,9 +99,9 @@ const get_dashboard_cases = async(id,type,sub_type,skip,take,from,to,team,member
             result = await userQueries.findCaseList(id,type,sub_type,skip,take,from,to,team,mapped,member_id); // id represents the CO id
 
 
-            count = await userQueries.findCaseNumbers(id,from,to,team,mapped);
+            count = await userQueries.findCaseNumbers(id,from,to,team,mapped,member_id);
 
-            collections = await userQueries.getCollectionData(id,from,to,team,mapped);
+            collections = await userQueries.getCollectionData(id,from,to,team,mapped,member_id);
 
 
             if(result && result?.length){

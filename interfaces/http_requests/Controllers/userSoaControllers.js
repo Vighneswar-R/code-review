@@ -36,11 +36,12 @@ const main = {
 
         const id = req.user?.id || 2;
 
-        console.log("ID",id)
 
         if(!id) throw new Error("No User Found!");
 
         const {type,sub_type,skip,take,team,from,to,member_id} = req.query;
+
+        console.log("ID>>",member_id)
 
         if(!type) throw new Error("No Filters Found!");
 

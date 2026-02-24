@@ -429,7 +429,7 @@ const main = {
 
   },
 
-  findCaseNumbers: async (id, from, to, team, mapped) => {
+  findCaseNumbers: async (id, from, to, team, mapped, member_id) => {
 
     let whereClause = {
       where: { co_id: Number(id) },
@@ -457,9 +457,21 @@ const main = {
       whereClause.where.co_id = { in: mapped.map((i) => i.id) }
     }
 
+    if(member_id?.length){
+        const team_user = await prisma.user.findFirst({
+        where: {
+          employee_id: member_id
+        }
+      });
+
+      if (!team_user?.id) throw new Error("Invalid Team Member!");
+
+      whereClause.where.co_id = team_user.id;
+    }
+
     const total_cases = await prisma.soaCaseMapping.findMany(whereClause);
 
-    console.log("TOTAL CASES LENGH", total_cases?.length)
+    console.log("TOTAL CASES LENGH", whereClause)
 
     const follow_up_number = total_cases.reduce(
       (acc, item) => acc + (item.CollectionFollowUp?.length ? 1 : 0),
@@ -600,7 +612,7 @@ const main = {
     return await prisma.soaApplicantDetail.findUnique({ where: { id: Number(id) } })
   },
 
-  getCollectionData: async (id, from, to, team, mapped) => {
+  getCollectionData: async (id, from, to, team, mapped,member_id) => {
 
 
     let whereClause = {
@@ -633,9 +645,21 @@ const main = {
 
     if (team == "true") {
 
-      if (!mapped?.length) return { total: 0, pending: 0, collected: 0 };
+    if (!mapped?.length) return { total: 0, pending: 0, collected: 0 };
 
       whereClause.where.id = { in: mapped.map((i) => i.id) }
+    }
+
+   if(member_id?.length){
+               const team_user = await prisma.user.findFirst({
+        where: {
+          employee_id: member_id
+        }
+      });
+
+      if (!team_user?.id) throw new Error("Invalid Team Member!");
+
+      whereClause.where.id = team_user.id;
     }
 
     let data = await prisma.user.findMany(whereClause);
