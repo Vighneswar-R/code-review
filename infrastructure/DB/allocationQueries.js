@@ -201,75 +201,75 @@ const main = {
     //     }
 
 
-    let query = `
+let query = `
+
   SELECT 
+
     s.id AS id,
+
     s.loan_number AS loan_number,
+
     s.application_id AS application_id,
+
     s.loan_purpose AS loan_purpose,
-    s.dpd_opening  AS dpd,
+
+    s.dpd_opening AS dpd,
+
     s.balance_collectible AS amount,
+
     s.created_at AS created_at,
+
     sad.id AS applicant_id,
+
     sad.is_primary AS is_primary,
+
     sad.first_name AS first_name,
+
     sad.middle_name AS middle_name,
+
     sad.last_name AS last_name,
-    sad.mobile_number AS mobile_number,
-(
-  SELECT COALESCE(JSON_ARRAYAGG(JSON_OBJECT(
-      'id', sa2.id,
-      'city', sa2.city,
-      'state', sa2.state,
-      'pincode', sa2.pincode
-    )), JSON_ARRAY())
-  FROM SoaAddressDetail sa2
-  WHERE sa2.applicant_id = sad.id
-) AS address_detail,
-(
-  SELECT COALESCE(
-    JSON_ARRAYAGG(
-      JSON_OBJECT(
-        'id', sb2.id,
-        'account_number', sb2.account_number
-      )
-    ),
-    JSON_ARRAY()
-  )
-  FROM SoaBankingDetails sb2
-  WHERE sb2.applicant_id = sad.id
-) AS banking_detail
+
+    sad.mobile_number AS mobile_number
+
   FROM SoaCaseMapping s
+
   LEFT JOIN SoaApplicantDetail sad
-    ON sad.case_id = s.id AND sad.is_primary = 1
-  LEFT JOIN SoaAddressDetail sa
-    ON sa.applicant_id = sad.id
-  LEFT JOIN SoaBankingDetails sb
-    ON sb.applicant_id = sad.id
-  AND s.co_id IS NULL
+
+    ON sad.case_id = s.id
+
+   AND sad.is_primary = 1
+
+  WHERE s.co_id IS NULL
+
 `;
-    const params = [];
+ 
+const params = [];
+ 
+if (from) {
 
-    if (from) {
-      query += ` AND s.created_at >= ?`;
-      params.push(new Date(from));
-    }
+  query += ` AND s.created_at >= ?`;
 
-    if (to) {
-      query += ` AND s.created_at <= ?`;
-      params.push(new Date(to));
-    }
+  params.push(new Date(from));
 
-    //   query += ` ORDER BY s.created_at DESC LIMIT ? OFFSET ?`;
-    //   params.push(take ?? 100, skip ?? 0);
+}
+ 
+if (to) {
 
-    query += `
-  GROUP BY 
-    s.id, s.loan_number, s.application_id, s.loan_purpose, s.created_at,
-    sad.id, sad.is_primary, sad.first_name, sad.middle_name, sad.last_name, sad.mobile_number
+  query += ` AND s.created_at <= ?`;
+
+  params.push(new Date(to));
+
+}
+ 
+query += `
+
   ORDER BY s.created_at DESC
+
+  LIMIT ${take ?? 100} OFFSET ${skip ?? 0}
+
 `;
 
+ 
     const results = await prisma.$queryRawUnsafe(query, ...params);
     return results;
 
@@ -400,7 +400,7 @@ const main = {
     sad.id, sad.is_primary, sad.first_name, sad.middle_name, sad.last_name, sad.mobile_number,
     a.id, a.updated_at
   ORDER BY s.id  DESC
-  LIMIT ${take ?? 100} OFFSET ${skip ?? 0}
+  
 `;
 
 

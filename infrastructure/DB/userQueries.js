@@ -1216,7 +1216,10 @@ const main = {
         amount: true,
         payment_date: true,
         invoice_number: true,
-        status: true
+        status: true,
+        geo_lat:true,
+        geo_long:true,
+        payment_date:true
       }
     });
 

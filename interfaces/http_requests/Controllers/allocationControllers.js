@@ -272,7 +272,7 @@ console.log("ERROR For Pending Allocation",err)
 
       try{
 
-        const data = await allocationUseCases.lo_mapped({id:39});
+        const data = await allocationUseCases.lo_mapped({id:req.user.id});
 
         return res.json({
           message:"Success",

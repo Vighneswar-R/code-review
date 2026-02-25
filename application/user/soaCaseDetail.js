@@ -172,6 +172,9 @@ const get_dashboard_cases = async(id,type,sub_type,skip,take,from,to,team,member
 
             for(const item of result){
 
+
+                console.log("SUB",sub_type)
+
                 if(item?.bucket == sub_type) newResult.push(item);
 
                 if(item["bucket"]){
@@ -183,6 +186,8 @@ const get_dashboard_cases = async(id,type,sub_type,skip,take,from,to,team,member
             type_count = inner;
 
             result = newResult;
+
+            console.log("RES",result)
 
             break;
 

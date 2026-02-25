@@ -929,7 +929,7 @@ model SoaAdditionalAddressMapping {
 model SoaAddressDetail {
   id             Int      @id @default(autoincrement())
   applicant_id      Int
-  address_line1      String
+  address_line1      String?
   address_line2      String?  @db.Text
   address_line3      String?  @db.Text
   landmark           String?  @db.Text
@@ -958,12 +958,13 @@ model SoaApplicantDetail {
   middle_name            String?  @db.Text
   sequence_number         Int?
   last_name               String?  @db.Text
-  mobile_number            String
+  mobile_number            String?
   alternate_number          String?  @db.Text
   email                    String?  @db.Text
   additional_email           String?  @db.Text
   is_guarantor                Boolean?
   adhaar_number               String?  @db.Text
+  salesforce_ref_id            String?  @db.Text
   loan_number                   String?  @db.VarChar(191)
   otp                           String?
   SoaCaseMapping SoaCaseMapping @relation(fields: [case_id], references: [id])
@@ -989,7 +990,7 @@ model SoaBankingDetails {
   id                     Int      @id @default(autoincrement())
   applicant_id              Int
   case_id                    Int
-  branch                      String
+  branch                      String?
   account_number               String?  @db.Text
   ifsc_code                     String?  @db.Text
   registered_phone_number        String?  @db.Text
@@ -1039,7 +1040,6 @@ model SoaCaseMapping {
   loan_branch_id                      Int?
   branch_id                            Int?
   approved_by                          Int?
-  branch                                String?  @db.Text
   legal_status                           String?  @db.Text
   legal_stage                            String?  @db.Text
   loan_approval_date                     String?  @db.Text
