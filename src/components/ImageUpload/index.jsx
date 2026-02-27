@@ -221,7 +221,7 @@ function ImageUpload({
                 //   });
                 //   setFile([...files, compressedImageFile]);
                 // } else {
-                //   setLoader(false);
+                  setLoader(false);
                 //   setMessage('File size should be less than 5MB');
                 // }
               })

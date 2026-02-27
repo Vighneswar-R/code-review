@@ -189,8 +189,16 @@ export default function FaceLiveness() {
 
     if(token) {
 
-      updateProgressUploadDocumentSteps(requiredFieldsStatus);  // update customer photo required field status
+      const run = async () => {
+        try{
+      await updateProgressUploadDocumentSteps(requiredFieldsStatus);
+          }  // update customer photo required field status
+          catch(err){
+            console.log("failed to update progress step : ");
+          }
+      }
 
+      run();
     }
 
 
@@ -321,7 +329,7 @@ export default function FaceLiveness() {
 
     const handleMessage = (event) => {
 
-      if (event.data.message === 'videoUploadingDone') {
+      if (event?.data?.message === 'videoUploadingDone') {
 
        
 
@@ -831,111 +839,115 @@ export default function FaceLiveness() {
 
 
 
-  async function manualApprovedFaceLiveness(score, video_url) {
+    async function manualApprovedFaceLiveness(score, video_url) {
 
-    //VITE_FACE_LIVE_PERCENTAGE
+      //VITE_FACE_LIVE_PERCENTAGE
 
-    const LNT_score = values?.applicants?.[activeIndex]?.applicant_details?.lt_bre_101_response?.["body"]?.face_liveliness_match_percentage;
+      const LNT_score = values?.applicants?.[activeIndex]?.applicant_details?.lt_bre_101_response?.["body"]?.face_liveliness_match_percentage;
 
-    let compareScore;
+      let compareScore;
 
-    if(LNT_score){
+      if(LNT_score){
 
-      compareScore = LNT_score;
-    }
+        compareScore = LNT_score;
+      }
 
-    else {
-      compareScore = VITE_FACE_LIVE_PERCENTAGE;
-    }
+      else {
+        compareScore = VITE_FACE_LIVE_PERCENTAGE;
+      }
 
-    if(typeof score == 'number' && score >= parseInt(compareScore)) {
+      if(typeof score == 'number' && score >= parseInt(compareScore)) {
 
-      notify()
-
-
-
-      setToastMessage('Face Liveness Done Success');
-
-      setApiResponseIframe('https://itrustuatcloud.indiashelter.in/static-page')
-
-      setFieldValue(`applicants[${activeIndex}].applicant_details.faceLivliness_status`, 'yes');   // commented for testing
-
-      updateFieldsApplicant('faceLivliness_status', 'yes');   // commented for testing
-
-   
-
-      updateFieldsApplicant('faceliveness_response', {
-
-        "result": {
-
-          "score":score,
-          "status":"auto_declined"
-
-      }});
-
-      updateFieldsApplicant('fL_Status', score.toString() + '%');
+        notify()
 
 
 
+        setToastMessage('Face Liveness Done Success');
+
+        setApiResponseIframe('https://itrustuatcloud.indiashelter.in/static-page')
+
+        setFieldValue(`applicants[${activeIndex}].applicant_details.faceLivliness_status`, 'yes');   // commented for testing
+
+        try{
+        await updateFieldsApplicant('faceLivliness_status', 'yes');   // commented for testing
+
+    
+
+      await updateFieldsApplicant('faceliveness_response', {
+
+          "result": {
+
+            "score":score,
+            "status":"auto_declined"
+
+        }});
+
+        await updateFieldsApplicant('fL_Status', score.toString() + '%');
+      } catch(error){
+        console.log("Applicant update failed");
+      }
 
 
-      setFieldValue(`applicants[${activeIndex}].applicant_details.fL_Status`, score);
 
 
 
-//---------------------------------------------------------------------------------------
-
-      // update live photo in customer photo api call here **
+        setFieldValue(`applicants[${activeIndex}].applicant_details.fL_Status`, score);
 
 
 
-      try{
+  //---------------------------------------------------------------------------------------
 
-        if(bcp == 0) throw new Error("BCP IS SIGNZY HENCE NOT UPDATED CUSTOMER PHOTO")
+        // update live photo in customer photo api call here **
 
-        const live_photo_res = await updateLivePhoto({imageUrl:video_url,applicant_id:values.applicants[activeIndex].applicant_details.id},{
 
-            headers: {
 
-              Authorization: token,
+        try{
+
+          if(bcp == 0) throw new Error("BCP IS SIGNZY HENCE NOT UPDATED CUSTOMER PHOTO")
+
+          const live_photo_res = await updateLivePhoto({imageUrl:video_url,applicant_id:values.applicants[activeIndex].applicant_details.id},{
+
+              headers: {
+
+                Authorization: token,
+
+              },
 
             },
 
-          },
-
-        );
+          );
 
 
 
-        setRequiredFieldsStatus({...requiredFieldsStatus,customer_photo:true})
+          setRequiredFieldsStatus({...requiredFieldsStatus,customer_photo:true})
 
 
 
-      } catch (err) {
+        } catch (err) {
 
-        console.log("*** ERROR UPDATING LIVE PHOTO")
+          console.log("*** ERROR UPDATING LIVE PHOTO")
+
+        }
+
+        setEnableClose(true)
+
+  // if success close button enabled
 
       }
 
-      setEnableClose(true)
+      else {
+        setApiResponseIframe('https://itrustuatcloud.indiashelter.in/failure-page')
 
- // if success close button enabled
+        notifyFail();
 
-    }
+        setDisablePrevious(false)
+      }
 
-    else {
-      setApiResponseIframe('https://itrustuatcloud.indiashelter.in/failure-page')
 
-      notifyFail();
 
       setDisablePrevious(false)
+
     }
-
-
-
-    setDisablePrevious(false)
-
-  }
 
 
 
@@ -1017,7 +1029,7 @@ export default function FaceLiveness() {
 
 
 
-
+      try{
         const response = await faceLivenesResponseHyperverge(body, { headers });
 
 
@@ -1037,8 +1049,10 @@ export default function FaceLiveness() {
 
 
           }
-
-
+        } catch(error){
+          console.log("Something went wrong ");
+        }
+      
 
   }
 

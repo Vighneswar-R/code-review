@@ -67,7 +67,7 @@ const BankingDetails = () => {
   useEffect(()=> {
     const activeApplicant = values?.applicants?.[activeIndex];
 
-    console.log("SUCCESS APPLICANT",activeApplicant?.personal_details?.account_aggregator_response_tracking_status)
+    // console.log("SUCCESS APPLICANT",activeApplicant?.personal_details?.account_aggregator_response_tracking_status)
 
 
     if(activeApplicant?.personal_details?.account_aggregator_response_tracking_status?.["status"] == "COMPLETED" || activeApplicant?.personal_details?.fail_count >=3 ){
@@ -103,7 +103,7 @@ const BankingDetails = () => {
     // alert(approved)
   },[])
 
-  const handlePrimaryChange = (id, checked) => {
+    const handlePrimaryChange = async (id, checked) => {
     let newData = values;
     let currentPrimaryId = newData.applicants[activeIndex].banking_details.find(
       (account) => account.is_primary === true,
@@ -124,7 +124,8 @@ const BankingDetails = () => {
       newData.applicants[activeIndex].banking_details,
     );
 
-    editFieldsById(
+    try{
+   await editFieldsById(
       id,
       'banking',
       { is_primary: checked },
@@ -134,9 +135,14 @@ const BankingDetails = () => {
         },
       },
     );
+  } catch(err){
+    console.log("error in updating field ");
+  }
 
     if (currentPrimaryId) {
-      editFieldsById(
+
+      try{
+      await editFieldsById(
         currentPrimaryId,
         'banking',
         { is_primary: false },
@@ -146,10 +152,16 @@ const BankingDetails = () => {
           },
         },
       );
+    } catch(error){
+      console.log("error in updating field");
+    }
+
     }
   };
 
-  useEffect(() => {
+  useEffect(
+    () => {
+    const run = async () =>{
     if (
       values?.applicants?.[activeIndex]?.applicant_details?.extra_params?.banking_progress ===
         null ||
@@ -168,7 +180,8 @@ const BankingDetails = () => {
           let newData = { ...values?.applicants?.[activeIndex]?.applicant_details?.extra_params };
 
           newData.banking_progress = 100;
-          editFieldsById(
+          try{
+          await editFieldsById(
             values?.applicants?.[activeIndex]?.applicant_details?.id,
             'applicant',
            {extra_params : newData},
@@ -178,6 +191,10 @@ const BankingDetails = () => {
               },
             },
           );
+        } catch(error){
+          console.log("something went wrong");
+        }
+
         } else if (
           values?.applicants?.[activeIndex]?.banking_details?.filter(
             (e) => e.penny_drop_response?.result && e.penny_drop_response?.result?.active !== 'no' && !e?.extra_params,
@@ -189,7 +206,8 @@ const BankingDetails = () => {
           );
           let newData = { ...values?.applicants?.[activeIndex]?.applicant_details?.extra_params };
           newData.banking_progress = 100;
-          editFieldsById(
+          try{
+         await  editFieldsById(
             values?.applicants?.[activeIndex]?.applicant_details?.id,
             'applicant',
             {extra_params : newData},
@@ -199,6 +217,9 @@ const BankingDetails = () => {
               },
             },
           );
+        } catch(error){
+          console.log("something went wrong");
+        }
         } else {
           setFieldValue(
             `applicants[${activeIndex}].applicant_details.extra_params.banking_progress`,
@@ -206,7 +227,8 @@ const BankingDetails = () => {
           );
           let newData = { ...values?.applicants?.[activeIndex]?.applicant_details };
           newData.extra_params.banking_progress = 0;
-          editFieldsById(
+          try{
+         await editFieldsById(
             values?.applicants?.[activeIndex]?.applicant_details?.id,
             'applicant',
             newData,
@@ -216,6 +238,9 @@ const BankingDetails = () => {
               },
             },
           );
+        } catch(error){
+          console.log("something went wrong ");
+        }
         }
       } else {
         setFieldValue(
@@ -224,7 +249,9 @@ const BankingDetails = () => {
         );
         let newData = { ...values?.applicants?.[activeIndex]?.applicant_details };
         newData.extra_params.banking_progress = 0;
-        editFieldsById(
+        try{
+
+        await editFieldsById(
           values?.applicants?.[activeIndex]?.applicant_details?.id,
           'applicant',
           newData,
@@ -234,11 +261,17 @@ const BankingDetails = () => {
             },
           },
         );
+      } catch(error){
+        console.log("something went wrong ");
+      }
       }
     }
+  }
+  run();
   }, [values?.applicants?.[activeIndex]?.banking_details]);
 
   const handleDelete = async () => {
+    try{
     await editFieldsById(
       deleteId,
       'banking',
@@ -259,7 +292,7 @@ const BankingDetails = () => {
       );
       let newData = { ...values?.applicants?.[activeIndex]?.applicant_details };
       newData.extra_params.banking_progress = 100;
-      editFieldsById(
+      await editFieldsById(
         values?.applicants?.[activeIndex]?.applicant_details?.id,
         'applicant',
         newData,
@@ -276,7 +309,7 @@ const BankingDetails = () => {
       );
       let newData = { ...values?.applicants?.[activeIndex]?.applicant_details };
       newData.extra_params.banking_progress = 0;
-      editFieldsById(
+      await editFieldsById(
         values?.applicants?.[activeIndex]?.applicant_details?.id,
         'applicant',
         newData,
@@ -288,6 +321,9 @@ const BankingDetails = () => {
       );
     }
     setOpenPopup(false);
+  } catch(err){
+    console.log("failed to update/delete banking details ",err);
+  }
   };
 
   const handleRetry = async (id) => {
@@ -312,11 +348,13 @@ const BankingDetails = () => {
       })
       .catch((err) => {
         setLoading(false);
-        setBankErrorTost(<div>
-          {err?.response?.data?.message}
-          <br />
-          Bank verified unsuccessfully
-        </div>);
+        // setBankErrorTost(
+        // <div>
+        //   {err?.response?.data?.message}
+        //   <br />
+        //   Bank verified unsuccessfully
+        // </div>);
+     setBankErrorTost('Bank verification failed. Please try again.');
 
         
       });

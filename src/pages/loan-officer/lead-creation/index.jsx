@@ -69,8 +69,11 @@ const LeadCreationRoutes = () => {
 
     const encryptedData = sessionStorage.getItem('data_storage')
 
-    const secretKey = "3cT0Yk2R7!wT9@hQ6Gv#1eLb8zXm$JpF";
-
+    // const secretKey = "3cT0Yk2R7!wT9@hQ6Gv#1eLb8zXm$JpF";
+    //  const secretKey = import.meta.env.AES_KEY;
+     const secretKey = import.meta.env.VITE_AES_KEY;
+      // console.log(secretKey, "key is this ------------------",secretKeyv);
+    
     const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
     const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 
@@ -87,10 +90,10 @@ const LeadCreationRoutes = () => {
   },[])
 
 
-  useEffect(()=> {
+  // useEffect(()=> {
 
-    console.log("I AM THE LO STORE",lo?.user?.role)
-  },[])
+  //   // console.log("I AM THE LO STORE",lo?.user?.role)
+  // },[])
 
 
 

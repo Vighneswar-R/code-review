@@ -26,21 +26,22 @@ const AdminFormImageUpload = ({
 
   const replacePhotoInputRef = useRef();
 
-  const handleFile = async (e) => {
-    setMessage('');
-    setLoader(true);
+const handleFile = async (e) => {
+  setMessage('');
+  setLoader(true);
 
-    const success = async () => {
-      let file = e.target.files;
+  const success = async () => {
+    let file = e.target.files;
 
-      if (file.length !== 0) {
-        const fileType = file[0]['type'];
+    if (file.length !== 0) {
+      const fileType = file[0]['type'];
 
-        const validImageTypes = ['image/jpg', 'image/png', 'image/jpeg'];
+      const validImageTypes = ['image/jpg', 'image/png', 'image/jpeg'];
 
-        const filename = file[0].name;
+      const filename = file[0].name;
 
-        if (validImageTypes.includes(fileType)) {
+      if (validImageTypes.includes(fileType)) {
+        try {
           const options = {
             maxWidthOrHeight: 1920,
             useWebWorker: true,
@@ -67,16 +68,20 @@ const AdminFormImageUpload = ({
           if (res.document) {
             setFieldValue('loimage', res.document.document_fetch_url);
           }
-        } else {
+        } catch (err) {
           setLoader(false);
-          setMessage('File format not supported');
+          console.error('Image upload failed:', err);
         }
       } else {
         setLoader(false);
+        setMessage('File format not supported');
       }
-    };
-    success();
+    } else {
+      setLoader(false);
+    }
   };
+  success();
+};
 
   useEffect(() => {
     upload && setLoader(false);

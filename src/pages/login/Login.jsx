@@ -465,7 +465,7 @@ if (newMethod !== null) {
   };
 
   const handleCaptchaChange = (value) => {
-    console.log('Captcha value:', value);
+    // console.log('Captcha value:', value);
     setCaptchaValue(value);
   };
 

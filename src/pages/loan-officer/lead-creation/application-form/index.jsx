@@ -125,7 +125,7 @@ useEffect(() => {
 
     const primary_app = values?.applicants?.filter((app)=>app?.applicant_details?.is_primary);
 
-    console.log("PRIMARY APP",primary_app)
+    // console.log("PRIMARY APP",primary_app)
 
     if(primary_app?.[0]?.applicant_details?.application_form_otp_verified) setDisableOpen(false);
 
@@ -248,7 +248,7 @@ function isGzippedBase64(str) {
               Authorization:token
             }
           })
-    
+      
           const res =  await getMobileOtp(id, {
                   headers: {
                     Authorization: token,
@@ -325,7 +325,7 @@ function isGzippedBase64(str) {
               lead_copy.applicants[index].applicant_details.application_form_otp = otp;
               lead_copy.applicants[index].applicant_details.application_form_otp_verified = true;
 
-              console.log("LEAD COPY BEFORE REDNER",lead_copy)
+              // console.log("LEAD COPY BEFORE REDNER",lead_copy)
       
               setValues(lead_copy)
       
@@ -355,45 +355,45 @@ function isGzippedBase64(str) {
         
 
 
-                    const generateForm = async(id,email,udpated,active) =>{
-                    
-                        try{
-                    
-                          const res_form = await createApplicationForm(id,{
-                              headers: {
-                                Authorization: token,
-                              },
-                            },email || false);
-                    
-                            let lead_copy = structuredClone(udpated || values);
-                          
-                            if(res_form?.meta){
-                            lead_copy.applicants[active].applicant_details.document_meta = res_form?.meta;
-                            };
-                    
-                            console.log("RES FORM",res_form);
-                
-                            if(res_form?.form){
-                              lead_copy.applicants[active].applicant_details.form_html = res_form?.form;
+                      const generateForm = async(id,email,udpated,active) =>{
+                      
+                          try{
+                      
+                            const res_form = await createApplicationForm(id,{
+                                headers: {
+                                  Authorization: token,
+                                },
+                              },email || false);
+                      
+                              let lead_copy = structuredClone(udpated || values);
+                            
+                              if(res_form?.meta){
+                              lead_copy.applicants[active].applicant_details.document_meta = res_form?.meta;
+                              };
+                      
+                              console.log("RES FORM",res_form);
+                  
+                              if(res_form?.form){
+                                lead_copy.applicants[active].applicant_details.form_html = res_form?.form;
+                              }
+          
+                              if(res_form?.form_html){
+                                lead_copy.applicants[active].applicant_details.form_html = res_form?.form_html;
+                              }
+                      
+                              setValues(lead_copy)
+                            
                             }
-        
-                            if(res_form?.form_html){
-                              lead_copy.applicants[active].applicant_details.form_html = res_form?.form_html;
-                            }
-                    
-                            setValues(lead_copy)
-                          
+                      
+                          catch(err){
+                  
+                      
+                            console.log("ERROR IN APPLICATION FORM GENERATION");
+                  
+                            throw err;
                           }
-                    
-                        catch(err){
-                
-                    
-                          console.log("ERROR IN APPLICATION FORM GENERATION");
-                
-                          throw err;
                         }
-                      }
-        
+          
 
 
   return (

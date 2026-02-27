@@ -27,11 +27,12 @@ export default function UnEmployed({ requiredFieldsStatus, setRequiredFieldsStat
   ];
 
   const handleRadioChange = useCallback(
-    (e) => {
+    async (e) => {
       setFieldValue(e.name, e.value);
 
       if (!errors.applicants?.[activeIndex]?.work_income_detail?.income_proof) {
-        editFieldsById(
+        try{
+       await editFieldsById(
           values?.applicants?.[activeIndex]?.work_income_detail?.id,
           'work-income',
           {
@@ -43,6 +44,11 @@ export default function UnEmployed({ requiredFieldsStatus, setRequiredFieldsStat
             },
           },
         );
+      } catch(error){
+        console.log("errro in changing field ");
+      }
+
+
         const name = e.name.split('.')[2];
 
         setRequiredFieldsStatus((prev) => ({ ...prev, [name]: true }));
@@ -55,9 +61,15 @@ export default function UnEmployed({ requiredFieldsStatus, setRequiredFieldsStat
   );
 //added for auto population for PAn Number
 useEffect(()=>{
+
+  const autoPopulate = async () => {
   if(values?.applicants?.[activeIndex]?.personal_details?.id_type === 'PAN'){
+  
     setFieldValue(`applicants[${activeIndex}].work_income_detail.income_proof`, 'PAN ID');
-    editFieldsById(
+    
+
+    try{
+   await editFieldsById(
       values?.applicants?.[activeIndex]?.work_income_detail?.id,
       'work-income',
       {
@@ -69,7 +81,14 @@ useEffect(()=>{
         },
       },
     );
+  } 
+  catch(error){
+    console.log("somethig went wrong ");
   }
+  }
+};
+
+ autoPopulate();
 },[]);
 
   useEffect(() => {
@@ -343,14 +362,16 @@ useEffect(()=>{
             : null
         }
         touched={touched?.applicants?.[activeIndex]?.work_income_detail?.ongoing_emi}
-        onBlur={(e) => {
+        onBlur={async (e) => {
           handleBlur(e);
 
           if (
             !errors?.applicants?.[activeIndex]?.work_income_detail?.ongoing_emi &&
             values?.applicants?.[activeIndex]?.work_income_detail?.ongoing_emi
           ) {
-            editFieldsById(
+
+            try{
+            await editFieldsById(
               values?.applicants?.[activeIndex]?.work_income_detail?.id,
               'work-income',
               {
@@ -362,13 +383,17 @@ useEffect(()=>{
                 },
               },
             );
+          } catch(error){
+            console.log("work income error ");
+          }
           } else {
             setRequiredFieldsStatus((prev) => ({
               ...prev,
               ['ongoing_emi']: false,
             }));
 
-            editFieldsById(
+            try{
+           await editFieldsById(
               values?.applicants?.[activeIndex]?.work_income_detail?.id,
               'work-income',
               {
@@ -380,6 +405,10 @@ useEffect(()=>{
                 },
               },
             );
+          }
+          catch(error){
+            console.log("income detail error ");
+          }
           }
         }}
         onChange={(e) => {

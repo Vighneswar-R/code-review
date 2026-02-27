@@ -235,7 +235,7 @@ export default function BankingManual() {
     }
   };
 
-  const handleAccountNumberChange = async (e) => {
+  const handleAccountNumberChange = (e) => {
     const accNumber = e.currentTarget.value;
 
     const pattern = /[^\d]/g;

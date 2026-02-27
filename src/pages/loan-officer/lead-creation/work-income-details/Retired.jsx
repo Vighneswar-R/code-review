@@ -20,14 +20,15 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
         value={values?.applicants?.[activeIndex]?.work_income_detail?.pention_amount}
         error={errors?.applicants?.[activeIndex]?.work_income_detail?.pention_amount}
         touched={touched?.applicants?.[activeIndex]?.work_income_detail?.pention_amount}
-        onBlur={(e) => {
+        onBlur={async (e) => {
           handleBlur(e);
 
           if (
             !errors?.applicants?.[activeIndex]?.work_income_detail?.pention_amount &&
             values?.applicants?.[activeIndex]?.work_income_detail?.pention_amount
           ) {
-            editFieldsById(
+            try{
+            await editFieldsById(
               values?.applicants?.[activeIndex]?.work_income_detail?.id,
               'work-income',
               {
@@ -40,13 +41,17 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
                 },
               },
             );
+          } catch(err){
+            console.log("failed to save pention ");
+          }
           } else {
             setRequiredFieldsStatus((prev) => ({
               ...prev,
               ['pention_amount']: false,
             }));
 
-            editFieldsById(
+            try{
+           await editFieldsById(
               values?.applicants?.[activeIndex]?.work_income_detail?.id,
               'work-income',
               {
@@ -58,6 +63,9 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
                 },
               },
             );
+          } catch(err){
+            console.log("failed to clear pention ");
+          }
           }
         }}
         onChange={(e) => {
@@ -71,7 +79,7 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
             }
           }
         }}
-        disabled={values?.applicants?.[activeIndex]?.applicant_details?.extra_params?.qualifier ||(values.applicants[activeIndex]?.applicant_details?.is_primary?tempQualifier:tempQualifierCoApplicant)}
+        disabled={values?.applicants?.[activeIndex]?.applicant_details?.extra_params?.qualifier ||(values?.applicants[activeIndex]?.applicant_details?.is_primary?tempQualifier:tempQualifierCoApplicant)}
       />
 
       <TextInput
@@ -84,7 +92,7 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
         value={values?.applicants?.[activeIndex]?.work_income_detail?.no_current_loan}
         error={errors?.applicants?.[activeIndex]?.work_income_detail?.no_current_loan}
         touched={touched?.applicants?.[activeIndex]?.work_income_detail?.no_current_loan}
-        onBlur={(e) => {
+        onBlur={async (e) => {
           handleBlur(e);
 
           if (
@@ -92,7 +100,9 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
             (values?.applicants?.[activeIndex]?.work_income_detail?.no_current_loan ||
               values?.applicants?.[activeIndex]?.work_income_detail?.no_current_loan == 0)
           ) {
-            editFieldsById(
+
+            try{
+            await editFieldsById(
               values?.applicants?.[activeIndex]?.work_income_detail?.id,
               'work-income',
               {
@@ -106,6 +116,9 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
                 },
               },
             );
+          } catch(error){
+            console.log("soemthing went wrong ");
+          }
 
             setRequiredFieldsStatus((prev) => ({
               ...prev,
@@ -114,7 +127,9 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
 
             if (e.target.value == 0) {
               setFieldValue(`applicants[${activeIndex}].work_income_detail.ongoing_emi`, '');
-              editFieldsById(
+
+              try{
+             await editFieldsById(
                 values?.applicants?.[activeIndex]?.work_income_detail?.id,
                 'work-income',
                 {
@@ -126,7 +141,9 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
                   },
                 },
               );
-
+            } catch(error){
+              console.log("something went wrong ");
+            }
               let currentRequired = {...requiredFieldsStatus};
 
               currentRequired.ongoing_emi = true;
@@ -159,7 +176,8 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
               ['no_current_loan']: false,
             }));
 
-            editFieldsById(
+             try{
+            await editFieldsById(
               values?.applicants?.[activeIndex]?.work_income_detail?.id,
               'work-income',
               {
@@ -171,6 +189,9 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
                 },
               },
             );
+          } catch(error){
+            console.log("something went wrong ");
+          }
           }
         }}
         onChange={(e) => {
@@ -187,7 +208,7 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
             no_current_loan: false,
           }));
         }}
-        disabled={values?.applicants?.[activeIndex]?.applicant_details?.extra_params?.qualifier ||(values.applicants[activeIndex]?.applicant_details?.is_primary?tempQualifier:tempQualifierCoApplicant)}
+        disabled={values?.applicants?.[activeIndex]?.applicant_details?.extra_params?.qualifier ||(values?.applicants[activeIndex]?.applicant_details?.is_primary?tempQualifier:tempQualifierCoApplicant)}
       />
 
       <CurrencyInput
@@ -202,14 +223,15 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
             : null
         }
         touched={touched?.applicants?.[activeIndex]?.work_income_detail?.ongoing_emi}
-        onBlur={(e) => {
+        onBlur={async (e) => {
           handleBlur(e);
 
           if (
             !errors?.applicants?.[activeIndex]?.work_income_detail?.ongoing_emi &&
             values?.applicants?.[activeIndex]?.work_income_detail?.ongoing_emi
           ) {
-            editFieldsById(
+            try{
+           await editFieldsById(
               values?.applicants?.[activeIndex]?.work_income_detail?.id,
               'work-income',
               {
@@ -221,13 +243,17 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
                 },
               },
             );
+          } catch(err){
+            console.log('something went wrong ');
+          }
           } else {
             setRequiredFieldsStatus((prev) => ({
               ...prev,
               ['ongoing_emi']: false,
             }));
 
-            editFieldsById(
+            try{
+            await editFieldsById(
               values?.applicants?.[activeIndex]?.work_income_detail?.id,
               'work-income',
               {
@@ -238,7 +264,10 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
                   Authorization: token,
                 },
               },
-            );
+            );}
+            catch(error){
+              console.log('something went wrong');
+            }
           }
         }}
         onChange={(e) => {
@@ -256,7 +285,7 @@ export default function Retired({ requiredFieldsStatus, setRequiredFieldsStatus 
         disabled={
           values?.applicants?.[activeIndex]?.work_income_detail?.no_current_loan == 0
             ? true
-            : false || values?.applicants?.[activeIndex]?.applicant_details?.extra_params?.qualifier ||(values.applicants[activeIndex]?.applicant_details?.is_primary?tempQualifier:tempQualifierCoApplicant)
+            : false || values?.applicants?.[activeIndex]?.applicant_details?.extra_params?.qualifier ||(values?.applicants[activeIndex]?.applicant_details?.is_primary?tempQualifier:tempQualifierCoApplicant)
         }
         labelDisabled={
           values?.applicants?.[activeIndex]?.work_income_detail?.no_current_loan == 0 ? true : false

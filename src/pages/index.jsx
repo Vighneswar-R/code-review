@@ -79,7 +79,9 @@ const DashboardRoutes = () => {
   
       const encryptedData = sessionStorage.getItem('data_storage')
   
-      const secretKey = "3cT0Yk2R7!wT9@hQ6Gv#1eLb8zXm$JpF";
+      // const secretKey = "3cT0Yk2R7!wT9@hQ6Gv#1eLb8zXm$JpF";
+      const secretKey = import.meta.env.VITE_AES_KEY;
+
 
       if(!encryptedData) {
         return <Navigate to='/login'/>;
@@ -91,7 +93,7 @@ const DashboardRoutes = () => {
       const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
   
   
-      console.log(" I AM THE DECRYPTED DATA",decryptedData)
+      // console.log(" I AM THE DECRYPTED DATA",decryptedData)
   
 
       if(decryptedData?.isAuthenticated || isAuthenticated || decryptedData?.isBMAuthenticated || isBMAuthenticated) {
@@ -122,19 +124,22 @@ const DashboardRoutes = () => {
     
     const encryptedData = sessionStorage.getItem('data_storage')
   
-    const secretKey = "3cT0Yk2R7!wT9@hQ6Gv#1eLb8zXm$JpF";
+    // const secretKey = "3cT0Yk2R7!wT9@hQ6Gv#1eLb8zXm$JpF";
+    const secretKey = import.meta.env.VITE_AES_KEY;
+
 
     if(!encryptedData) {
       return <Navigate to='/login' />;
 
     }
 
+    // console.log("key is something ", secretKey);
 
     const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
     const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 
 
-    console.log(" I AM THE DECRYPTED DATA",decryptedData)
+    // console.log(" I AM THE DECRYPTED DATA",decryptedData)
 
 
     if (isAuthenticated || isBMAuthenticated) {
@@ -161,7 +166,9 @@ const DashboardRoutes = () => {
     
     const encryptedData = sessionStorage.getItem('data_storage')
   
-    const secretKey = "3cT0Yk2R7!wT9@hQ6Gv#1eLb8zXm$JpF";
+    // const secretKey = "3cT0Yk2R7!wT9@hQ6Gv#1eLb8zXm$JpF";
+        const secretKey = import.meta.env.VITE_AES_KEY;
+
 
     if(!encryptedData) {
       return <Navigate to='/login' />;
@@ -199,7 +206,9 @@ const DashboardRoutes = () => {
 
       const encryptedData = sessionStorage.getItem('data_storage')
   
-      const secretKey = "3cT0Yk2R7!wT9@hQ6Gv#1eLb8zXm$JpF";
+      // const secretKey = "3cT0Yk2R7!wT9@hQ6Gv#1eLb8zXm$JpF";
+      const secretKey = import.meta.env.VITE_AES_KEY;
+
   
       if(!encryptedData) {
         return <Navigate to='/login' />;
@@ -226,7 +235,9 @@ const DashboardRoutes = () => {
     
     const encryptedData = sessionStorage.getItem('data_storage')
   
-    const secretKey = "3cT0Yk2R7!wT9@hQ6Gv#1eLb8zXm$JpF";
+    // const secretKey = "3cT0Yk2R7!wT9@hQ6Gv#1eLb8zXm$JpF";
+        const secretKey = import.meta.env.VITE_AES_KEY;
+
 
     if(!encryptedData) {
       return <Navigate to='/login' />;
@@ -248,13 +259,15 @@ const DashboardRoutes = () => {
 
     const AdminProductRequireAuth = ({ children }) => {
     const { isAdminProductAuthenticated, token } = useContext(AuthContext);
-    console.log("I AM THE ADMIN PRODUCT AUTHENTICATED", isAdminProductAuthenticated)
+    // console.log("I AM THE ADMIN PRODUCT AUTHENTICATED", isAdminProductAuthenticated);
 
 
     
     const encryptedData = sessionStorage.getItem('data_storage')
   
-    const secretKey = "3cT0Yk2R7!wT9@hQ6Gv#1eLb8zXm$JpF";
+    // const secretKey = "3cT0Yk2R7!wT9@hQ6Gv#1eLb8zXm$JpF";
+        const secretKey = import.meta.env.VITE_AES_KEY;
+
 
     if(!encryptedData) {
       return <Navigate to='/login' />;
@@ -264,7 +277,7 @@ const DashboardRoutes = () => {
 
     const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
     const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-console.log("I AM THE DECRYPTED DATA", decryptedData?.isAdminProductAuthenticated)
+// console.log("I AM THE DECRYPTED DATA", decryptedData?.isAdminProductAuthenticated)
 
 
     if (isAdminProductAuthenticated || decryptedData?.isAdminProductAuthenticated) {
@@ -399,7 +412,9 @@ console.log("I AM THE DECRYPTED DATA", decryptedData?.isAdminProductAuthenticate
      <Route
           path='/verify-video'
           element={
+            <RequireAuth>
               <FaceVideo/>
+              </RequireAuth>
           }
         />
         {/* <Route path='*' element={<h1>404, Page not found!</h1>} /> */}

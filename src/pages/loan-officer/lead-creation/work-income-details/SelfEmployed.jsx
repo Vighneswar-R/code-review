@@ -24,10 +24,11 @@ export default function SelfEmployed({ requiredFieldsStatus, setRequiredFieldsSt
   const { token } = useContext(AuthContext);
 
   const handleDropdownChange = useCallback(
-    (name, value) => {
+    async (name, value) => {
       setFieldValue(name, value);
 
-      editFieldsById(
+      try{
+     await editFieldsById(
         values?.applicants?.[activeIndex]?.work_income_detail?.id,
         'work-income',
         {
@@ -39,6 +40,9 @@ export default function SelfEmployed({ requiredFieldsStatus, setRequiredFieldsSt
           },
         },
       );
+    } catch(error){
+      console.log(error);
+    }
 
       if (!requiredFieldsStatus['industries']) {
         setRequiredFieldsStatus((prev) => ({
@@ -147,14 +151,15 @@ export default function SelfEmployed({ requiredFieldsStatus, setRequiredFieldsSt
         value={values?.applicants?.[activeIndex]?.work_income_detail?.no_of_employees}
         error={errors?.applicants?.[activeIndex]?.work_income_detail?.no_of_employees}
         touched={touched?.applicants?.[activeIndex]?.work_income_detail?.no_of_employees}
-        onBlur={(e) => {
+        onBlur={async (e) => {
           handleBlur(e);
 
+          try{
           if (
             !errors.applicants?.[activeIndex]?.work_income_detail?.no_of_employees &&
             values?.applicants?.[activeIndex]?.work_income_detail?.no_of_employees
           ) {
-            editFieldsById(
+            await editFieldsById(
               values?.applicants?.[activeIndex]?.work_income_detail?.id,
               'work-income',
               {
@@ -170,7 +175,7 @@ export default function SelfEmployed({ requiredFieldsStatus, setRequiredFieldsSt
             const name = e.target.name.split('.')[2];
             setRequiredFieldsStatus((prev) => ({ ...prev, [name]: true }));
           } else {
-            editFieldsById(
+           await editFieldsById(
               values?.applicants?.[activeIndex]?.work_income_detail?.id,
               'work-income',
               {
@@ -185,6 +190,10 @@ export default function SelfEmployed({ requiredFieldsStatus, setRequiredFieldsSt
 
             const name = e.target.name.split('.')[2];
             setRequiredFieldsStatus((prev) => ({ ...prev, [name]: false }));
+          }
+        }
+          catch(error){
+            console.log(error);
           }
         }}
         onChange={(e) => {
@@ -297,7 +306,7 @@ export default function SelfEmployed({ requiredFieldsStatus, setRequiredFieldsSt
         value={values?.applicants?.[activeIndex]?.work_income_detail?.gst_number}
         error={errors?.applicants?.[activeIndex]?.work_income_detail?.gst_number}
         touched={touched?.applicants?.[activeIndex]?.work_income_detail?.gst_number}
-        onBlur={(e) => {
+        onBlur={async (e) => {
           // const gstPattern =
           //   /^([0-9]{2}[a-zA-Z]{4}([a-zA-Z]{1}|[0-9]{1})[0-9]{4}[a-zA-Z]{1}([a-zA-Z]|[0-9]){3}){0,15}$/;
           // const cleanedGSTNumber = values?.applicants?.[
@@ -313,11 +322,12 @@ export default function SelfEmployed({ requiredFieldsStatus, setRequiredFieldsSt
           // }
           handleBlur(e);
 
+          try{
           if (
             !errors?.applicants?.[activeIndex]?.work_income_detail?.gst_number &&
             values?.applicants?.[activeIndex]?.work_income_detail?.gst_number
           ) {
-            editFieldsById(
+            await editFieldsById(
               values?.applicants?.[activeIndex]?.work_income_detail?.id,
               'work-income',
               {
@@ -330,7 +340,7 @@ export default function SelfEmployed({ requiredFieldsStatus, setRequiredFieldsSt
               },
             );
           } else {
-            editFieldsById(
+           await editFieldsById(
               values?.applicants?.[activeIndex]?.work_income_detail?.id,
               'work-income',
               {
@@ -343,6 +353,11 @@ export default function SelfEmployed({ requiredFieldsStatus, setRequiredFieldsSt
               },
             );
           }
+        }
+            catch(error){
+              console.log('error', error);
+            }
+          
         }}
         onChange={(e) => {
           e.target.value = e.target.value.toUpperCase();
@@ -627,8 +642,7 @@ export default function SelfEmployed({ requiredFieldsStatus, setRequiredFieldsSt
           try{
 
             let value = values?.applicants?.[activeIndex]?.work_income_detail?.monthly_income;
-          const updated = await 
-      editFieldsById(
+          const updated = await editFieldsById(
         values?.applicants?.[activeIndex]?.work_income_detail?.id,
         'work-income',
         {
@@ -655,7 +669,8 @@ export default function SelfEmployed({ requiredFieldsStatus, setRequiredFieldsSt
     }
 
     catch(err){
-      console.log(err)
+      // console.log(err)
+      console.log("something went wrong ");
     }
    //waiting here
         }}

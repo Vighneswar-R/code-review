@@ -11,7 +11,7 @@ const YesButton = ({click,disabled}) => {
 
     return(
     
-    <div>
+
 <Button
 variant="contained"
 size='small'
@@ -33,14 +33,13 @@ disabled = {disabled}
 >
 YES
 </Button>
-        </div>
     )
 }
 
 
 const Nobutton = ({click,disabled}) => {
     return(
-        <div>
+        
             <Button
         variant="contained"
        
@@ -64,7 +63,7 @@ const Nobutton = ({click,disabled}) => {
       >
         NO
       </Button>
-        </div>
+       
     )
 }
 

@@ -125,7 +125,7 @@ export default function Topbar({
 {isModalOpen && <div className='fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50'>
             <div className='bg-white w-full h-full md:w-3/4 md:h-auto lg:w-1/2 rounded-lg p-3 overflow-y-auto max-h-screen'>
               <ApplicantSection data={notificationData} lead = {values} 
-              disabled = {loData.user.role == "Loan Officer"?true:false} loData = {loData}
+              disabled = {loData?.user?.role == "Loan Officer"?true:false} loData = {loData}
               />
           
               <div className='mt-4 flex justify-center'>
@@ -150,7 +150,7 @@ export default function Topbar({
                   lo: prev?.lo,
                 }));
                 
-                if(loData.user.role === "Branch Manager") {
+                if(loData?.user?.role === "Branch Manager") {
                   navigate('/branch-manager');
                 }
 

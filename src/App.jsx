@@ -55,8 +55,8 @@ function App() {
  
  
   const logout = () => {
-    window.location.replace('/');
     sessionStorage.clear();
+    window.location.replace('/');
     console.log('User logged out due to inactivity');
   };
  
