@@ -226,13 +226,15 @@ export default function PrimaryApplicantTab() {
   const theme = useTheme();
 
 
-  useEffect(()=>{
+  // useEffect(()=>{
 
-    console.log("PRIMARY INDEX HERE",primaryIndex)
+  //   // console.log("PRIMARY INDEX HERE",primaryIndex)
 
-    console.log("VALUES LAT",values)
+  //   // console.log("VALUES LAT",values)
 
-  },[values])
+  // },[values])
+
+
   const[faceDone,setFaceDone] = useState(false);
 
   const[finalProgress,setFinalProgress] = useState(true)
@@ -249,7 +251,7 @@ export default function PrimaryApplicantTab() {
 
   useEffect(()=>{
 
-    const applicants = values?.applicants;
+    const applicants = values?.applicants || [];
 
     let bank = false;
 
@@ -335,7 +337,7 @@ export default function PrimaryApplicantTab() {
     let is_approved;
 
 
-    const applicants = values?.applicants;
+    const applicants = values?.applicants || [];
 
     const property_details = {...values?.property_details};
 
@@ -386,7 +388,7 @@ export default function PrimaryApplicantTab() {
 
     setFinalProgress(all_completed)
 
-    console.log("all completed",all_completed)
+    // console.log("all completed",all_completed)
   }
 
 

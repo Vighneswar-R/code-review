@@ -30,7 +30,8 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      return <div>Error: {this.state.error?.message || "Something went wrong!"}</div>;
+      // return <div>Error: {this.state.error?.message || "Something went wrong!"}</div>;
+      return <div>Something went wrong.</div>;
     }
     return this.props.children;
   }
@@ -99,7 +100,7 @@ const SecureImage = ({ imageUrl, token, is_pdf,doc_stage,view_port,setIsModalOpe
   };
 
   useEffect(() => {
-    if (!images || !images[selectedImage] || !images[selectedImage] == null) return;
+    if (!images || !images[selectedImage]) return;
 
     const decodeImage = (blob) => {
       if (!blob) return;

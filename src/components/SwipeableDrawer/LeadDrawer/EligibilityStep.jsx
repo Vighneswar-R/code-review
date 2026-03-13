@@ -4,12 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { LeadContext } from '../../../context/LeadContextProvider';
 import { LockIcon } from '../../../assets/icons';
 import ErrorTost from '../../ToastMessage/ErrorTost';
+import { AuthContext } from '../../../context/AuthContextProvider';
 
 export default function EligibilityStep({ details, steps, index, stepIndex, noProgress, lock }) {
   const { setCurrentStepIndex, setDrawerOpen, drawerOpen, setActiveIndex, values,setFieldValue } =
     useContext(LeadContext);
   const navigate = useNavigate();
 
+   const {token} = useContext(AuthContext);
   const[error,setError] = useState('');
 
 

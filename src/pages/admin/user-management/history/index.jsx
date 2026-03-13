@@ -416,7 +416,7 @@ const History = () => {
       // listToDisplay.filter((log, i) => {
       //   return i >= startCount && i <= endCount;
       // }),
-      listToDisplay.slice(startCount, startIndex + ITEMS_PER_PAGE),
+      listToDisplay.slice(startCount, startCount + ITEMS_PER_PAGE),
     );
   };
 

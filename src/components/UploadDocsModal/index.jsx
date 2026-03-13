@@ -30,7 +30,7 @@ const UploadDocsModal = ({
 
   useEffect(() => {
 
-    console.log("FILES>>>",photos)
+    // console.log("FILES>>>",photos)
     setActiveStep(index);
 
     const timestamp = new Date();
@@ -190,14 +190,14 @@ const UploadDocsModal = ({
                     (!lock ? (
                       <div
                         className='p-4 flex gap-4 bg-white rounded-b-lg'
-                        key={index}
+                        key={ photo?.id ?? index}
                         // onClick={() => setShowPopUp(false)}
                       >
                         <Button
                           inputClasses='w-full'
                           onClick={() => {
                             if (type === 'other_docs') {
-                              console.log(' i am clicked 1', deleteDoc);
+                              // console.log(' i am clicked 1', deleteDoc);
                               setDeleteDoc(photo?.id);
                               setShowPopUp(false)
                             } else {

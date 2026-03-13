@@ -324,6 +324,7 @@ import UploadSteps from './UplodSteps';
 import CoApplicantDropDownDrawer from '../../DropDown/CoApplicantDropDownDrawer';
 import { editFieldsById } from '../../../global';
 import { progress } from 'framer-motion';
+import { AuthContext } from '../../../context/AuthContextProvider';
  
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -359,6 +360,8 @@ export default function CoApplicantTab({ toggle, setChangePrimaryAlert, setDelet
     coApplicants,
     activeIndex
   } = useContext(LeadContext);
+
+  const {token} = useContext(AuthContext);
  
   const theme = useTheme();
  

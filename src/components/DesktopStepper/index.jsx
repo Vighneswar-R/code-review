@@ -4,7 +4,7 @@ const DesktopStepper = ({ steps, activeStep }) => {
   return (
     <div className='hidden md:flex justify-between w-full pt-14 pr-[174px] gap-6 md:pl-1'>
       {steps.map((step, index) => (
-        <div key={index} className='w-full'>
+        <div key={step?.name ?? index} className='w-full'>
           <div
             className={`${
               index <= activeStep ? 'bg-primary-red' : 'bg-stroke'

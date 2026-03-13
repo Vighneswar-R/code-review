@@ -132,7 +132,7 @@ const LeadContextProvider = ({ children }) => {
       setApproved(false)
     }
 
-    console.log("APPLICANT",formik?.values?.applicants?.[activeIndex]?.applicant_details)
+    // console.log("APPLICANT",formik?.values?.applicants?.[activeIndex]?.applicant_details)
 
   }
 
@@ -175,7 +175,7 @@ const LeadContextProvider = ({ children }) => {
 
     // Function to recursively count keys and calculate the sum of values
     const countKeysAndValues = (obj, result = { totalKeys: 0, valuesSum: 0 }) => {
-      console.log('Object',obj);
+      // console.log('Object',obj);
       for (const key in obj) {
       //  console.log('key.........for final progress',key)
         if (typeof obj[key] === 'object') {
@@ -306,9 +306,9 @@ const LeadContextProvider = ({ children }) => {
       const { totalKeys, valuesSum } = countKeysAndValues(progressMap);
       const resValues = countKeysAndValues(progressMapTemp);
 
-      console.log("KEYS",progressMapTemp)
+      // console.log("KEYS",progressMapTemp)
 
-            console.log("KEYS1",valuesSum)
+            // console.log("KEYS1",valuesSum)
 
 
       let finalProgress = parseInt(parseInt(valuesSum) / parseInt(totalKeys));
@@ -386,7 +386,7 @@ const LeadContextProvider = ({ children }) => {
       return;
     }
 
-    console.log("TRIGERRED",page)
+    // console.log("TRIGERRED",page)
 
     let trueCount = 0;
 
@@ -407,8 +407,9 @@ const LeadContextProvider = ({ children }) => {
     let newData = structuredClone(formik.values);
 
 
-    console.log("VALUE FROM CONTEXT",newData[updateStep]?.extra_params)
-
+    // console.log("VALUE FROM CONTEXT",newData[updateStep]?.extra_params)
+ 
+    try{
     if (page === 'reference' || page === 'property') {
       if (newData?.[updateStep] && typeof newData[updateStep]?.extra_params === 'object') {
         newData[updateStep].extra_params.progress = finalProgress;
@@ -440,10 +441,10 @@ const LeadContextProvider = ({ children }) => {
         newData.applicants[activeIndex][updateStep].extra_params.required_fields_status =
           requiredFieldsStatus;
 
-          console.log("HEHEHEHE",newData.applicants[activeIndex][updateStep].extra_params)
+          // console.log("HEHEHEHE",newData.applicants[activeIndex][updateStep].extra_params)
 
 
-          console.log("before",page)
+          // console.log("before",page)
 
         await editFieldsById(
           formik.values.applicants[activeIndex][updateStep].id,
@@ -472,6 +473,9 @@ const LeadContextProvider = ({ children }) => {
     // formik.setValues(newData);
 
     updateCompleteFormProgress();
+  } catch(error){
+    console.log("Error in updatig Process ");
+  }
   };
 
   const updateProgressUploadDocumentSteps = async (requiredFieldsStatus) => {
@@ -640,7 +644,7 @@ const LeadContextProvider = ({ children }) => {
         (e, index) => index === activeIndex || e.applicant_details.is_mobile_verified,
       );
 
-      console.log("ACTIVE polayer",updatedValues)
+      // console.log("ACTIVE polayer",updatedValues)
 
 
       //Reset id type ocr states
@@ -808,7 +812,7 @@ const LeadContextProvider = ({ children }) => {
       formik.setFieldValue(`applicants[${activeIndex}].address_detail.current_city`, '');
       formik.setFieldValue(`applicants[${activeIndex}].address_detail.current_state`, '');
 
-      editAddressById(
+      await editAddressById(
         formik?.values?.applicants?.[activeIndex]?.address_detail?.id,
         {
           current_pincode: '',
@@ -830,7 +834,7 @@ const LeadContextProvider = ({ children }) => {
         formik.setFieldValue(`applicants[${activeIndex}].address_detail.additional_city`, '');
         formik.setFieldValue(`applicants[${activeIndex}].address_detail.additional_state`, '');
 
-        editAddressById(
+        await editAddressById(
           formik?.values?.applicants?.[activeIndex]?.address_detail?.id,
           {
             additional_pincode: '',
@@ -864,7 +868,7 @@ const LeadContextProvider = ({ children }) => {
       formik.setFieldValue(`applicants[${activeIndex}].address_detail.current_city`, '');
       formik.setFieldValue(`applicants[${activeIndex}].address_detail.current_state`, '');
 
-      editAddressById(
+     await editAddressById(
         formik?.values?.applicants?.[activeIndex]?.address_detail?.id,
         {
           current_pincode: '',
@@ -890,7 +894,7 @@ const LeadContextProvider = ({ children }) => {
       return;
     }
 
-    editAddressById(
+   await editAddressById(
       formik.values?.applicants?.[activeIndex]?.address_detail?.id,
       {
         current_pincode: value,

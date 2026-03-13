@@ -18,7 +18,7 @@ const EkycOtpInput = ({
   const inputRef = useRef(null);
 
   const handleOnChange = useCallback(
-    async (e) => {
+     (e) => {
       const { value } = e.target;
       if (value.length <= 6) {
         setOtp(value);

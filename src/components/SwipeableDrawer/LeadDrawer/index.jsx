@@ -113,8 +113,9 @@ export default function SwipeableDrawerComponent() {
   },[])
 
   const handleChange = (event, newValue) => {
-    let newData = structuredClone(values);
-    coApplicantDrawerUpdate(newData?.applicants);
+    // let newData = structuredClone(values);
+    // coApplicantDrawerUpdate(newData?.applicants);
+    coApplicantDrawerUpdate(values?.applicants);
     setDrawerTabIndex(newValue);
   };
 
@@ -467,9 +468,13 @@ export default function SwipeableDrawerComponent() {
 
         //additionally push upload edit active as well to sync it during salesforce dms upload
 
+        if (applicant_details?.id) {
         batch.push(editUploadFlags(applicant_details?.id,{headers:{
           Authorization:token
         }}))
+      }
+
+
       }
 
     });
@@ -587,7 +592,7 @@ export default function SwipeableDrawerComponent() {
     });
 
     setFieldValue('applicants', newData.applicants);
-
+   try{
     await editFieldsById(
       ogData?.applicants[activeCoApplicantIndex]?.applicant_details?.id,
       'applicant',
@@ -615,6 +620,9 @@ export default function SwipeableDrawerComponent() {
     setDeleteAlert(false);
 
     updateCompleteFormProgress();
+  } catch(err) {
+    alert("failed to delete co-applicant"); 
+  }
   };
 
   return (

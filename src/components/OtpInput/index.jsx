@@ -56,19 +56,28 @@ const OtpInput = ({
       setOtp(value);
       if (value.length >= 5) {
         setInputDisabled(true);
+        try{
         let res = await verifyOTPCB(value);
         setInputDisabled(res);
         setTimer(false);
+        } catch(err){
+          setInputDisabled(false);
+          console.log("something went wrong while verifying OTP");
+        }
       }
     },
     [otp, verifyOTPCB],
   );
 
-  const handleOnOTPSend = useCallback(() => {
+  const handleOnOTPSend = useCallback(async () => {
     setInputDisabled(false);
-    onSendOTPClick();
+    try{
+   await onSendOTPClick();
     setTimer(true);
     setVerifiedOnce(false);
+    } catch(err){
+      console.log("something went wrong while sending OTP");
+    }
   }, [onSendOTPClick]);
 
   useEffect(() => {

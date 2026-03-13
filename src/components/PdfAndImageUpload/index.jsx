@@ -1078,7 +1078,7 @@ function PdfAndImageUpload({
     );
     const document_meta = applicant.document_meta;
     // New logic ** 28/2 - Vighneswar
-    const document_meta_type = [...applicant?.document_meta?.[type]];
+    const document_meta_type = [...(applicant?.document_meta?.[type] ?? [])];
     //const property_papers = applicant.document_meta.property_paper_photos;
     //const edited_property_papers = property_papers.filter((paper) => {
     // return paper.id !== id;
@@ -1359,7 +1359,7 @@ function PdfAndImageUpload({
                 {uploads?.data?.map((upload, index) => {
                   return (
                     <div
-                      key={index}
+                      key={upload?.id ?? index}
                       className={`h-full rounded-md ${configType === 'other_docs' ? 'border-stroke border p-2 bg-white' : ''} flex justify-between items-center`}
                     >
                       <div className='h-full flex justify-center items-center gap-4'>

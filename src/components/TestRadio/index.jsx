@@ -28,8 +28,8 @@ const TestRadio = () => {
   }
   return (
     <div className='flex flex-col gap-4 items-start'>
-      {EKYC_AUTHENTICATION_METHODS.map((data) => (
-        <Radio value={data.value} label={data.label} onChange={handleChange} current={radio} />
+      {EKYC_AUTHENTICATION_METHODS.map((data,index) => (
+        <Radio value={data.value} key={data.value ?? index} label={data.label} onChange={handleChange} current={radio} />
       ))}
     </div>
   );

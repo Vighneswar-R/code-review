@@ -161,12 +161,12 @@ const AuthContextProvider = ({ children }) => {
 
   useEffect(() => {
     getLoAllDetails();
-    console.log('Lo All Details', loAllDetails);
+    // console.log('Lo All Details', loAllDetails);
   }, [loAllDetails]);
 
   useEffect(() => {
     getLoAllDetails();
-    console.log('Lo Session Data', { loData, token, isAuthenticated });
+    // console.log('Lo Session Data', { loData, token, isAuthenticated });
   }, [loData, token, isAuthenticated]);
 
   return (

@@ -101,7 +101,7 @@ const ApplicantSection = ({data,editRemark,lead,setLeadData,setGeneralRemark,dis
   
 
 
-     console.log("I AM STORE",store)
+    //  console.log("I AM STORE",store)
     
      if(store?.remark?.trim()?.length > 0 && store.status == false) {
       remarkData.push(store)
@@ -177,12 +177,12 @@ const ApplicantSection = ({data,editRemark,lead,setLeadData,setGeneralRemark,dis
       })
 
 
-      console.log("NEW ERRORS DOC",newSet)
+      // console.log("NEW ERRORS DOC",newSet)
      }
 
      let docError = {isDocs:true,data:newSet}
 
-     console.log("DOC FINAL",docError)
+    //  console.log("DOC FINAL",docError)
 
      if(docError?.data?.length>0) {
       remarkData = [...remarkData,docError]
@@ -192,7 +192,7 @@ const ApplicantSection = ({data,editRemark,lead,setLeadData,setGeneralRemark,dis
     
      setPrimaryErrors(remarkData)
 
-     console.log("REMARK ERROR",remarkData)
+    //  console.log("REMARK ERROR",remarkData)
 
      setApplicantError(remarkData)
   }
@@ -392,10 +392,11 @@ const ApplicantSection = ({data,editRemark,lead,setLeadData,setGeneralRemark,dis
   
   const onHandleBlur = async(id,page,type,field) => {
 
-    console.log("i am the id",id)
+    try{
+    // console.log("i am the id",id)
 
     if(page == "property") {
-      editPropertyById(lead?.property_details?.id,{
+      await editPropertyById(lead?.property_details?.id,{
         bm_remarks: lead?.property_details?.bm_remarks
       },
       {
@@ -425,6 +426,9 @@ const ApplicantSection = ({data,editRemark,lead,setLeadData,setGeneralRemark,dis
   
       console.log('success',updated)
     }
+  } catch(err) {
+    console.log("something went wrong while saving remarks")
+  }
 
   }
 
@@ -437,7 +441,7 @@ const ApplicantSection = ({data,editRemark,lead,setLeadData,setGeneralRemark,dis
       lead?.applicants?.forEach((applicant,i)=> {
         if(applicant.applicant_details.is_primary) {
 
-          console.log("I am the primary applicant",index)
+          // console.log("I am the primary applicant",index)
           index = i;
         }
       })
@@ -447,13 +451,13 @@ const ApplicantSection = ({data,editRemark,lead,setLeadData,setGeneralRemark,dis
 
       lead?.applicants?.forEach((applicant,i)=> {
 
-        console.log(applicant?.[origin],"here")
+        // console.log(applicant?.[origin],"here")
 
         if(applicant?.[origin]?.id == id) {
 
           index = i;
 
-          console.log("I am the selected index >>>>",index)
+          // console.log("I am the selected index >>>>",index)
 
         }
       })
@@ -500,7 +504,7 @@ const ApplicantSection = ({data,editRemark,lead,setLeadData,setGeneralRemark,dis
         lead?.applicants?.forEach((applicant,i)=> {
           if(applicant.applicant_details.is_primary) {
   
-            console.log("I am the primary applicant",index)
+            // console.log("I am the primary applicant",index)
   
             index = i;
           }
@@ -539,7 +543,7 @@ const ApplicantSection = ({data,editRemark,lead,setLeadData,setGeneralRemark,dis
 
   useEffect(()=> {
 
-    console.log("I am the product lead",lead)
+    // console.log("I am the product lead",lead)
   },[lead])
 
 
@@ -555,7 +559,7 @@ useEffect(()=> {
 
   sortCoApplicants();
 
-  console.log(data)
+  // console.log(data)
 
 
   },[])

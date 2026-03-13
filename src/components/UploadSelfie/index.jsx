@@ -106,8 +106,10 @@ function UploadSelfie({
   };
 
   async function removeImage(id) {
-    const type = uploads.type;
+    const type = uploads?.type;
 
+
+   try{
     setFile(files.filter((x) => x.name !== id));
 
     await editDoc(
@@ -128,9 +130,9 @@ function UploadSelfie({
         },
       },
     );
-    const document_meta = applicant.document_meta;
+    const document_meta = applicant?.document_meta ?? {};
 
-    const photos = applicant.document_meta[type];
+    const photos = applicant?.document_meta[type];
 
     const edited_photos = photos.filter((paper) => {
       return paper.id !== id;
@@ -169,6 +171,9 @@ function UploadSelfie({
     } else {
       setUploads({ type: [type], data: active_uploads });
     }
+  } catch(err){
+    console.log('Failed to remove image');
+  }
   }
 
   useEffect(() => {

@@ -51,11 +51,20 @@ const MapSearchDrawer = ({
   // }, []);
 
   const searchLocation = (e) => {
-    setSearchQuery(e.currentTarget.value);
+
+    const value = e.currentTarget.value;
+
+    setSearchQuery(value);
+
+    if (!value) {
+      setMapLocation(null);
+      return;
+    }
+
     setMapLocation(
-      suggested_location.filter((data) => data.location1.includes(e.currentTarget.value)),
+      suggested_location.filter((data) => data.location1.includes(value)),
     );
-    if (!e.currentTarget.value) setMapLocation(null);
+    
   };
 
   // useEffect(() => {

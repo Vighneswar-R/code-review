@@ -145,7 +145,7 @@ export default function EkycDrawer({
 
   useEffect(() => {
  
- console.log('biometricKey '+biometricKey);       
+//  console.log('biometricKey '+biometricKey);       
     // initiating biometricejs file
     if (!ecsBioHelper.init(biometricKey)) {
       console.log('ecsBioHelper terminate');
@@ -295,7 +295,7 @@ export default function EkycDrawer({
 
   useEffect(()=>{
 
-    console.log("INITIAL",statusRef)
+    // console.log("INITIAL",statusRef)
   },[statusRef.current])
 
  
@@ -307,7 +307,6 @@ export default function EkycDrawer({
 
 
      try{
-
       console.log("red",statusRef.current)
 
       if(statusRef.current == false) return;  // skip execution if api is taking time to resolve;
@@ -479,6 +478,8 @@ export default function EkycDrawer({
 
     setIsAadharInputDrawer(true);
 
+    // setProcessing(false);
+
   }
 
 
@@ -525,7 +526,7 @@ export default function EkycDrawer({
       setMaskedEmail(data?.maskedEmail);
       setPerformVerification(true);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       setProcessing(false)
       setErrorToastMessage(error?.response?.data?.error);
       setErrorToastSubMessage(error?.response?.data?.details?.errMsg);
@@ -883,7 +884,9 @@ export default function EkycDrawer({
   };
 
   const aadharFlag = async (value) => {
-    console.log('value', value);
+    // console.log('value', value);
+
+    try{
     await editFieldsById(
       values?.applicants?.[activeIndex]?.applicant_details?.id,
       'applicant',
@@ -896,6 +899,9 @@ export default function EkycDrawer({
         },
       }
     );
+  } catch(error){
+    console.log("failed to edit ");
+  }
  
     if (!value) {
       let maskedAadhar;
@@ -933,6 +939,8 @@ export default function EkycDrawer({
               },
             };
  
+
+            try{
       await editFieldsById(
         values?.applicants?.[activeIndex]?.personal_details?.id,
         'personal',
@@ -943,6 +951,9 @@ export default function EkycDrawer({
           },
         }
       );
+    } catch(error){
+      console.log("failed to edit personal details");
+    }
  
       setFieldValue(
         `applicants[${activeIndex}].personal_details.extra_params.ekyc_option`,

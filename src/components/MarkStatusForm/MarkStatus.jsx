@@ -217,7 +217,7 @@ function isGzippedBase64(str) {
                 },  
               },"form-otp");
 
-              console.log("RES FROM OTP",res)
+              // console.log("RES FROM OTP",res)
       
               if(res?.data?.message == "Valid OTP"){
                 
@@ -227,7 +227,7 @@ function isGzippedBase64(str) {
               lead_copy.applicants[index].applicant_details.application_form_otp = otp;
               lead_copy.applicants[index].applicant_details.application_form_otp_verified = true;
 
-              console.log("LEAD COPY BEFORE REDNER",lead_copy)
+              // console.log("LEAD COPY BEFORE REDNER",lead_copy)
       
               setLeadData(lead_copy)
       
@@ -264,7 +264,11 @@ function isGzippedBase64(str) {
       try {
         setIsApproved(true);
         const id = lead?.lead?.id;
-
+  
+        if(!token){
+          alert("Login Again to continue");
+          return;
+        }
 
         if (lead?.applicants?.length > 0 && lead_by_pass == false) {
           const approvalChange = await Promise.all(lead.applicants.map((applicant) => {
@@ -290,10 +294,10 @@ function isGzippedBase64(str) {
 
     useEffect(()=> {
 
-      console.log("Hey updated Error>>>>",lead)
+      // console.log("Hey updated Error>>>>",lead)
 
 
-      console.log("I am the data one you are looking for++++++++++",data)
+      // console.log("I am the data one you are looking for++++++++++",data)
     },[remarkError,data])
 
     
@@ -904,7 +908,7 @@ function isGzippedBase64(str) {
             lead_copy.applicants[active].applicant_details.document_meta = res_form?.meta;
             };
     
-            console.log("RES FORM",res_form);
+            // console.log("RES FORM",res_form);
 
             if(res_form?.form){
               lead_copy.applicants[active].applicant_details.form_html = res_form?.form;

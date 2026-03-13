@@ -123,7 +123,8 @@ export default function SideBar() {
           },
         },
       );
-
+   
+      sessionStorage.clear();
       window.location.replace('/');
     } catch (err) {
       window.location.replace('/');

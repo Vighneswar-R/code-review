@@ -124,7 +124,7 @@ function PdfAndImageUploadBanking({
         return;
       });
     } else {
-      ('The geolocation API is not supported by your browser.');
+      setMessage('The geolocation API is not supported by your browser.');
     }
   };
 
@@ -174,7 +174,7 @@ function PdfAndImageUploadBanking({
         return;
       });
     } else {
-      ('The geolocation API is not supported by your browser.');
+      setMessage('The geolocation API is not supported by your browser.');
     }
   };
 
@@ -182,9 +182,11 @@ function PdfAndImageUploadBanking({
     let userLocation = navigator.geolocation;
 
     if (userLocation) {
-      userLocation.getCurrentPosition(success);
+      userLocation.getCurrentPosition(success,(error)=>{
+        setMessage('Location is not enabled');
+      });
     } else {
-      ('The geolocation API is not supported by your browser.');
+      setMessage('The geolocation API is not supported by your browser.');
     }
 
     function success(data) {
@@ -344,8 +346,10 @@ function PdfAndImageUploadBanking({
 
               <div className='flex gap-2 h-[85px]'>
                 {uploads?.data?.map((upload, index) => {
+                
+               
                   return (
-                    <div key={index} className='rounded-lg relative w-[68px]'>
+                    <div key={upload?.id ?? index} className='rounded-lg relative w-[68px]'>
                       <button className='absolute right-[-4px] top-[-4px] z-20 w-4 h-4'>
                         <svg
                           width='16'

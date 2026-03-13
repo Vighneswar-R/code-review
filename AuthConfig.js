@@ -14,7 +14,7 @@ export const msalConfig = {
     loggerOptions: {
       logLevel: LogLevel.Info,
       loggerCallback: (level, message) => {
-        console.log(message);
+        // console.log(message);
       },
     },
   },

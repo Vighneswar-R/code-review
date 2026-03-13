@@ -37,7 +37,7 @@ function AdminProductSidebar() {
       window.location.replace('/');
     } catch (err) {
       window.location.replace('/');
-      console.log(err);
+      console.log("Something went wrong while logging out the user");
     }
   };
 

@@ -140,6 +140,7 @@ export default function ValidateScan({
     await ecsBioHelper.enableLog();
 
     if (type == 'FMR') {
+      // const wadh =  'CtbFfteJR5nXKr+GVvh78PjlqkxOBcj+9XgPi5p8mbE=';
       const wadh =  'CtbFfteJR5nXKr+GVvh78PjlqkxOBcj+9XgPi5p8mbE=';
       const mode=  'P';
       const fType = 2;
@@ -415,7 +416,7 @@ export default function ValidateScan({
         setRequiredFieldsStatus((prev) => ({ ...prev, address_proof_number: true }));
       }
       setErrorToastMessage(error?.response?.data?.error);
-      setErrorToastSubMessage(error?.response?.data?.details?.errMsg);
+      // setErrorToastSubMessage(error?.response?.data?.details?.errMsg); 
       console.log(error);
     } finally {
       setOpenEkycPopup(false);
@@ -431,8 +432,8 @@ export default function ValidateScan({
     <>
     <MessageModal open={open} message={"HEY YOU CAN VERIFY FACE AUTH HERE"} start = {()=> {
       setOpen(false);
-      openApp();
-      getStatus();
+      // openApp();
+      // getStatus();
     }}/>
       <div className='px-4 py-2 flex gap-2 justify-start w-full border-b border-lighter-grey'>
         <button
