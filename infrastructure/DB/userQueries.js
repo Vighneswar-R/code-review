@@ -504,9 +504,71 @@ const main = {
         SoaReferenceDetail: true,
         SoaPropertyDetail: true,
         SoaBankingDetails: true,
-        SoaAdditionalAddressMapping: true
+        SoaAdditionalAddressMapping: true,
+        PaymentCollect:{
+          where:{
+            status:"completed"
+          },
+          select:{
+            id:true,
+            mobile_number:true,
+            updated_at:true
+          },
+          orderBy:{
+            id:'desc'
+          },
+          take:1
+        },
+        CollectionFollowUp:{
+          where:{
+            follow_up_type:'Call',
+            status:'completed'
+          },
+          select:{
+            id:true,
+            follow_up_date_time:true,
+            contact:true
+          },
+          orderBy:{
+            id:'desc'
+          },
+          take:1
+        }
       }
     });
+
+    // identify latest used mobile **
+
+    let latest_contact = null;
+
+    if(data?.PaymentCollect?.length && data?.CollectionFollowUp?.length){
+
+      let pdate = data?.PaymentCollect?.[0]?.updated_at;
+
+      let fdate = data?.CollectionFollowUp?.[0]?.follow_up_date_time;
+
+
+  const paymentDate = new Date(pdate);
+  const followupDate = new Date(fdate);
+
+   if (paymentDate > followupDate) {
+    latest_contact = data?.PaymentCollect?.[0]?.mobile_number;
+  } else {
+    latest_contact = data?.CollectionFollowUp?.[0]?.mobile_number;
+  }
+    }
+
+    else{
+
+      console.log("YESY",data?.CollectionFollowUp)
+      latest_contact = data?.PaymentCollect?.[0]?.mobile_number || data?.CollectionFollowUp?.[0]?.contact || null
+    }
+    
+
+    data.latest_contact = latest_contact;
+
+    
+
 
     return data;
   },
@@ -2211,6 +2273,11 @@ const main = {
         return {...b,follow_up_id:follow_up.id}
       })
     });
+
+
+    // add to salesforce
+
+    
 
 
     return follow_up;

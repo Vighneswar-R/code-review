@@ -108,9 +108,9 @@ const get_dashboard_cases = async(id,type,sub_type,skip,take,from,to,team,member
 
 
                for (const item of result) {
-  if (!item?.PaymentCollect?.length) continue;
+               if (!item?.PaymentCollect?.length) continue;
 
-  const total = item.PaymentCollect.reduce((sum, a) => {
+    const total = item.PaymentCollect.reduce((sum, a) => {
     const amount = Number(a?.amount);
 
     if (Number.isNaN(amount)) return sum;

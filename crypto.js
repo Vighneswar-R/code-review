@@ -1,7 +1,9 @@
 const crypto = require("crypto");
 
 const ALGO = "aes-256-gcm";
-const KEY = crypto.createHash("sha256").update("my-secret-key").digest(); // 32 bytes
+
+let secret = process.env.CRYPTO_SECRET;
+const KEY = crypto.createHash("sha256").update(secret).digest(); // 32 bytes
 const IV_LENGTH = 12;
 
 function encrypt(obj) {

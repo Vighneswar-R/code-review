@@ -15,13 +15,16 @@ const storage   = multer.memoryStorage(); // Store the file in memory
 const upload    = multer({ storage: storage });
 
 
-const {verify_ms_token} = require('../../../interfaces/middlewares/auth')
+const {verify_ms_token} = require('../../../interfaces/middlewares/auth');
+
+const {otpLimiter} = require("../../middlewares/rateLimiter");
+
 
 // *** I collect app login for CO **//
 
 //verify_ms_token
 
-router.post('/login',userControllers.log_in);
+router.post('/login',otpLimiter,userControllers.log_in);
 
 router.post('/login-otp-verify',userControllers.login_otp_verify);
 

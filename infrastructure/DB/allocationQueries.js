@@ -1021,9 +1021,78 @@ query += `
     console.log("QUERY", query_obj)
 
     return await prisma.reAssignment.findMany(query_obj);
+  },
+  
+  
+  
+  fetchSoaMoreInfo:async(loan)=>{
+
+    const soaCase = await prisma.soaCaseMapping.findFirst({
+      where:{
+        loan_number:loan
+      },
+      select:{
+        SoaApplicantDetail:{
+          select:{
+              id:true,
+              first_name:true,
+              email:true,
+              mobile_number:true,
+              SoaAddressDetail:{
+                id:true,
+                address_line1:true,
+                address_line2:true,
+                address_line3:true,
+                city:true,
+                state:true,
+                pincode:true,
+                geo_lat:true,
+                geo_long:true
+              }
+          }
+        },
+        sanctioned_amount:true,
+        loan_tenure:true,
+        rate_of_interest:true,
+        disbursed_amount:true,
+        SoaEmiMapping:{
+          select:{
+            id:true,
+            due_for_month:true,
+            arrear_emi:true,
+            bounce_charges:true,
+            arrear_bounce_emi:true,
+            cash_handling_charges:true,
+            lpp_charges:true,
+            visit_charges:true
+          }
+        },
+        SoaPropertyDetail:{
+          id:true,
+          property_address:true,
+          property_pincode:true,
+          state:true,
+          city:true
+        },
+        PaymentCollect:{
+          id:true,
+          payment_date:true,
+          amount:true,
+          payment_type:true,
+          status:true,
+          payment_mode:true,
+          gateway_verify_transaction_id:true
+        }
+      }
+    });
+
+
+    if(!soaCase) throw new Error("No Loan Info Found!");
+
+    return soaCase;
+    
   }
 };
-
 
 
 module.exports = main;

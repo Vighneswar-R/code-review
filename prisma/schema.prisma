@@ -371,6 +371,7 @@ model CollectionFollowUp {
   next_follow_up_status                String?  @db.Text
   assigned_by                           String?  @db.Text
   telecaller_name                       String?  @db.Text
+  contact                               String?
 
   SoaCaseMapping SoaCaseMapping? @relation(fields: [case_id], references: [id])
   User           User?           @relation(fields: [co_id], references: [id])
@@ -964,7 +965,6 @@ model SoaApplicantDetail {
   additional_email           String?  @db.Text
   is_guarantor                Boolean?
   adhaar_number               String?  @db.Text
-  salesforce_ref_id            String?  @db.Text
   loan_number                   String?  @db.VarChar(191)
   otp                           String?
   SoaCaseMapping SoaCaseMapping @relation(fields: [case_id], references: [id])

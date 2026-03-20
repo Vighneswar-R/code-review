@@ -434,7 +434,29 @@ console.log("ERROR For Pending Allocation",err)
 
       }
     }
-    
+    ,
+        getManualCaseInfo:async(req,res,next)=>{
+
+      try{
+
+        const{loan} = req.params;
+
+        if(!loan || !loan?.length) throw new Error("No Loan Number Found!");
+
+
+        const result = allocationUseCases.getSoaMoreInfo(loan);
+
+        return res.json(result);
+
+      }
+
+      catch(err){
+
+        console.log("Error Fetching Manual Case More Info - ",err);
+
+        next(err);
+      }
+    }   
 
 
 }

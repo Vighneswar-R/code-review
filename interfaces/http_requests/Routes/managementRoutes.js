@@ -15,6 +15,7 @@ const path = require("path");
 
 const {verify_token} = require('../../../infrastructure/JWT/services')
 
+const {otpLimiter} = require("../../middlewares/rateLimiter");
 
 // Storage config
 const storage = multer.diskStorage({
@@ -59,7 +60,7 @@ router.patch('/allocation-rule-update/:id',allocationControllers.edit_rule);
 
 router.patch('/approve-reassignment-request',allocationControllers.approve_reassign_request);
 
-router.post('/login',managementControllers.log_in);
+router.post('/login',otpLimiter,managementControllers.log_in);
 
 router.post('/login-otp-verify',managementControllers.otp_verify);
 
@@ -86,6 +87,7 @@ router.get('/branch-report/:id',managementControllers.branchReport);  //2
 router.get('/state-report/:id',managementControllers.stateReport);  //3
 
 
+router.get('/get-manual-case-info',allocationControllers.getManualCaseInfo)      // add legal master options to be available
 
 
 

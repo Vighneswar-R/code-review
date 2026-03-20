@@ -1293,6 +1293,25 @@ const approve_reassignment_request = async(id,loan_number,status) =>{
 }
 
 
+const getSoaMoreInfo = async(loan) =>{
+
+  try{
 
 
-module.exports = {bulkCaseUpload,allocationList,approveAllocation,addAllocationRule,getCaseReassignData,getSoaDetails,allocationHistory,get_lo_list_for_assign,allocate_pending_requests,manual_allocate,allocation_data,edit_allocation_rule,approve_reassignment_request}
+    const result = await allocationQueries.fetchSoaMoreInfo(loan);
+
+
+    return {message:"Success",result:result}
+    
+
+  }
+
+  catch(err){
+    throw err;
+  }
+}
+
+
+
+
+module.exports = {bulkCaseUpload,allocationList,approveAllocation,addAllocationRule,getCaseReassignData,getSoaDetails,allocationHistory,get_lo_list_for_assign,allocate_pending_requests,manual_allocate,allocation_data,edit_allocation_rule,approve_reassignment_request,getSoaMoreInfo}
