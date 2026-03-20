@@ -38,7 +38,7 @@ require('dotenv').config();
 
  console.log = () => {};
 
-
+ console.error = () =>{};
 app.set("trust proxy", 1);
 
 app.use(cookieParser());
@@ -81,7 +81,6 @@ app.use(cors({
 }));
 
 
-app.use(cors());
 // const BLOCKED_UA_PATTERNS = [
 //   /postman/i,
 //   /insomnia/i,
