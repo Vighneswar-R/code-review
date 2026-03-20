@@ -5,6 +5,7 @@ const {issue_login_token } = require('../../infrastructure/JWT/services')
 const bcrypt = require('bcrypt'); // or require('bcryptjs')
 
 
+const{encrypt,decrypt} = require('../../crypto')
 
 
 const {getIstTime} = require('../../infrastructure/helper');
@@ -13,7 +14,7 @@ const jwksClient =  require('jwks-rsa');
 
 
 const client = jwksClient({
-  jwksUri: 'https://login.microsoftonline.com/40c38e7e-7a74-4a92-aa6e-5cb451ab6db7/discovery/v2.0/keys',
+  jwksUri: process.env.AZURE_URI,
   cache: true,
   rateLimit: true,
   jwksRequestsPerMinute: 5
@@ -51,7 +52,10 @@ const login = async (req) =>{
 
     const otp = 12345;
 
-    await userQueries.updateUser(user.id,{otp:String(otp)});
+
+    let encrypted_otp = encrypt(String(otp));
+
+    await userQueries.updateUser(user.id,{otp:encrypted_otp});
 
     return {message:"Successfully Sent!"}
 
@@ -124,7 +128,11 @@ const verify_login_otp = async(req) =>{
     }
 
     else{
-     if((User.otp !== otp)) throw new Error("Invalid OTP");
+
+    let decrypted_otp = decrypt(User.otp);
+
+     if((decrypted_otp !== otp)) throw new Error("Invalid OTP");
+
     }
 
 

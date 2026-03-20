@@ -1,19 +1,37 @@
 const rateLimit = require("express-rate-limit");
 
+const { ipKeyGenerator } = rateLimit;
+
 // OTP limiter (very strict)
-const otpLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 5 minutes
-  max: 2,
+const globalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
   message: {
     status: "ERROR",
-    message: "Too many OTP requests. Try again after 5 minutes."
+    message: "Too many OTP requests. Try again after 1 minute."
   },
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => {
-    // limit by phone number + IP
-    return `${req.ip}-${req.body.number}`;
+ keyGenerator: (req) => {
+    const number = req.body?.number
+    return `otp-${ipKeyGenerator}`;
   }
 });
 
-module.exports = { otpLimiter };
+
+const otpLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 2,
+  message: {
+    status: "ERROR",
+    message: "Too many OTP requests. Try again after 1 minute."
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+ keyGenerator: (req) => {
+    const number = req.body?.number;
+    return `otp-${ipKeyGenerator}`;
+  }
+});
+
+module.exports = { globalLimiter ,otpLimiter };

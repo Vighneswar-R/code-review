@@ -1,10 +1,15 @@
 const { Server } = require('socket.io')
 
+require('dotenv').config();
 let io;
+
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
+
 
  function initSocket(server) {
   io = new Server(server, {
-    cors: { origin: '*' },
+    cors: { origin: allowedOrigins },
     path: "/api-collect/socket",
   });
 

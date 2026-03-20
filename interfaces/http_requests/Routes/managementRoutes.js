@@ -15,7 +15,21 @@ const path = require("path");
 
 const {verify_token} = require('../../../infrastructure/JWT/services')
 
-const {otpLimiter} = require("../../middlewares/rateLimiter");
+const {otpLimiter} = require("../../../interfaces/middlewares/rateLimiter");
+
+const allowed_values = process.env?.ALLOWED_MIME_TYPE || "";
+
+const allowedMimeTypes = allowed_values?.split(',').map(type => type.trim());
+
+
+
+const fileFilter = (req, file, cb) => {
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Invalid file type"), false);
+  }
+};
 
 // Storage config
 const storage = multer.diskStorage({
@@ -24,11 +38,12 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+
     cb(null, unique + path.extname(file.originalname)); // keep extension
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage,fileFilter });
 
 router.post('/upload-case-data',upload.single("file"),allocationControllers.upload_case_data);
 

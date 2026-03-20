@@ -9,6 +9,7 @@ const bcrypt = require('bcrypt'); // or require('bcryptjs');
 
 const {structure_login_data} = require('../../domain/user')
 
+const{encrypt,decrypt} = require('../../crypto')
 
 const getIstTime = () =>{
   const now = new Date();
@@ -94,13 +95,14 @@ const login = async (req) =>{
     const otp = 123456;
 
 
-        
+
+    let encrypted_otp = encrypt(String(otp));
 
         const updateUser = await genericQueries.update('User',
 {
                 id:Number(user.id)
             },    {
-            otp:String(otp),
+            otp:encrypted_otp,
         })
 
 
@@ -136,7 +138,10 @@ const login_otp_verify = async(req) =>{
 
     //admin role specify once finalised**
 
-    // if(User.otp !== otp) throw new Error("Invalid OTP");
+        let decrypted_otp = decrypt(User.otp);
+
+
+    if(decrypted_otp !== otp) throw new Error("Invalid OTP");
 
     
     const new_token = issue_login_token(User.id,User.role,User.employee_id);

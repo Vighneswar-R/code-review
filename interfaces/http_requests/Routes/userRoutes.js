@@ -8,23 +8,40 @@ const userSoaControllers = require('../Controllers/userSoaControllers')
 
 const paymentControllers = require('../Controllers/paymentControllers')
 
-const userDomain = require('../../../domain/index')
+const userDomain = require('../../../domain/index');
+
+
+const allowed_values = process.env?.ALLOWED_MIME_TYPE || "";
+
+const allowedMimeTypes = allowed_values?.split(',').map(type => type.trim());
 
 const multer = require("multer");
+
+
+const fileFilter = (req, file, cb) => {
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Invalid file type"), false);
+  }
+};
+
+
+
 const storage   = multer.memoryStorage(); // Store the file in memory
-const upload    = multer({ storage: storage });
+const upload    = multer({ storage: storage,fileFilter });
 
 
 const {verify_ms_token} = require('../../../interfaces/middlewares/auth');
 
-const {otpLimiter} = require("../../middlewares/rateLimiter");
+const {otpLimiter} = require("../../../interfaces/middlewares/rateLimiter");
 
 
 // *** I collect app login for CO **//
 
 //verify_ms_token
 
-router.post('/login',otpLimiter,userControllers.log_in);
+router.post('/login',userControllers.log_in);
 
 router.post('/login-otp-verify',userControllers.login_otp_verify);
 

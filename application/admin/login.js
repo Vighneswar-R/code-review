@@ -6,6 +6,7 @@ const genericQueries = require('../../infrastructure/DB/genericQueries');
 
 const {issue_login_token } = require('../../infrastructure/JWT/services')
 const bcrypt = require('bcrypt'); // or require('bcryptjs')
+const{encrypt,decrypt} = require('../../crypto')
 
 
 const getIstTime = () =>{
@@ -92,6 +93,7 @@ const adminLogin = async (req) =>{
     const otp = 123456;
 
 
+    let encrypted_otp = encrypt(String(otp));
 
 
         const updateUser = await genericQueries.update('User',{
@@ -99,7 +101,7 @@ const adminLogin = async (req) =>{
                 id:Number(user.id)
             },
             data:{
-            otp:String(otp),
+            otp:encrypted_otp,
         }
         })
 
@@ -136,7 +138,10 @@ const admin_login_otp_verify = async(req) =>{
 
     //admin role specify once finalised**
 
-    if(User.otp !== otp) throw new Error("Invalid OTP");
+        let decrypted_otp = decrypt(User.otp);
+
+
+    if(decrypted_otp !== otp) throw new Error("Invalid OTP");
 
     
     const new_token = issue_login_token(User.id,User.role,User.employee_id);

@@ -35,7 +35,6 @@ function decrypt(base64) {
     }
 }
 
-console.log("ENCRYPT",encrypt({amount:1000}))
 
 
 module.exports = {encrypt,decrypt}

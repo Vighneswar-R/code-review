@@ -10,6 +10,19 @@ const multer = require("multer");
 const path = require("path");
 
 
+const allowed_values = process.env?.ALLOWED_MIME_TYPE || "";
+
+const allowedMimeTypes = allowed_values?.split(',').map(type => type.trim());
+
+const fileFilter = (req, file, cb) => {
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Invalid file type"), false);
+  }
+};
+
+
 // Storage config
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -21,7 +34,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage,fileFilter });
 router.post('/add-branch-master',  masteradminControllers.add_branch_master);
 router.post('/update-branch-master/:id',  masteradminControllers.update_branch_master),
 router.get('/get-zone-master', masteradminControllers.get_zone_master);

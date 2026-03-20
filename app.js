@@ -34,9 +34,9 @@ const routes = require('./interfaces/http_requests/Routes/main');
 
 const {payment_cron} = require('./domain/schedulers');
 
+require('dotenv').config();
 
  console.log = () => {};
- console.error = () => {};
 
 
 app.set("trust proxy", 1);
@@ -52,6 +52,7 @@ app.use(express.json());
 // }));
 
 
+console.log("process.env",process.env)
 const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
 
 app.use(cors({
@@ -80,7 +81,7 @@ app.use(cors({
 }));
 
 
-app.options("*", cors());
+app.use(cors());
 // const BLOCKED_UA_PATTERNS = [
 //   /postman/i,
 //   /insomnia/i,
@@ -176,17 +177,57 @@ if(req?.body?.data){
 
 
 
+app.use((err, req, res, next) => {
 
-app.use((err,req,res,next)=>{
+  // ✅ Log real error internally
+  console.error("ERROR:", {
+    message: err.message,
+    stack: err.stack,
+    path: req.originalUrl,
+    method: req.method
+  });
 
+  /* -----------------------------
+     Known Safe Errors
+  ----------------------------- */
 
-    console.log("included",err?.message.includes('prisma'))
+  if (err.name === "MulterError") {
+    return res.status(400).json({
+      status: "ERROR",
+      message: "File upload failed."
+    });
+  }
 
-    if(err?.message.includes('prisma')) err.message = 'Database Validation Error!'
+  if (err.name === "JsonWebTokenError") {
+    return res.status(401).json({
+      status: "ERROR",
+      message: "Invalid authentication token."
+    });
+  }
 
-    return res.status(500).json({"Message":err.message})
+  /* -----------------------------
+     Prisma / DB Errors
+  ----------------------------- */
+
+  if (
+    err.message?.toLowerCase().includes("prisma") ||
+    err.code?.startsWith?.("P")
+  ) {
+    return res.status(500).json({
+      status: "ERROR",
+      message: "Database operation failed."
+    });
+  }
+
+  /* -----------------------------
+     Default Sanitized Response
+  ----------------------------- */
+
+  return res.status(err.statusCode || 500).json({
+    status: "ERROR",
+    message: "Something went wrong."
+  });
 });
-
 
 // app.listen(process.env.PORT || 8000,()=>{
 //     console.log(`App Started at ${process.env.PORT || 8000}`)
