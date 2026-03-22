@@ -959,6 +959,7 @@ model SoaApplicantDetail {
   middle_name            String?  @db.Text
   sequence_number         Int?
   last_name               String?  @db.Text
+  salesforce_ref_id       String?  @db.Text
   mobile_number            String?
   alternate_number          String?  @db.Text
   email                    String?  @db.Text
@@ -967,6 +968,12 @@ model SoaApplicantDetail {
   adhaar_number               String?  @db.Text
   loan_number                   String?  @db.VarChar(191)
   otp                           String?
+  gender                     String?
+  date_of_birth              String?
+  marital_status             String?
+  occupation                 String?
+  father_name                String?
+  relation_with_main_applicant   String?
   SoaCaseMapping SoaCaseMapping @relation(fields: [case_id], references: [id])
   SoaAddressDetail SoaAddressDetail[]
   SoaApplicantHistory SoaApplicantHistory[]
@@ -1466,6 +1473,17 @@ model versionmaster {
           BranchMaster BranchMaster[]
   }
 
+
+ model LevelCalculation{
+    id           Int              @id @default(autoincrement())
+    level        String?
+    amountrange  String?
+     created_at   DateTime?
+    updated_at   DateTime?
+    unit        String?
+
+
+  }
 
 
 

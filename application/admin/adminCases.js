@@ -1,6 +1,11 @@
 const adminmaster = require('../../infrastructure/DB/masterQueries')
 
 
+const { spawn } = require("child_process");
+ 
+const fs = require("fs/promises");
+const path = require("path");
+
 
 const get_zone_master = async (req) => {
     try {
@@ -1136,7 +1141,153 @@ const branchMappingUpload = async (req) => {
   }
 };
 
+const runCronJob = async(req,type)=>{
 
+    const CONFIG_PATH = path.join(__dirname, "config", "cron-config.json");
+    try {
+        const payload = req.body;
+ 
+        const run_now = req.body?.execute;
+ 
+        if(run_now == true){
+        const pythonPath = "/home/ubuntu/venv/bin/python";
+      const scriptPath = path.join(
+    __dirname,
+     "../../Cron/snowflake_data.py"
+     );
+     const pythonProcess = spawn(pythonPath, [scriptPath]);
+ 
+        pythonProcess.stdout.on("data", (data) => {
+        console.log(`ETL OUTPUT: ${data}`);
+      });
+ 
+      pythonProcess.stderr.on("data", (data) => {
+        console.error(`ETL ERROR: ${data}`);
+      });
+ 
+      pythonProcess.on("close", (code) => {
+        console.log(`ETL finished with code ${code}`);
+      });
+ 
+      return { success: true }
+ 
+        }
+        let cronExpression = '';
+ 
+ 
+        //let {type} = req.body;
+ 
+        if(!type || !type?.length) throw new Error("No Object Type Found in the Request!");
+ 
+        // wrtie the object name and cron time in a file to read and execute the cron
+ 
+   
+ 
+        if (payload.duration === 'every') {
+            // Convert interval (in seconds) to cron format
+    const interval = Number(payload.interval);
+ 
+if (!interval || interval <= 0) {
+  throw new Error("Invalid interval");
+}
+ 
+// node-cron format:
+// second minute hour day month weekday
+ 
+ cronExpression = `0 */${interval} * * * *`;
+        }
+        else if (payload.duration === 'once') {
+            // Convert seconds to HH:MM:SS
+const totalSeconds = Number(payload.time);
+ 
+const hours = Math.floor(totalSeconds / 3600) % 24;
+const minutes = Math.floor((totalSeconds % 3600) / 60);
+const seconds = totalSeconds % 60;
+ 
+    // node-cron format:
+   // second minute hour day-of-month month day-of-week
+ cronExpression = `${seconds} ${minutes} ${hours} * * *`;
+ 
+ 
+        }
+ 
+ 
+        // read the existing file and append ( if not existing then create and append)
+ 
+        let existing_data;
+ 
+        let config = {};
+ 
+        try{
+ 
+      existing_data = await fs.readFile(CONFIG_PATH, "utf8");
+      config = JSON.parse(existing_data);
+ 
+        }
+ 
+        catch(err){
+         
+          if (err.code === "ENOENT") {
+        // file doesn't exist ? create directory + file
+       await fs.mkdir(path.dirname(CONFIG_PATH), { recursive: true });
+ 
+    config = {};
+ 
+    await fs.writeFile(
+      CONFIG_PATH,
+      JSON.stringify(config, null, 2),
+      "utf8"
+    );
+ 
+      } else {
+        throw err;
+      }
+    }
+ 
+    console.log("CONDITION",type?.length == 2)
+ 
+          if(type?.length == 2 && type?.includes('OpportunityObject') && type?.includes('snowflakedata')){
+ 
+          let cron_type = 'cron_manager';
+ 
+          //cronExpression
+ 
+ 
+      config[cron_type] = cronExpression;
+ 
+       await fs.writeFile(
+      CONFIG_PATH,
+      JSON.stringify(config, null, 2),
+      "utf8"
+    );
+ 
+        }
+ 
+        else{
+ 
+          let cron_type = type?.[0];
+ 
+ 
+          config[cron_type] = cronExpression
+          console.log("CONFIG",config)
+ 
+              await fs.writeFile(
+      CONFIG_PATH,
+      JSON.stringify(config),
+      "utf8"
+    );
+ 
+        }
+ 
+        console.log('Cron Expression:', cronExpression);
+       
+        return { success: true, cronExpression: cronExpression }
+       
+    } catch (error) {
+        throw error;
+    }
+   
+}
 module.exports = {
     addbranchmaster, 
     get_branch_master,
@@ -1172,6 +1323,7 @@ module.exports = {
     create_role,
     getAvailablePermissions,
     edit_role,
-    branchMappingUpload
+    branchMappingUpload,
+    runCronJob
 }  
    

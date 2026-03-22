@@ -801,6 +801,20 @@ get_generic_key:async(req,res,next)=>{
             console.log(err);
             next(err);
         }
+    },
+
+    runCronJob: async(req,res,next) =>{
+        try {
+            const result = await admincases.runCronJob(req,req.body?.type);
+
+            return res.json(result);
+            
+        } catch (error) {
+
+            console.log(error);
+            next(error);
+            
+        }
     }
 
 

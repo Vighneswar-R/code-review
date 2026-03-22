@@ -925,8 +925,143 @@ const sf_collection_list = async(id) =>{
         throw err;
     }
 }
+
+const get_dashboard_data = async (id) => {
+  try {
+    const cases = await userQueries.dashboard_data(id);
+
+    let totalAmount = 0;
+    let completedCases = 0;
+    let pendingCases = 0;
+    let cashPayments = 0;
+    let partialPayments = 0;
+    let totalCollectable = 0;
+
+    const safeNumber = (val) => Number(val || 0);
+
+    for (const caseItem of cases) {
+      let caseCompleted = false;
+
+      const emi = caseItem.SoaEmiMapping?.[0] || {};
+
+      const emiTotal =
+        safeNumber(emi.due_for_month) +
+        safeNumber(emi.bounce_charges) +
+        safeNumber(emi.arrear_emi) +
+        safeNumber(emi.arrear_bounce_emi) +
+        safeNumber(emi.lpp_charges) +
+        safeNumber(emi.visit_charges) +
+        safeNumber(emi.cash_handling_charges);
+
+      totalCollectable += emiTotal;
+
+      for (const payment of caseItem.PaymentCollect) {
+        const statusCompleted =
+          payment.status && payment.status.toLowerCase() === "completed";
+        const type = payment.payment_type
+          ? payment.payment_type.toLowerCase()
+          : "full";
+        const isPartial = type === "partial";
+        const isCash =
+          payment.payment_mode && payment.payment_mode.toLowerCase() === "cash";
+
+        if (statusCompleted) {
+          totalAmount += safeNumber(payment.amount);
+          caseCompleted = true;
+        }
+
+        if (isCash) {
+          cashPayments += safeNumber(payment.amount);
+        }
+
+        if (isPartial) {
+          partialPayments += safeNumber(payment.amount);
+        }
+      }
+
+      if (caseCompleted) {
+        completedCases++;
+      } else {
+        pendingCases++;
+      }
+    }
+
+    //  Fetch levels from LevelCalculation table
+    const levels = await prisma.levelCalculation.findMany({
+      orderBy: { id: "asc" }
+    });
+
+    // Parse ranges using the unit column
+    function parseRange(rangeStr, unit) {
+      const parts = rangeStr.split("-");
+      if (parts.length !== 2) return [0, 0];
+
+      const start = Number(parts[0].trim());
+      const end = Number(parts[1].trim());
+
+      const multiplier = (() => {
+        if (unit.toUpperCase() === "LAKH") return 100000;
+        if (unit.toUpperCase() === "CR") return 10000000;
+        if (unit.toUpperCase() === "LAKH-CR") {
+          
+          return null; 
+        }
+        return 1;
+      })();
+
+      if (unit.toUpperCase() === "LAKH-CR") {
+        const startVal = start * 100000;      
+        const endVal = end * 10000000;        
+        return [startVal, endVal];
+      }
+
+      return [start * multiplier, end * multiplier];
+    }
+
+    //  current level
+    let currentLevel = null;
+    let nextMilestone = null;
+
+    for (let i = 0; i < levels.length; i++) {
+      const [min, max] = parseRange(levels[i].amountrange, levels[i].unit);
+      if (totalAmount >= min && totalAmount <= max) {
+        currentLevel = levels[i].level;
+        if (i + 1 < levels.length) {
+          nextMilestone = levels[i + 1].amountrange + " " + levels[i + 1].unit;
+        }
+        break;
+      }
+    }
+
+    //  If collected amount is below Level 1
+    if (!currentLevel) {
+      currentLevel = 0;
+      nextMilestone = levels[0].amountrange + " " + levels[0].unit;
+    }
+
+    return {
+      message: "Success",
+      result: {
+        co_id: id,
+        totalAmount,
+        cashPayments,
+        partialPayments,
+        completedCases,
+        pendingCases,
+        totalCases: cases.length,
+        totalCollectable,
+        currentLevel,
+        nextMilestone,
+        levels
+      },
+    };
+  } catch (error) {
+    console.log("Error fetching dashboard data", error);
+    throw error;
+  }
+};
  
 
 
 
-module.exports = {get_dashboard_cases,get_case_data_by_id,get_nearby_loans,update_soa_applicant_details_by_id,get_follow_up_details,get_follow_up_history,transaction_history_by_loan,get_team_members,advance_search,raise_reassign_request,payments_done,schedule_message,get_search_options,filter_based_search, create_search_options, update_search_options,get_all_search_options, delete_search_options,add_follow_up,sf_collection_list}
+module.exports = {get_dashboard_cases,get_case_data_by_id,get_nearby_loans,update_soa_applicant_details_by_id,get_follow_up_details,get_follow_up_history,transaction_history_by_loan,get_team_members,advance_search,raise_reassign_request,payments_done,schedule_message,get_search_options,filter_based_search, create_search_options, update_search_options,get_all_search_options, delete_search_options,add_follow_up,sf_collection_list,get_dashboard_data}

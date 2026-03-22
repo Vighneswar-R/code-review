@@ -135,7 +135,9 @@ router.post('/create-follow-up',upload.array("file", 5),userControllers.create_f
 
 router.get('/get-doc/:file_path/:path',userControllers.fetch_doc_from_s3);
 
-router.get('/sf-cash-collection-list');
+router.get('/sf-cash-collection-list',userControllers.getSfCollectionList_cash);
+
+router.get('/soa/get-dasboard-data', userSoaControllers.get_dashboard_data);
 
 
 module.exports = router;

@@ -436,7 +436,22 @@ const main = {
 
             next(err);
         }
-    }
+    },
+
+     get_dashboard_data:async(req,res,next)=>{
+        try {
+            const id = req.user?.id;
+             if(!id) throw new Error("No User Found!");
+                const result = await userCases.get_dashboard_data(id);
+                return res.json(result);
+
+            
+        } catch (error) {
+            console.log(error);
+            next(error);
+            
+        }
+    },
 }
 
 module.exports = main;
