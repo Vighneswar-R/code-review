@@ -247,7 +247,7 @@ const main = {
     const id = data.co_id;
 
 
-    const data = await prisma.$transaction(async(tx)=>{
+    const data_final = await prisma.$transaction(async(tx)=>{
     const existing = await tx.userAttendanceLog.findFirst({
       where: {
         co_id: Number(id),
@@ -274,7 +274,7 @@ const main = {
     })
 
 
-    return data;
+    return data_final;
 
   },
 

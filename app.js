@@ -137,7 +137,7 @@ app.use((req, res, next) => {
 
   res.json = (body) => {
     // optional: allow bypass if needed
-    if (res.locals.skipEncrypt) return originalJson(body);
+    if (res.locals?.skipEncrypt) return originalJson(body);
 
     try {
       const encrypted = encrypt(body);
