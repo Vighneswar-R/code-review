@@ -399,6 +399,31 @@ const main = {
             next(err);
 
         }
+    },
+
+
+    getSfCollectionList_cash:async(req,res,next)=>{
+
+        try{
+
+
+            const {id} = req.user;
+
+            if(id) throw new Error("Unauthorized!");
+
+
+            const result = await userCases.sf_collection_list(id);
+
+
+            return res.json(result);
+
+        }
+
+        catch(err){
+            console.log("Error Fetching Collection List From Salesforce",err);
+
+            next(err);
+        }
     }
 }
 

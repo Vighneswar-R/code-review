@@ -4,6 +4,8 @@ const structureRules = require('../../domain/index')
 
 const queryGeneral = require('../../infrastructure/DB/genericQueries');
 
+const sf_helper = require('../../infrastructure/Salesforce/index')
+
 
 
 const sanitize_result = (data, type) => {
@@ -897,8 +899,34 @@ return result;
               }
 
 }
+
+
+const sf_collection_list = async(id) =>{
+
+    try{
+
+    const user = userQueries.getUserById(id);
+
+    if(!user) throw new Error("No User Found!");
+
+    let employee_code = user.employee_id;
+
+    let ins = '';
+
+    let cs = '';
+    const result = await sf_helper.get_collection_list(employee_code,ins,cs);
+
+    return {message:"Success",result:result}
+
+    }
+
+    catch(err){
+
+        throw err;
+    }
+}
  
 
 
 
-module.exports = {get_dashboard_cases,get_case_data_by_id,get_nearby_loans,update_soa_applicant_details_by_id,get_follow_up_details,get_follow_up_history,transaction_history_by_loan,get_team_members,advance_search,raise_reassign_request,payments_done,schedule_message,get_search_options,filter_based_search, create_search_options, update_search_options,get_all_search_options, delete_search_options,add_follow_up}
+module.exports = {get_dashboard_cases,get_case_data_by_id,get_nearby_loans,update_soa_applicant_details_by_id,get_follow_up_details,get_follow_up_history,transaction_history_by_loan,get_team_members,advance_search,raise_reassign_request,payments_done,schedule_message,get_search_options,filter_based_search, create_search_options, update_search_options,get_all_search_options, delete_search_options,add_follow_up,sf_collection_list}

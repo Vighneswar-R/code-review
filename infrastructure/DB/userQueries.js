@@ -1,6 +1,9 @@
 const prisma = require('../../prisma/global');
 
-const { role_names } = require('../../domain/namings')
+const { role_names } = require('../../domain/namings');
+
+
+const sf_helper = require('../Salesforce/index')
 
 
 const main = {
@@ -243,7 +246,9 @@ const main = {
 
     const id = data.co_id;
 
-    const existing = await prisma.userAttendanceLog.findFirst({
+
+    const data = await prisma.$transaction(async(tx)=>{
+    const existing = await tx.userAttendanceLog.findFirst({
       where: {
         co_id: Number(id),
         created_at: {
@@ -253,10 +258,23 @@ const main = {
       }
     });
 
-    if (existing) throw new Error("Attendance Already Marked For Today");
+    if(existing) throw new Error("Attendance Already Marked For Today");
 
 
-    return await prisma.userAttendanceLog.create({ data: data })
+    const marked = await tx.userAttendanceLog.create({ data: data });
+
+    // add to salesforce
+
+    let sf_body = {};
+
+    const sf_add = await sf_helper.add_attendance(sf_body);
+
+    return marked;
+
+    })
+
+
+    return data;
 
   },
 
@@ -2277,8 +2295,10 @@ const main = {
 
     // add to salesforce
 
-    
+    const sf_body = {};
 
+    const sf_add = await sf_helper.add_follow_up(sf_body);
+    
 
     return follow_up;
 

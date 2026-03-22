@@ -1,6 +1,6 @@
 const { login, verify_login_otp, case_reassign_request, punch_in, mark_attendance, SSO_log_in } = require('./loginCases');
 
-const { get_dashboard_cases, get_case_data_by_id, get_nearby_loans, update_soa_applicant_details_by_id, get_follow_up_details, get_follow_up_history, transaction_history_by_loan, get_team_members, advance_search, raise_reassign_request, payments_done, schedule_message, get_search_options, filter_based_search, create_search_options, update_search_options, get_all_search_options, delete_search_options,add_follow_up} = require('./soaCaseDetail')
+const { get_dashboard_cases, get_case_data_by_id, get_nearby_loans, update_soa_applicant_details_by_id, get_follow_up_details, get_follow_up_history, transaction_history_by_loan, get_team_members, advance_search, raise_reassign_request, payments_done, schedule_message, get_search_options, filter_based_search, create_search_options, update_search_options, get_all_search_options, delete_search_options,add_follow_up,sf_collection_list} = require('./soaCaseDetail')
 
 
 const { add_data, edit_data_by_id, get_punch_timeline, get_efficiency_details } = require('./activity');
@@ -45,7 +45,8 @@ const main = {
     update_search_options: update_search_options,
     get_all_search_options: get_all_search_options,
     delete_search_options: delete_search_options,
-    add_follow_up:add_follow_up
+    add_follow_up:add_follow_up,
+    sf_collection_list:sf_collection_list
 }
 
 

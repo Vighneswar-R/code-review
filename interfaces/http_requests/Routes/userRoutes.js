@@ -133,7 +133,9 @@ router.delete('/delete-search-master/:id',userControllers.deleteSearchMaster);
 router.post('/create-follow-up',upload.array("file", 5),userControllers.create_follow_up);
 
 
-router.get('/get-doc/:file_path/:path',userControllers.fetch_doc_from_s3)
+router.get('/get-doc/:file_path/:path',userControllers.fetch_doc_from_s3);
+
+router.get('/sf-cash-collection-list');
 
 
 module.exports = router;
