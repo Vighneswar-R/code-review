@@ -679,7 +679,77 @@ bulkBranchMappingUpload: async (mappingArray) => {
         code: 400,
       };
     }
+  },
+
+
+
+  // ad on 23-03
+
+ getCollectionDashboardData:async ({employeeCode})=>{
+     
+    try {
+        if (!employeeCode) {
+      throw new Error("employeeCode is required");
+    }
+ 
+      const mappings = await prisma.userMapping.findMany({
+      where: { manager_code: employeeCode },
+      select: { employee_code: true }
+    });
+ 
+       const subordinateCodes = mappings.map(m => m.employee_code).filter(Boolean);
+       
+ 
+ 
+     const data = await prisma.user.findMany({
+      where: {
+        employee_id: { in: subordinateCodes }
+      },
+      select: {
+        id: true,
+        employee_id: true,
+        name: true,
+       
+        SoaCaseMapping: {
+          select: {
+            loan_number: true,
+            co_id: true,
+            User: {
+              select: {
+                employee_id: true,
+                name: true,
+                email_id : true
+              }
+            },
+            SoaEmiMapping: {
+              select: {
+                due_for_month: true,
+                bounce_charges: true,
+                arrear_emi: true,
+                arrear_bounce_emi: true,
+                lpp_charges: true,
+                visit_charges: true,
+                cash_handling_charges: true
+              }
+            }
+          }
+        }
+      }
+    });
+ 
+ 
+     return data;
+       
+    } catch (error) {
+        console.error("Error in getCollectionDashboardData:", error);
+        throw new Error("Failed to fetch collection dashboard data");
+ 
+       
+    }
+ 
   }
+ 
+  
 
 
 }

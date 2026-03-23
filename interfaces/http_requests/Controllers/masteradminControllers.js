@@ -815,7 +815,35 @@ get_generic_key:async(req,res,next)=>{
             next(error);
             
         }
+    },
+
+
+
+     getCollectionDashboardData: async (req, res, next) => {
+  try {
+   
+    const { employeeCode } = req.query;
+ 
+    if (!employeeCode) {
+      throw new Error("employeeCode is required");
     }
+ 
+   
+    const results = await admincases.getCollectionDashboardData(employeeCode);
+ 
+    return res.status(200).json({
+      status: 200,
+      result: results
+    });
+  } catch (error) {
+    console.error("Error in getCollectionDashboardData:", error);
+    return res.status(500).json({
+      status: 500,
+      message: "Failed to fetch dashboard data",
+      error: error.message
+    });
+  }
+}
 
 
 }

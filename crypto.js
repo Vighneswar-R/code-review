@@ -68,7 +68,16 @@ function decrypt(cipherText) {
 
 
 const body = {
-	"data":"Hey Charu its a test string!"
+	"data":{
+	"loan_number":"AP-10148348",
+	"co_id":9,
+	"case_id":10,
+	"current_follow_up":"visit",
+	"follow_up_date_time":"2025-11-21 17:20:31.977",
+	"remarks":"EOD",
+	"follow_up_type":"Payment",
+	"status":"pending"
+}
 }
 
 
@@ -76,7 +85,7 @@ const encrypted = encrypt(body?.data);
 
 console.log("ENC",encrypted)
 
-console.log("DSC",decrypt("U2FsdGVkX1+UBdOfI9vda66lUdTtklXF14tvKPvh7tyqMrPK8OP8djbvBO4i+aPydY61Oq+GPGTHd566s6vwKQ=="))
+console.log("DSC",decrypt("U2FsdGVkX19fn3oOmZNBEMIolepK3QpmfpDZYIqfFpq+G6lvkWwrfzGXiOlMw7za4E4GVBkbRQpaNpsuHfr7FW7yEJi62iNpP+lBc07KH5E="))
 
 
 

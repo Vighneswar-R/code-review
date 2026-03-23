@@ -12,10 +12,11 @@ const globalLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
- keyGenerator: (req) => {
-    const number = req.body?.number
-    return `otp-${ipKeyGenerator}`;
-  }
+keyGenerator: (req) => {
+    const userId = req.user?.id || "anonymous";
+
+    return `${req.baseUrl}${req.path}-user-${userId}`;
+  },
 });
 
 

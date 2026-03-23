@@ -265,7 +265,35 @@ const main = {
 
     // add to salesforce
 
-    let sf_body = {};
+    let sf_body = [{
+        "empId": "ISFC8019",
+        "isActive": true,
+        "isSiteVisited": true,
+        // "currentLat": 28.5135659,
+        // "currentLong": 77.0671737,
+        // "lastLat": 28.4530747,
+        // "lastLong": 77.0655226,
+        "attendanceDate": "2025-12-01T10:41:02+05:30",
+        "onLeave": false,
+        "dayEnd": false,
+        "network_type": 0,
+        "battery_life": 0,
+        "brand_name": 0,
+        "model_name": 0,
+        "os_version": 0,
+        "network_source": 0
+    }]
+
+
+    
+sf_body.currentLat = data?.geo_lat || 0;
+
+sf_body.currentLong = data?.geo_long || 0;
+
+sf_body.lastLat = data?.last_lat || 0;
+
+sf_body.lastLong = data?.last_long || 0;
+
 
     const sf_add = await sf_helper.add_attendance(sf_body);
 

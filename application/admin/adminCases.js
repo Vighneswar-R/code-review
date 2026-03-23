@@ -1288,6 +1288,19 @@ const seconds = totalSeconds % 60;
     }
    
 }
+
+const getCollectionDashboardData = async (employeeCode)=>{
+     try {
+    const results = await adminmaster.getCollectionDashboardData({ employeeCode });
+    return results;
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    throw error;
+  }
+}
+ 
+
+
 module.exports = {
     addbranchmaster, 
     get_branch_master,
@@ -1324,6 +1337,7 @@ module.exports = {
     getAvailablePermissions,
     edit_role,
     branchMappingUpload,
-    runCronJob
+    runCronJob,
+    getCollectionDashboardData
 }  
    

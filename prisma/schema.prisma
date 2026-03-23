@@ -1481,9 +1481,22 @@ model versionmaster {
      created_at   DateTime?
     updated_at   DateTime?
     unit        String?
-
-
   }
+
+
+  model Banner {
+  id        String   @id @default(cuid())
+  title     String
+  altTag    String
+  order     Int      @unique
+  imageUrl  String
+  fileName  String
+  fileSize  Int
+  status    Boolean?
+  uploadedAt DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
 
 

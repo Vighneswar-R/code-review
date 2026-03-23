@@ -94,4 +94,9 @@ router.get('/get-state-master', masteradminControllers.get_generic_key);
 
 router.post('/bulkbranch-mapping-upload', upload.single("file"), masteradminControllers.branchMappingUpload);
 
+
+// added **23-02
+
+router.get('/get-collection-dashboard-data', masteradminControllers.getCollectionDashboardData);
+
 module.exports = router;

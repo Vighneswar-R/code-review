@@ -18,7 +18,11 @@ get_access_token: async() =>{
 
     const access_token = sf_token?.data?.access_token;
 
+    console.log("ACCESS TOKEN-110",access_token)
+
     if(!access_token) throw new Error("Error Generating Access Token!",err);
+
+    return access_token
 
 }
 
@@ -120,11 +124,13 @@ add_attendance:async(sf_body)=>{
 
     try{
 
-        const access_token = main.get_access_token();
+        const access_token = await main.get_access_token();
 
-        if(!access_token) throw new Error("Error Generating Access Token!",err);
+        if(!access_token) throw new Error("Error Generating Access Token!");
 
         const SF_URL = process.env.SF_ATTENDANCE_URL;
+
+
 
         const updated_sf = await axiosInstance.post(`${SF_URL}`,sf_body,{
             headers:{

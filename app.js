@@ -132,8 +132,6 @@ bindBinlogSocketBridge();
 app.use((req, res, next) => {
   const originalJson = res.json.bind(res);
 
-  console.log(JSON.stringify(originalJson))
-
   res.json = (body) => {
     // optional: allow bypass if needed
     if (res.locals?.skipEncrypt) return originalJson(body);
@@ -155,8 +153,6 @@ app.use((req, res, next) => {
 
 app.use('/api-collect/',(req,res,next)=>{
 
-
-  console.log("BODY",req?.body.data)
 // decrypt all requests before forwarding to routes **
 
 
