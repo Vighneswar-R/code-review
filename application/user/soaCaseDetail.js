@@ -911,9 +911,11 @@ const sf_collection_list = async(id) =>{
 
     let employee_code = user.employee_id;
 
-    let ins = '';
+    let emp = 'ISFC0014'   // temp
 
-    let cs = '';
+    let ins = 'Cash';
+
+    let cs = 'Handover Pending';
     const result = await sf_helper.get_collection_list(employee_code,ins,cs);
 
     return {message:"Success",result:result}

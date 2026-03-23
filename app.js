@@ -155,6 +155,8 @@ app.use((req, res, next) => {
 
 app.use('/api-collect/',(req,res,next)=>{
 
+
+  console.log("BODY",req?.body.data)
 // decrypt all requests before forwarding to routes **
 
 
