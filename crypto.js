@@ -37,4 +37,17 @@ function decrypt(base64) {
 
 
 
+const body = {
+	"username":"7447312978"
+}
+
+
+const encrypted = encrypt(body);
+
+console.log("ENC",encrypted)
+
+console.log("DSC",decrypt('pupj2T2Agub3/RUuobWfXMpWLfLyd9f4qAcvMcWp/5ZfMFu16qRDhwVOWXtMp8nXROAqk94McZfrhWUJ'))
+
+
+
 module.exports = {encrypt,decrypt}

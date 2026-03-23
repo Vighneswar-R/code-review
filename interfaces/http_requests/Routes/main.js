@@ -36,7 +36,7 @@ const routers = () => {
 
     return globalLimiter(req, res, next);
   },
-  userDomain.verify_mobile_user,verify_token,
+  verify_token,
   require("./userRoutes")
 );  //userDomain.verify_mobile_user,  verify_token
   router.use('/admin',(req, res, next) => {

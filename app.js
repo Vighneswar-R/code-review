@@ -36,9 +36,9 @@ const {payment_cron} = require('./domain/schedulers');
 
 require('dotenv').config();
 
- console.log = () => {};
+//  console.log = () => {};
 
- console.error = () =>{};
+//  console.error = () =>{};
 app.set("trust proxy", 1);
 
 app.use(cookieParser());
@@ -52,7 +52,6 @@ app.use(express.json());
 // }));
 
 
-console.log("process.env",process.env)
 const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
 
 app.use(cors({
@@ -163,7 +162,7 @@ if(req?.body?.data){
 
     const decrypted = decrypt(req.body.data);
 
-    console.log("FINAL",decrypted)
+    console.log("FINAL",decrypted);
 
 
     req.body = decrypted;
