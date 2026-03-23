@@ -11,7 +11,7 @@ const {otpLimiter,globalLimiter} = require("../../../interfaces/middlewares/rate
 
 const routers = () => {
   const router = express.Router();
-  router.use('/management', (req, res, next) => {
+  router.use('/management', verify_token,(req, res, next) => {
 
     if (req.path === "/login") {
       return otpLimiter(req, res, next);
@@ -19,15 +19,15 @@ const routers = () => {
 
     return globalLimiter(req, res, next);
   }
-  ,verify_token,require('./managementRoutes'));
+  ,require('./managementRoutes'));
 
 
-  router.use('/generic', globalLimiter ,verify_token,require('./crudRoutes'));
+  router.use('/generic', verify_token,globalLimiter,require('./crudRoutes'));
 
 
   
   router.use(
-  "/user",
+  "/user",verify_token,
   (req, res, next) => {
 
     if (req.path === "/login") {
@@ -36,17 +36,17 @@ const routers = () => {
 
     return globalLimiter(req, res, next);
   },
-  verify_token,
+  userDomain.verify_mobile_user,
   require("./userRoutes")
 );  //userDomain.verify_mobile_user,  verify_token
-  router.use('/admin',(req, res, next) => {
+  router.use('/admin',verify_token,(req, res, next) => {
 
     if (req.path === "/login") {
       return otpLimiter(req, res, next);
     }
 
     return globalLimiter(req, res, next);
-  },verify_token,require('./adminRoutes'))    //userDomain.verify_mobile_user,  verify_token
+  },require('./adminRoutes'))    //userDomain.verify_mobile_user,  verify_token
   return router;
 };
 
