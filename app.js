@@ -38,7 +38,7 @@ require('dotenv').config();
 
 console.log = () => {};
 
-//  console.error = () =>{};
+console.error = () =>{};
 app.set("trust proxy", 1);
 
 app.use(cookieParser());
