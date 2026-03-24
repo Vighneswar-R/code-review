@@ -36,7 +36,7 @@ const {payment_cron} = require('./domain/schedulers');
 
 require('dotenv').config();
 
-//  console.log = () => {};
+console.log = () => {};
 
 //  console.error = () =>{};
 app.set("trust proxy", 1);
