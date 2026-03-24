@@ -109,16 +109,11 @@ const issue_login_token = (id,role,employee_id) =>{
         // });
 
 
-    const token = jwt.sign(
-      {
-          id: id,
-          role: role,
-          employee_id:employee_id,
-          iat: Math.floor(Date.now() / 1000),
-        },
-      process.env.JWT_SECRET,
-      { expiresIn: Number(process.env.TEMP_TOKEN_EXPIRES_SEC || 300) }
-    );
+const token = jwt.sign(
+  { id, role, employee_id, iat: Math.floor(Date.now() / 1000) },
+  process.env.JWT_SECRET,
+  { expiresIn: Number(process.env.TEMP_TOKEN_EXPIRES_SEC || 300) }
+);
     return token
     }
 
