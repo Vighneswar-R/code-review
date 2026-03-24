@@ -108,7 +108,7 @@ const issue_login_token = (id,role,employee_id) =>{
 
         // });
 
-
+    const MAX_SESSION_SECONDS = 8 * 60 * 60; // 8hours
     const configured = Number(process.env.SESSION_TOKEN_EXPIRES_SEC) || 3600;
     const expiresIn = Math.min(configured, MAX_SESSION_SECONDS);
 
